@@ -11,13 +11,16 @@ android {
     namespace 'com.example.instachat'
     compileSdk 33
 
+    def apikeyPropertiesFile = rootProject.file("api-keys.properties")
+    def apikeyProperties = new Properties()
+    apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
     defaultConfig {
         applicationId "com.example.instachat"
         minSdk 24
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -25,6 +28,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug{
+            buildConfigField("String", "ImageKey", apikeyProperties['ImageKey'])
+
         }
     }
     compileOptions {
