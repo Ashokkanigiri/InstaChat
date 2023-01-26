@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id("com.google.dagger.hilt.android")
     id("androidx.navigation.safeargs.kotlin")
+    id 'com.google.gms.google-services'
 }
 
 android {
@@ -50,6 +51,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     implementation platform('com.google.firebase:firebase-bom:31.2.0')
+    implementation 'com.google.firebase:firebase-firestore-ktx'
 
     //hilt deps
     implementation("com.google.dagger:hilt-android:2.44")
@@ -70,3 +72,4 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 }
+
