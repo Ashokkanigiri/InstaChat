@@ -33,33 +33,8 @@ class MainActivityViewModel @Inject constructor(val restApiRepository: RestApiRe
                 }
             }
         }
-        getAllPosts()
     }
 
-    fun getAllPosts(){
-        val db = Firebase.firestore
-        db.collection("posts").addSnapshotListener { value, error ->
-            val hp = value?.documents?.map { it.data }
 
-            for(dc in value!!.documentChanges){
-                when(dc.type){
-                     DocumentChange.Type.ADDED ->{
-                         Log.d("added", "DATA : ${value?.documents}")
-                    }
-                    DocumentChange.Type.MODIFIED ->{
-                        Log.d("added", "DATA : ${value?.documents}")
-
-                    }
-                    DocumentChange.Type.REMOVED ->{
-                        Log.d("removed", "DATA : ${value?.documents}")
-
-                    }
-
-                }
-            }
-
-        }
-
-    }
 
 }
