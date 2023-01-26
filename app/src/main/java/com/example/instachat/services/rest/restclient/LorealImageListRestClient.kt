@@ -7,7 +7,7 @@ import retrofit2.http.Query
 interface LorealImageListRestClient {
 
     @GET("list")
-    suspend fun getAllImages(@Query("page") page: Int = 1, @Query("limit") limit: Int = 100) : LorealImagesListModel
+    suspend fun getAllImages(@Query("page") page: Int = 1, @Query("limit") limit: Int = 100, @Query("blur") blur: Int = 2) : LorealImagesListModel
 
     @GET("list")
     suspend fun getAllImagesv1() : LorealImagesListModel

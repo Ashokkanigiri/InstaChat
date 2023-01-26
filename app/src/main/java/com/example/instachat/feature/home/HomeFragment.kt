@@ -7,9 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -32,6 +35,13 @@ class HomeFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel.getAllPosts()
+
+        binding.swipeLayout.setOnRefreshListener {
+            lifecycleScope.launch(Dispatchers.IO) {
+                viewModel.injectPostsToFirebase()
+            }
+            binding.swipeLayout.isRefreshing = false
+        }
     }
 
 
