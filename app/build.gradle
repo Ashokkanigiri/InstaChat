@@ -27,11 +27,11 @@ android {
     buildTypes {
         release {
             minifyEnabled false
+            buildConfigField("String", "RANDOM_IMAGE_API_KEY", apikeyProperties['RANDOM_IMAGE_API_KEY'])
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug{
-            buildConfigField("String", "ImageKey", apikeyProperties['ImageKey'])
-
+            buildConfigField("String", "RANDOM_IMAGE_API_KEY", apikeyProperties['RANDOM_IMAGE_API_KEY'])
         }
     }
     compileOptions {
