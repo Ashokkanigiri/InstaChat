@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "575064511964",
+    "project_id": "instachat-b64d1",
+    "storage_bucket": "instachat-b64d1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:575064511964:android:c3022a34d0d881d2642b19",
+        "android_client_info": {
+          "package_name": "com.example.instachat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "575064511964-ilcdra2s48n9fki6u21asaib9ipt2lcl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZnbcF1qKqOgUNf1_ckCyKOceNaiRpGIg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "575064511964-ilcdra2s48n9fki6u21asaib9ipt2lcl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
