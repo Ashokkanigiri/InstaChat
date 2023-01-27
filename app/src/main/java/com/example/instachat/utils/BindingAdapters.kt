@@ -19,10 +19,8 @@ fun ImageView.loadImageWithGlide( imageUrl: String){
 
 @BindingAdapter("loadCircularImageWithGlide")
 fun ImageView.loadCircularImageWithGlide( imageUrl: String){
-    val glideUrl = GlideUrl("https://api.api-ninjas.com/v1/randomimage?category=people", LazyHeaders.Builder()
-        .addHeader("X-Api-Key", BuildConfig.RANDOM_IMAGE_API_KEY).build() )
 
-    Glide.with(this).load(glideUrl)
+    Glide.with(this).load(imageUrl)
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .apply(RequestOptions.circleCropTransform())
         .into(this)
