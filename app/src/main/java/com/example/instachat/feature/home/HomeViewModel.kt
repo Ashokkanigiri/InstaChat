@@ -22,6 +22,13 @@ class HomeViewModel @Inject constructor(val restApiRepository: RestApiRepository
 
     val adapter =  HomeDataAdapter()
 
+    fun injectDatabases(){
+        injectPostsToFirebase()
+        injectUsersToFirebase()
+        injectCommentsToFirebase()
+        getAllPosts()
+    }
+
     fun injectPostsToFirebase() {
         viewModelScope.launch (Dispatchers.IO){
             val imageListResponse = restApiRepository.lorealImageListRestClient.getAllImages()
@@ -34,7 +41,26 @@ class HomeViewModel @Inject constructor(val restApiRepository: RestApiRepository
                 }
             }
         }
-        getAllPosts()
+    }
+
+    fun injectUsersToFirebase() {
+        viewModelScope.launch (Dispatchers.IO){
+            val usersList = restApiRepository.dummyJsonRestClient.getAllUsers().users
+
+            usersList.forEach {
+                FirebaseDataInjector.injectUsersToFirebase(it)
+            }
+        }
+    }
+
+    fun injectCommentsToFirebase() {
+        viewModelScope.launch (Dispatchers.IO){
+            val commentsList = restApiRepository.dummyJsonRestClient.getAllComments().comments
+            commentsList.forEach {
+                FirebaseDataInjector.injectCommentsToFirebase(it)
+            }
+
+        }
     }
 
     fun getAllPosts(){
