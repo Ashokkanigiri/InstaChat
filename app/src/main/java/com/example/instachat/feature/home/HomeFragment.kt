@@ -34,8 +34,7 @@ class HomeFragment : Fragment() {
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel.getAllPosts()
-
+//        viewModel.injectPostsToFirebase()
 //        binding.swipeLayout.setOnRefreshListener {
 //            lifecycleScope.launch(Dispatchers.IO) {
 //                viewModel.injectPostsToFirebase()

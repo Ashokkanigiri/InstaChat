@@ -25,7 +25,7 @@ class HomeViewModel @Inject constructor(val restApiRepository: RestApiRepository
     fun injectPostsToFirebase() {
         viewModelScope.launch (Dispatchers.IO){
             val imageListResponse = restApiRepository.lorealImageListRestClient.getAllImages()
-            val postsList = restApiRepository.jsonPlaceHolderApiClient.getAllPosts()
+            val postsList = restApiRepository.dummyJsonRestClient.getAllPosts().posts
 
             postsList.forEach { post ->
                 post.postImageUrl = imageListResponse.get(post.id - 1).download_url

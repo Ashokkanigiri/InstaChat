@@ -1,7 +1,6 @@
 package com.example.instachat.services.rest
 
 import com.example.instachat.services.rest.restclient.DummyJsonRestClient
-import com.example.instachat.services.rest.restclient.JsonPlaceHolderApiClient
 import com.example.instachat.services.rest.restclient.LorealImageListRestClient
 import dagger.Module
 import dagger.Provides
@@ -26,16 +25,6 @@ object RestModule {
             .build()
     }
 
-    @Named("json_placeholder_retrofit_instance")
-    @Provides
-    @Singleton
-    fun providesJsonPlaceholderRetrofitInstance(): Retrofit{
-        return Retrofit.Builder()
-            .baseUrl(BaseUrlConstants.JSON_PLACEHOLDER_BASE_RUL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
-
     @Named("loreal_retrofit_instance")
     @Provides
     @Singleton
@@ -44,12 +33,6 @@ object RestModule {
             .baseUrl(BaseUrlConstants.LOREAL_IMAGES_LIST_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-    }
-
-    @Provides
-    @Singleton
-    fun providesJsonPlaceholderApiClient(@Named("json_placeholder_retrofit_instance") retrofit: Retrofit) : JsonPlaceHolderApiClient {
-        return retrofit.create(JsonPlaceHolderApiClient::class.java)
     }
 
     @Provides
