@@ -36,12 +36,12 @@ class HomeFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel.getAllPosts()
 
-        binding.swipeLayout.setOnRefreshListener {
-            lifecycleScope.launch(Dispatchers.IO) {
-                viewModel.injectPostsToFirebase()
-            }
-            binding.swipeLayout.isRefreshing = false
-        }
+//        binding.swipeLayout.setOnRefreshListener {
+//            lifecycleScope.launch(Dispatchers.IO) {
+//                viewModel.injectPostsToFirebase()
+//            }
+//            binding.swipeLayout.isRefreshing = false
+//        }
     }
 
 
