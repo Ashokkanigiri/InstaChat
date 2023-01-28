@@ -29,6 +29,7 @@ class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseReposito
     FirebaseDataListener {
 
     val adapter = HomeDataAdapter()
+    val usersAdapter = HomeUsersAdapter()
 
     fun injectDatabases() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -38,20 +39,20 @@ class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseReposito
 
     fun getAllDataFromFirebase() {
         firebaseRepository.getAllPostsFromFirebase(this)
-        firebaseRepository.getAllCommentsFromFirebase(this)
+//        firebaseRepository.getAllCommentsFromFirebase(this)
         firebaseRepository.getAllUsersFromFirebase(this)
     }
 
 
     override fun getAllPosts(posts: List<PostModelItem>) {
         adapter.submitList(posts)
-
     }
 
     override fun getAllComments(comments: List<Comment>) {
     }
 
     override fun getAllUsers(users: List<User>) {
+        usersAdapter.submitList(users)
     }
 
     override fun onCleared() {

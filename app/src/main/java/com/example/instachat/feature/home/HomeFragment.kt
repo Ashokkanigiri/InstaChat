@@ -35,10 +35,8 @@ class HomeFragment : Fragment() {
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
+        viewModel.getAllDataFromFirebase()
 
-        binding.imageView4.setOnClickListener {
-            viewModel.getAllDataFromFirebase()
-        }
 
     }
 
