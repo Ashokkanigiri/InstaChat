@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseReposito
      * all the home screen data need to be refreshed here
      */
     fun getAllDataFromFirebase() {
-        firebaseRepository.getUserPosts(2, this)
+        firebaseRepository.getUserPosts(10, this)
 //        firebaseRepository.getAllPostsFromFirebase(this)
 //        firebaseRepository.getAllCommentsFromFirebase(this)
         firebaseRepository.getAllUsersFromFirebase(this)
