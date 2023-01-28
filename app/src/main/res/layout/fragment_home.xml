@@ -24,7 +24,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_users"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="100dp"
                 android:adapter="@{viewModel.usersAdapter}"
                 tools:listitem="@layout/item_home_user_adapter"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -39,7 +39,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:adapter="@{viewModel.adapter}"
-                tools:listitem="@layout/item_home_user_adapter"
+                tools:listitem="@layout/item_home_fragment"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
