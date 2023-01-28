@@ -25,6 +25,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setupBottomNavigation()
+
+        setSupportActionBar(binding.toolbar)
     }
 
     private fun setupBottomNavigation() {
