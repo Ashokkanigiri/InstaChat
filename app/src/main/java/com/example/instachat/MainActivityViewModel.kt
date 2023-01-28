@@ -21,20 +21,5 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(val restApiRepository: RestApiRepository) :
     ViewModel() {
 
-    fun injectPostsToFirebase() {
-        viewModelScope.launch (Dispatchers.IO){
-            val imageListResponse = restApiRepository.lorealImageListRestClient.getAllImages()
-            val postsList = restApiRepository.jsonPlaceHolderApiClient.getAllPosts()
-
-            postsList.forEach { post ->
-                post.postImageUrl = imageListResponse.get(post.id - 1).download_url
-                viewModelScope.launch(Dispatchers.IO) {
-                    FirebaseDataInjector.injectPostsToFirebase(post)
-                }
-            }
-        }
-    }
-
-
 
 }

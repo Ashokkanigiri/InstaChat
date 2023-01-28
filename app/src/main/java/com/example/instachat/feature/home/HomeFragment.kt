@@ -1,15 +1,19 @@
 package com.example.instachat.feature.home
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -31,7 +35,14 @@ class HomeFragment : Fragment() {
 
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        viewModel.getAllPosts()
+        viewModel.getAllDataFromFirebase()
+
+        binding.swipeLayout.setOnRefreshListener {
+            viewModel.getAllDataFromFirebase()
+            binding.swipeLayout.isRefreshing = false
+        }
+
+
     }
 
 
