@@ -8,4 +8,6 @@ interface FirebaseDataListener {
     fun getAllPosts(posts: List<PostModelItem>)
     fun getAllComments(comments: List<Comment>)
     fun getAllUsers(users: List<User>)
+
+    fun getDisplayablePosts(posts: List<PostModelItem>)
 }

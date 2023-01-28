@@ -1,5 +1,6 @@
 package com.example.instachat.services.firebase
 
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
@@ -136,5 +137,19 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
         }
     }
 
+    fun getUserPosts(userId: Int, listener: FirebaseDataListener){
+        val db = Firebase.firestore
+
+        db.collection("posts").whereLessThanOrEqualTo("userId", userId).addSnapshotListener { value, error ->
+
+            val dd = value?.documents?.map { it.data }?.map { it ->
+                Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
+            }
+            dd?.let {
+                listener.getDisplayablePosts(dd)
+            }
+
+        }
+    }
 
 }

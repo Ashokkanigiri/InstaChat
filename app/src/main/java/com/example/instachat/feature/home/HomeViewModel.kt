@@ -28,33 +28,65 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseRepository) : ViewModel(),
     FirebaseDataListener {
 
-    val adapter = HomeDataAdapter()
+    val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter()
 
+    /**
+     * This method injects all the data from API into Firebase
+     *
+     * Need to be used with care
+     */
     fun injectDatabases() {
         viewModelScope.launch(Dispatchers.IO) {
             firebaseRepository.injectDatabasesToFirebase()
         }
     }
 
+    /**
+     * Called when swipe to refresh happened,
+     *
+     * all the home screen data need to be refreshed here
+     */
     fun getAllDataFromFirebase() {
-        firebaseRepository.getAllPostsFromFirebase(this)
+        firebaseRepository.getUserPosts(2, this)
+//        firebaseRepository.getAllPostsFromFirebase(this)
 //        firebaseRepository.getAllCommentsFromFirebase(this)
         firebaseRepository.getAllUsersFromFirebase(this)
     }
 
-
+    /**
+     * Get All posts in Database
+     */
     override fun getAllPosts(posts: List<PostModelItem>) {
-        adapter.submitList(posts)
+
     }
 
+    /**
+     * Get all comments in Database
+     */
     override fun getAllComments(comments: List<Comment>) {
     }
 
+    /**
+     * Get List Of All the users in Database
+     *
+     * TODO: Should be replaced with followed users
+     */
     override fun getAllUsers(users: List<User>) {
         usersAdapter.submitList(users)
     }
 
+    /**
+     * Posts Displayable in home screen
+     */
+    override fun getDisplayablePosts(posts: List<PostModelItem>) {
+        adapter.submitList(posts)
+    }
+
+    /**
+     * All the listeners need to be cleared in this method
+     *
+     */
     override fun onCleared() {
         firebaseRepository.getAllPostsFromFirebase(null)
         firebaseRepository.getAllCommentsFromFirebase(null)

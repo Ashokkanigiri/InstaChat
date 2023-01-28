@@ -18,13 +18,10 @@ fun ImageView.loadImageWithGlide( imageUrl: String){
 }
 
 @BindingAdapter("loadCircularImageWithGlide")
-fun ImageView.loadCircularImageWithGlide( imageUrl: String){
+fun ImageView.loadCircularImageWithGlide( imageUrl: String?){
 
     Glide.with(this).load(imageUrl)
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .apply(RequestOptions.circleCropTransform())
-
         .into(this)
-
-
 }
