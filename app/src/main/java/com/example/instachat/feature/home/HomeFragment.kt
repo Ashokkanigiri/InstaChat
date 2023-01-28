@@ -37,6 +37,11 @@ class HomeFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel.getAllDataFromFirebase()
 
+        binding.swipeLayout.setOnRefreshListener {
+            viewModel.getAllDataFromFirebase()
+            binding.swipeLayout.isRefreshing = false
+        }
+
 
     }
 
