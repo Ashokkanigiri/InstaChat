@@ -1,6 +1,7 @@
 package com.example.instachat.feature.home
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -35,13 +36,10 @@ class HomeFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
 
-        viewModel.injectDatabases()
-//        binding.swipeLayout.setOnRefreshListener {
-//            lifecycleScope.launch(Dispatchers.IO) {
-//                viewModel.injectPostsToFirebase()
-//            }
-//            binding.swipeLayout.isRefreshing = false
-//        }
+        binding.imageView4.setOnClickListener {
+            viewModel.getAllDataFromFirebase()
+        }
+
     }
 
 
