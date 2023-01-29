@@ -1,6 +1,8 @@
 package com.example.instachat.services.firebase
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
@@ -10,6 +12,7 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -17,7 +20,10 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepository) {
+class FirebaseRepository @Inject constructor(
+    val restApiRepository: RestApiRepository,
+    @ApplicationContext val context: Context
+) {
 
 
     suspend fun injectDatabasesToFirebase() {
@@ -54,16 +60,16 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
         }
     }
 
-    fun getAllPostsFromFirebase(firebaseDataListener: FirebaseDataListener?){
+    fun getAllPostsFromFirebase(firebaseDataListener: FirebaseDataListener?) {
         val db = Firebase.firestore
-         db.collection("posts").addSnapshotListener { value, error ->
+        db.collection("posts").addSnapshotListener { value, error ->
 
-             val dd = value?.documents?.map { it.data }?.map { it ->
-                 Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
-             }
-             dd?.let {
-                 firebaseDataListener?.getAllPosts(dd)
-             }
+            val dd = value?.documents?.map { it.data }?.map { it ->
+                Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
+            }
+            dd?.let {
+                firebaseDataListener?.getAllPosts(dd)
+            }
 
             for (dc in value!!.documentChanges) {
                 when (dc.type) {
@@ -82,7 +88,7 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
         }
     }
 
-    fun getAllCommentsFromFirebase(firebaseDataListener: FirebaseDataListener?){
+    fun getAllCommentsFromFirebase(firebaseDataListener: FirebaseDataListener?) {
         val db = Firebase.firestore
         db.collection("comments").addSnapshotListener { value, error ->
 
@@ -109,7 +115,7 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
         }
     }
 
-    fun getAllUsersFromFirebase(firebaseDataListener: FirebaseDataListener?){
+    fun getAllUsersFromFirebase(firebaseDataListener: FirebaseDataListener?) {
         val db = Firebase.firestore
         db.collection("users").addSnapshotListener { value, error ->
 
@@ -137,37 +143,39 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
         }
     }
 
-    fun getUserPosts(userId: Int, listener: FirebaseDataListener){
+    fun getUserPosts(userId: Int, listener: FirebaseDataListener) {
         val db = Firebase.firestore
 
-        db.collection("posts").whereLessThanOrEqualTo("userId", userId).addSnapshotListener { value, error ->
+        db.collection("posts").whereLessThanOrEqualTo("userId", userId)
+            .addSnapshotListener { value, error ->
 
-            val dd = value?.documents?.map { it.data }?.map { it ->
-                Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
-            }
-            dd?.let {
-                listener.getDisplayablePosts(dd)
-            }
+                val dd = value?.documents?.map { it.data }?.map { it ->
+                    Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
+                }
+                dd?.let {
+                    listener.getDisplayablePosts(dd)
+                }
 
-        }
+            }
     }
 
-    fun getAllCommentsForPost(postId: Int, listener: FirebaseCommentsListener?){
+    fun getAllCommentsForPost(postId: Int, listener: FirebaseCommentsListener?) {
         val db = Firebase.firestore
 
-        db.collection("comments").whereEqualTo("postId", postId).addSnapshotListener { value, error ->
+        db.collection("comments").whereEqualTo("postId", postId)
+            .addSnapshotListener { value, error ->
 
-            val commentsList = value?.documents?.map { it.data }?.map {
-                Gson().fromJson(Gson().toJson(it), Comment::class.java)
-            }
+                val commentsList = value?.documents?.map { it.data }?.map {
+                    Gson().fromJson(Gson().toJson(it), Comment::class.java)
+                }
 
-            commentsList?.let {
-                listener?.getAllCommentsFromFirebase(commentsList)
+                commentsList?.let {
+                    listener?.getAllCommentsFromFirebase(commentsList)
+                }
             }
-        }
     }
 
-    fun getPost(postId: Int, listener: FirebasePostListener?){
+    fun getPost(postId: Int, listener: FirebasePostListener?) {
         val db = Firebase.firestore
 
         db.collection("posts").whereEqualTo("id", postId).addSnapshotListener { value, error ->
@@ -176,7 +184,7 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
                 Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
             }
 
-            post?.let {post ->
+            post?.let { post ->
                 post.isNotEmpty()?.let {
                     listener?.getPost(post.get(0))
                 }
@@ -184,7 +192,7 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
         }
     }
 
-    fun getUser(userId: Int, listener: FirebaseUserListener?){
+    fun getUser(userId: Int, listener: FirebaseUserListener?, getLoggedInUser: Boolean) {
         val db = Firebase.firestore
 
         db.collection("users").whereEqualTo("id", userId).addSnapshotListener { value, error ->
@@ -193,12 +201,24 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
                 Gson().fromJson(Gson().toJson(it), User::class.java)
             }
 
-            user?.let {user ->
+            user?.let { user ->
                 user.isNotEmpty()?.let {
-                    listener?.getUser(user.get(0))
+                    listener?.getUser(user.get(0), getLoggedInUser)
                 }
             }
         }
+    }
+
+    fun postComment(comment: Comment) {
+        val db = Firebase.firestore
+
+        db.collection("comments").add(comment)
+            .addOnFailureListener {
+                Toast.makeText(context, "Error While adding comment", Toast.LENGTH_SHORT).show()
+            }.addOnSuccessListener {
+                Toast.makeText(context, "Comment sucessfully added", Toast.LENGTH_SHORT).show()
+
+            }
     }
 
 

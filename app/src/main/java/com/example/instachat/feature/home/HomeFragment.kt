@@ -36,6 +36,16 @@ class HomeFragment : Fragment() {
         handleViewModelEvents()
     }
 
+    /**
+     * TODO: NEED TO REFRESH ONLY THE MODIFIED ITEM
+     *
+     * this is used to refresh the page after entering the comment
+     */
+    override fun onResume() {
+        super.onResume()
+        viewModel.getAllDataFromFirebase()
+    }
+
     private fun handleViewModelEvents() {
         viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer {postId->
             postId?.let {
