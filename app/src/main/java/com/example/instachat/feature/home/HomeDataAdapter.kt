@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instachat.R
 import com.example.instachat.databinding.ItemHomeFragmentBinding
-import com.example.instachat.databinding.LayoutPostCommentsBinding
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
@@ -36,7 +35,6 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
         binding.post = postModelItem
         getUser(postModelItem.userId)
         getFirstCommentForPost(postModelItem.id)
-        getTotoalCommentsCount(postModelItem.id)
 
         binding.commentSection.etAddComment.setOnClickListener {
             viewModel.onCommentsTextClicked(postModelItem.id, adapterPosition)
@@ -61,20 +59,14 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
             val comment = value?.documents?.map { it.data }?.map {it ->
                 Gson().fromJson(Gson().toJson(it), Comment::class.java)
             }
+            binding.commentSection.totalCommentsCount = comment?.count()
+
             if(comment?.isNotEmpty()?:false){
                 binding.commentSection.comment = comment?.get(0)
             }else{
                 binding.commentSection.comment = null
             }
 
-        }
-    }
-
-    fun getTotoalCommentsCount(postId: Int){
-        val db = Firebase.firestore
-        db.collection("comments").whereEqualTo("postId", postId).count().get(AggregateSource.SERVER).addOnCompleteListener {
-            val totalCommentsCount = it.result.count
-            binding.commentSection.totalCommentsCount = totalCommentsCount.toInt()
         }
     }
 }
