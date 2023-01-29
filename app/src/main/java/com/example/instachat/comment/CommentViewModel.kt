@@ -56,13 +56,14 @@ class CommentViewModel
      * This trigerrs on click of postComment in xml
      */
     fun postComment() {
-        var comment = Comment(
+        var newComment = Comment(
             body = comment.value ?: "",
             id = Random().nextInt(),
             postId = currentPost.value?.id ?: 0,
             user = CommentUser(id = currentUser?.id ?: 0, username = currentUser?.username ?: "")
         )
-        firebaseRepository.postComment(comment)
+        firebaseRepository.postComment(newComment)
+        comment.value = ""
     }
 
     override fun getAllCommentsFromFirebase(comments: List<Comment>) {
