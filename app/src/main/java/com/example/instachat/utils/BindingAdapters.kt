@@ -2,6 +2,7 @@ package com.example.instachat.utils
 
 import android.graphics.Bitmap
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.graphics.drawable.RoundedBitmapDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.databinding.BindingAdapter
@@ -24,4 +25,11 @@ fun ImageView.loadCircularImageWithGlide( imageUrl: String?){
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .apply(RequestOptions.circleCropTransform())
         .into(this)
+}
+
+@BindingAdapter("displayHashTags")
+fun TextView.displayHashTags(hashTags: List<String>?){
+    hashTags?.forEach {
+        this.text =  "${this.text}, #${it}"
+    }
 }

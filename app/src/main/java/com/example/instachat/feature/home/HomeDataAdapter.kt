@@ -23,7 +23,7 @@ class HomeDataAdapter constructor(val viewModel: HomeViewModel): ListAdapter<Pos
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeDataViewHolder {
         val inflator = LayoutInflater.from(parent.context)
         val binding = DataBindingUtil.inflate<ItemHomeFragmentBinding>(inflator, R.layout.item_home_fragment, parent, false)
-        return HomeDataViewHolder(binding)
+        return HomeDataViewHolder(binding, viewModel)
     }
 
     override fun onBindViewHolder(holder: HomeDataViewHolder, position: Int) {
@@ -31,12 +31,16 @@ class HomeDataAdapter constructor(val viewModel: HomeViewModel): ListAdapter<Pos
     }
 }
 
-class HomeDataViewHolder(val binding: ItemHomeFragmentBinding): RecyclerView.ViewHolder(binding.root){
+class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: HomeViewModel): RecyclerView.ViewHolder(binding.root){
     fun bind(postModelItem: PostModelItem){
         binding.post = postModelItem
         getUser(postModelItem.userId)
         getFirstCommentForPost(postModelItem.id)
         getTotoalCommentsCount(postModelItem.id)
+
+        binding.commentSection.etAddComment.setOnClickListener {
+            viewModel.onCommentsTextClicked(postModelItem.id)
+        }
     }
 
     fun getUser(userId: Int){

@@ -11,6 +11,7 @@ import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RestApiRepository
+import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -30,6 +31,8 @@ class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseReposito
 
     val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter()
+
+    val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
 
     /**
      * This method injects all the data from API into Firebase
@@ -52,6 +55,14 @@ class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseReposito
 //        firebaseRepository.getAllPostsFromFirebase(this)
 //        firebaseRepository.getAllCommentsFromFirebase(this)
         firebaseRepository.getAllUsersFromFirebase(this)
+    }
+
+    /**
+     * This Methos will be trigerred when comments edittext
+     * in post gets clicked
+     */
+    fun onCommentsTextClicked(postId: Int){
+        commentsLayoutClickedEvent.postValue(postId)
     }
 
     /**

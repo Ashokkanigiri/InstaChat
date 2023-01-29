@@ -17,6 +17,9 @@
             app:destination="@id/nav_graph_home"
             app:popUpToSaveState="true"
             app:restoreState="true"/>
+        <action
+            android:id="@+id/action_home_to_commentFragment"
+            app:destination="@id/commentFragment" />
     </fragment>
     <fragment
         android:id="@+id/search"
@@ -47,5 +50,14 @@
     <include app:graph="@navigation/nav_graph_home" />
     <include app:graph="@navigation/nav_graph_search" />
     <include app:graph="@navigation/nav_graph_settings" />
+    <fragment
+        android:id="@+id/commentFragment"
+        android:name="com.example.instachat.comment.CommentFragment"
+        android:label="CommentFragment" >
+        <argument
+            android:name="postId"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
 
 </navigation>

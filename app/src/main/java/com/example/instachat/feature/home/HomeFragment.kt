@@ -7,6 +7,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,6 +33,17 @@ class HomeFragment : Fragment() {
         initFragment()
         loadDataFromViewModel()
         handleSwipeLayout()
+        handleViewModelEvents()
+    }
+
+    private fun handleViewModelEvents() {
+        viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer {postId->
+            postId?.let {
+                findNavController().navigate(
+                    HomeFragmentDirections.actionHomeToCommentFragment(it)
+                )
+            }
+        })
     }
 
     private fun handleSwipeLayout() {

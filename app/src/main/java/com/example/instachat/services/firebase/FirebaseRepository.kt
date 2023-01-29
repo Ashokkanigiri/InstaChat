@@ -152,4 +152,54 @@ class FirebaseRepository @Inject constructor(val restApiRepository: RestApiRepos
         }
     }
 
+    fun getAllCommentsForPost(postId: Int, listener: FirebaseCommentsListener?){
+        val db = Firebase.firestore
+
+        db.collection("comments").whereEqualTo("postId", postId).addSnapshotListener { value, error ->
+
+            val commentsList = value?.documents?.map { it.data }?.map {
+                Gson().fromJson(Gson().toJson(it), Comment::class.java)
+            }
+
+            commentsList?.let {
+                listener?.getAllCommentsFromFirebase(commentsList)
+            }
+        }
+    }
+
+    fun getPost(postId: Int, listener: FirebasePostListener?){
+        val db = Firebase.firestore
+
+        db.collection("posts").whereEqualTo("id", postId).addSnapshotListener { value, error ->
+
+            val post = value?.documents?.map { it.data }?.map {
+                Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
+            }
+
+            post?.let {post ->
+                post.isNotEmpty()?.let {
+                    listener?.getPost(post.get(0))
+                }
+            }
+        }
+    }
+
+    fun getUser(userId: Int, listener: FirebaseUserListener?){
+        val db = Firebase.firestore
+
+        db.collection("users").whereEqualTo("id", userId).addSnapshotListener { value, error ->
+
+            val user = value?.documents?.map { it.data }?.map {
+                Gson().fromJson(Gson().toJson(it), User::class.java)
+            }
+
+            user?.let {user ->
+                user.isNotEmpty()?.let {
+                    listener?.getUser(user.get(0))
+                }
+            }
+        }
+    }
+
+
 }
