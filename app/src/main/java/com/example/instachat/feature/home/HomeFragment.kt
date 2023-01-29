@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,9 +32,17 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initFragment()
+        setUpActionBar()
         loadDataFromViewModel()
         handleSwipeLayout()
         handleViewModelEvents()
+    }
+
+    private fun setUpActionBar() {
+        (activity as BaseActivity).setupActionBar(binding.actionBar)
+        (activity as BaseActivity).setBackButtonVisibility(false)
+        (activity as BaseActivity).setSearchIconvisibility(true)
+        (activity as BaseActivity).setMessageIconvisibility(true)
     }
 
     /**

@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentCommentBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,7 +36,14 @@ class CommentFragment : Fragment() {
         arguments?.getInt("postId")?.let {
             viewModel.loadCommentsForPost(it)
         }
+        setUpActionBar()
+    }
 
+    private fun setUpActionBar() {
+        (activity as BaseActivity).setupActionBar(binding.actionBar)
+        (activity as BaseActivity).setBackButtonVisibility(true)
+        (activity as BaseActivity).setSearchIconvisibility(false)
+        (activity as BaseActivity).setMessageIconvisibility(false)
     }
 
 }
