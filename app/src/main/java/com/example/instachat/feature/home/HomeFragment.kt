@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -36,6 +37,12 @@ class HomeFragment : Fragment() {
         loadDataFromViewModel()
         handleSwipeLayout()
         handleViewModelEvents()
+
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")?.observe(viewLifecycleOwner) { shouldRefreshPost ->
+            if(shouldRefreshPost){
+                viewModel.refreshPost()
+            }
+        }
     }
 
     private fun setUpActionBar() {
@@ -43,16 +50,6 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).setBackButtonVisibility(false)
         (activity as BaseActivity).setSearchIconvisibility(true)
         (activity as BaseActivity).setMessageIconvisibility(true)
-    }
-
-    /**
-     * TODO: NEED TO REFRESH ONLY THE MODIFIED ITEM
-     *
-     * this is used to refresh the page after entering the comment
-     */
-    override fun onResume() {
-        super.onResume()
-        viewModel.getAllDataFromFirebase()
     }
 
     private fun handleViewModelEvents() {

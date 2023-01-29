@@ -28,6 +28,7 @@ class CommentViewModel
     var postedUser = MutableLiveData<User>()
     var currentUser: User? = null
     var comment = MutableLiveData<String>()
+    var isCommentUpdated = false
 
     private val adapter = CommentAdapter()
 
@@ -64,6 +65,7 @@ class CommentViewModel
         )
         firebaseRepository.postComment(newComment)
         comment.value = ""
+        isCommentUpdated = true
     }
 
     override fun getAllCommentsFromFirebase(comments: List<Comment>) {

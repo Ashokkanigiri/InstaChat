@@ -38,6 +38,7 @@ class CommentFragment : Fragment() {
             viewModel.loadCommentsForPost(it)
         }
         setUpActionBar()
+
     }
 
     private fun setUpActionBar() {
@@ -47,6 +48,9 @@ class CommentFragment : Fragment() {
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as BaseActivity).handleBackPressed(object : View.OnClickListener{
             override fun onClick(p0: View?) {
+                if(viewModel.isCommentUpdated){
+                    findNavController().previousBackStackEntry?.savedStateHandle?.set("Should_refresh_post", true)
+                }
                 findNavController().popBackStack()
             }
 

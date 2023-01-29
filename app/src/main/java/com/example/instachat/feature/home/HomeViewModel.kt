@@ -31,6 +31,7 @@ class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseReposito
 
     val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter()
+    var currentClickedPostAdapterPosition = 0
 
     val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
 
@@ -61,8 +62,13 @@ class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseReposito
      * This Methos will be trigerred when comments edittext
      * in post gets clicked
      */
-    fun onCommentsTextClicked(postId: Int){
+    fun onCommentsTextClicked(postId: Int, adapterPosition: Int){
+        currentClickedPostAdapterPosition = adapterPosition
         commentsLayoutClickedEvent.postValue(postId)
+    }
+
+    fun refreshPost(){
+        adapter.notifyItemChanged(currentClickedPostAdapterPosition)
     }
 
     /**

@@ -39,7 +39,7 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
         getTotoalCommentsCount(postModelItem.id)
 
         binding.commentSection.etAddComment.setOnClickListener {
-            viewModel.onCommentsTextClicked(postModelItem.id)
+            viewModel.onCommentsTextClicked(postModelItem.id, adapterPosition)
         }
     }
 
