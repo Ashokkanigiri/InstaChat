@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentCommentBinding
@@ -44,6 +45,15 @@ class CommentFragment : Fragment() {
         (activity as BaseActivity).setBackButtonVisibility(true)
         (activity as BaseActivity).setSearchIconvisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
+        (activity as BaseActivity).handleBackPressed(object : View.OnClickListener{
+            override fun onClick(p0: View?) {
+                findNavController().popBackStack()
+            }
+
+        })
+
+
     }
+
 
 }

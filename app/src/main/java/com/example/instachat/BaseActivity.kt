@@ -43,4 +43,8 @@ open class BaseActivity : AppCompatActivity(){
             toolBarBinding.ivMessages.visibility = View.GONE
         }
     }
+
+    fun handleBackPressed(backButtonClickListener: View.OnClickListener){
+        toolBarBinding.ivBack.setOnClickListener(backButtonClickListener)
+    }
 }
