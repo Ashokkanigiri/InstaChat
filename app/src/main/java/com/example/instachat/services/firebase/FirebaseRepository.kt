@@ -8,6 +8,7 @@ import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RestApiRepository
+import com.example.instachat.services.repository.RoomRepository
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -22,6 +23,7 @@ import javax.inject.Inject
 
 class FirebaseRepository @Inject constructor(
     val restApiRepository: RestApiRepository,
+    val roomRepository: RoomRepository,
     @ApplicationContext val context: Context
 ) {
 
@@ -40,13 +42,14 @@ class FirebaseRepository @Inject constructor(
 
         postsList.forEach { post ->
             post.postImageUrl = imageListResponse.get(post.id - 1).download_url
+            roomRepository.postsDao.insertPost(post)
             FirebaseDataInjector.injectPostsToFirebase(post)
         }
     }
 
     private suspend fun injectUsersToFirebase() {
         val usersList = restApiRepository.dummyJsonRestClient.getAllUsers().users
-
+        roomRepository.usersDao.insertUsers(usersList)
         usersList.forEach {
             FirebaseDataInjector.injectUsersToFirebase(it)
         }
@@ -55,6 +58,8 @@ class FirebaseRepository @Inject constructor(
     private suspend fun injectCommentsToFirebase() {
 
         val commentsList = restApiRepository.dummyJsonRestClient.getAllComments().comments
+
+        roomRepository.commentsDao.insertComments(commentsList)
         commentsList.forEach {
             FirebaseDataInjector.injectCommentsToFirebase(it)
         }

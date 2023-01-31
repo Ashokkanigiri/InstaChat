@@ -11,6 +11,7 @@ import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RestApiRepository
+import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ktx.firestore
@@ -26,7 +27,10 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseRepository) : ViewModel(),
+class HomeViewModel @Inject constructor(
+    val firebaseRepository: FirebaseRepository,
+    val roomRepository: RoomRepository
+) : ViewModel(),
     FirebaseDataListener {
 
     val adapter = HomeDataAdapter(this)
@@ -62,12 +66,12 @@ class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseReposito
      * This Methos will be trigerred when comments edittext
      * in post gets clicked
      */
-    fun onCommentsTextClicked(postId: Int, adapterPosition: Int){
+    fun onCommentsTextClicked(postId: Int, adapterPosition: Int) {
         currentClickedPostAdapterPosition = adapterPosition
         commentsLayoutClickedEvent.postValue(postId)
     }
 
-    fun refreshPost(){
+    fun refreshPost() {
         adapter.notifyItemChanged(currentClickedPostAdapterPosition)
     }
 

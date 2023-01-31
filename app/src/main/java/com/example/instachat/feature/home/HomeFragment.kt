@@ -34,6 +34,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initFragment()
         setUpActionBar()
+        viewModel.injectDatabases()
         loadDataFromViewModel()
         handleSwipeLayout()
         handleViewModelEvents()
