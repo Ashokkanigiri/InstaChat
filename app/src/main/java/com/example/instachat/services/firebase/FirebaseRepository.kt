@@ -42,14 +42,12 @@ class FirebaseRepository @Inject constructor(
 
         postsList.forEach { post ->
             post.postImageUrl = imageListResponse.get(post.id - 1).download_url
-            roomRepository.postsDao.insertPost(post)
             FirebaseDataInjector.injectPostsToFirebase(post)
         }
     }
 
     private suspend fun injectUsersToFirebase() {
         val usersList = restApiRepository.dummyJsonRestClient.getAllUsers().users
-        roomRepository.usersDao.insertUsers(usersList)
         usersList.forEach {
             FirebaseDataInjector.injectUsersToFirebase(it)
         }
@@ -59,7 +57,6 @@ class FirebaseRepository @Inject constructor(
 
         val commentsList = restApiRepository.dummyJsonRestClient.getAllComments().comments
 
-        roomRepository.commentsDao.insertComments(commentsList)
         commentsList.forEach {
             FirebaseDataInjector.injectCommentsToFirebase(it)
         }

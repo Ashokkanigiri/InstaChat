@@ -2,14 +2,16 @@ package com.example.instachat.services.room.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.Query
 import com.example.instachat.services.models.PostModelItem
 
 @Dao
-interface PostsDao {
+interface PostsDao : BaseDao<PostModelItem> {
 
-    @Insert
-    suspend fun insertPosts(posts: List<PostModelItem>)
+    @Query("SELECT * FROM posts")
+   suspend fun getAllPosts(): List<PostModelItem>
 
-    @Insert
-    suspend fun insertPost(posts: PostModelItem)
+   @Query("SELECT * FROM posts WHERE id =:postId")
+   suspend fun getPost(postId: Int): PostModelItem
+
 }

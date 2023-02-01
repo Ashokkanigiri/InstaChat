@@ -8,4 +8,5 @@ class RestApiRepository @Inject constructor(
     val lorealImageListRestClient: LorealImageListRestClient,
     val dummyJsonRestClient: DummyJsonRestClient
 ) {
+
 }
