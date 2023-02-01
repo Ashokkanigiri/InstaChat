@@ -70,8 +70,6 @@ data class Bank(
 
 data class Company(
     @ColumnInfo("company_address")
-    @TypeConverters(UserAddressTypeConverter::class)
-    val address: Address,
     val department: String,
     val name: String,
     val title: String

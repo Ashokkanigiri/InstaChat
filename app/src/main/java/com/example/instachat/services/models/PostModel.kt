@@ -1,9 +1,6 @@
 package com.example.instachat.services.models
 
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
+import androidx.room.*
 import com.example.instachat.services.room.typeconverters.TagsTypeConverter
 import com.google.gson.annotations.SerializedName
 

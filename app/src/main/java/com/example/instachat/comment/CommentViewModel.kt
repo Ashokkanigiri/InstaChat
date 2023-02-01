@@ -1,28 +1,25 @@
 package com.example.instachat.comment
 
-import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.instachat.services.firebase.FirebaseCommentsListener
-import com.example.instachat.services.firebase.FirebasePostListener
+import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.firebase.FirebaseRepository
-import com.example.instachat.services.firebase.FirebaseUserListener
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.CommentUser
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.repository.RoomRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Random
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class CommentViewModel
-@Inject constructor(val firebaseRepository: FirebaseRepository) :
-    ViewModel(),
-    FirebaseCommentsListener,
-    FirebasePostListener,
-    FirebaseUserListener {
+@Inject constructor(val roomRepository: RoomRepository) :
+    ViewModel() {
 
     var currentPost = MutableLiveData<PostModelItem>()
     var postedUser = MutableLiveData<User>()
@@ -33,7 +30,11 @@ class CommentViewModel
     private val adapter = CommentAdapter()
 
     init {
-        firebaseRepository.getUser(29, this, true)
+        viewModelScope.launch {
+            roomRepository.usersDao.getUser(29).apply {
+                currentUser = this
+            }
+        }
     }
 
     fun setAdapter(): CommentAdapter {
@@ -41,16 +42,31 @@ class CommentViewModel
     }
 
     fun loadCommentsForPost(postId: Int) {
-        firebaseRepository.getAllCommentsForPost(postId, this)
+        viewModelScope.launch(Dispatchers.IO) {
+            roomRepository.commentsDao.getAllCommentsForPost(postId).apply {
+                withContext(Dispatchers.Main){
+                    adapter.submitList(this@apply)
+                }
+            }
+        }
         loadCurrentPost(postId)
     }
 
     private fun loadCurrentPost(postId: Int) {
-        firebaseRepository.getPost(postId, this)
+        viewModelScope.launch {
+            roomRepository.postsDao.getPost(postId).apply {
+                loadCurrentPostedUser(this.userId)
+                currentPost.postValue(this)
+            }
+        }
     }
 
     private fun loadCurrentPostedUser(userId: Int) {
-        firebaseRepository.getUser(userId, this, false)
+        viewModelScope.launch {
+            roomRepository.usersDao.getUser(userId).apply {
+                postedUser.postValue(this)
+            }
+        }
     }
 
     /**
@@ -63,27 +79,13 @@ class CommentViewModel
             postId = currentPost.value?.id ?: 0,
             user = CommentUser(id = currentUser?.id ?: 0, username = currentUser?.username ?: "")
         )
-        firebaseRepository.postComment(newComment)
+        viewModelScope.launch {
+            roomRepository.commentsDao.insert(newComment)
+        }
         comment.value = ""
         isCommentUpdated = true
     }
 
-    override fun getAllCommentsFromFirebase(comments: List<Comment>) {
-        adapter.submitList(comments)
-    }
-
-    override fun getPost(post: PostModelItem) {
-        loadCurrentPostedUser(post.userId)
-        currentPost.postValue(post)
-    }
-
-    override fun getUser(user: User, isLoggedInUser: Boolean) {
-        if (!isLoggedInUser) {
-            postedUser.postValue(user)
-        } else {
-            currentUser = user
-        }
-    }
 
     override fun onCleared() {
         super.onCleared()

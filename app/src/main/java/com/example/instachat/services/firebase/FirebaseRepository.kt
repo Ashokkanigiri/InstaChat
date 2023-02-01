@@ -19,133 +19,88 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FirebaseRepository @Inject constructor(
-    val restApiRepository: RestApiRepository,
-    val roomRepository: RoomRepository,
-    @ApplicationContext val context: Context
+    @ApplicationContext val context: Context,
+    val roomRepository: RoomRepository
 ) {
 
-
-    suspend fun injectDatabasesToFirebase() {
-        supervisorScope {
-            injectUsersToFirebase()
-            injectPostsToFirebase()
-            injectCommentsToFirebase()
-        }
-    }
-
-    private suspend fun injectPostsToFirebase() {
-        val imageListResponse = restApiRepository.lorealImageListRestClient.getAllImages()
-        val postsList = restApiRepository.dummyJsonRestClient.getAllPosts().posts
-
-        postsList.forEach { post ->
-            post.postImageUrl = imageListResponse.get(post.id - 1).download_url
-            FirebaseDataInjector.injectPostsToFirebase(post)
-        }
-    }
-
-    private suspend fun injectUsersToFirebase() {
-        val usersList = restApiRepository.dummyJsonRestClient.getAllUsers().users
-        usersList.forEach {
-            FirebaseDataInjector.injectUsersToFirebase(it)
-        }
-    }
-
-    private suspend fun injectCommentsToFirebase() {
-
-        val commentsList = restApiRepository.dummyJsonRestClient.getAllComments().comments
-
-        commentsList.forEach {
-            FirebaseDataInjector.injectCommentsToFirebase(it)
-        }
-    }
-
-    fun getAllPostsFromFirebase(firebaseDataListener: FirebaseDataListener?) {
+    fun injectCommentsToFirebase(data: Comment) {
         val db = Firebase.firestore
-        db.collection("posts").addSnapshotListener { value, error ->
-
-            val dd = value?.documents?.map { it.data }?.map { it ->
-                Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
+        db.collection("comments")
+            .document(data.id.toString())
+            .set(data)
+            .addOnCompleteListener {
+                Log.d("wkjbfqa", "OnComplete")
+            }.addOnCanceledListener {
+                Log.d("wkjbfqa", "addOnCanceledListener")
             }
-            dd?.let {
-                firebaseDataListener?.getAllPosts(dd)
-            }
-
-            for (dc in value!!.documentChanges) {
-                when (dc.type) {
-                    DocumentChange.Type.ADDED -> {
-
-                    }
-                    DocumentChange.Type.MODIFIED -> {
-
-                    }
-                    DocumentChange.Type.REMOVED -> {
-
-                    }
-                }
-            }
-
-        }
     }
 
-    fun getAllCommentsFromFirebase(firebaseDataListener: FirebaseDataListener?) {
+
+    fun injectUsersToFirebase(data: User) {
         val db = Firebase.firestore
-        db.collection("comments").addSnapshotListener { value, error ->
-
-            val dd = value?.documents?.map { it.data }?.map { it ->
-                Gson().fromJson(Gson().toJson(it), Comment::class.java)
+        db.collection("users")
+            .document(data.id.toString())
+            .set(data)
+            .addOnCompleteListener {
+                Log.d("wkjbfqa", "OnComplete")
+            }.addOnCanceledListener {
+                Log.d("wkjbfqa", "addOnCanceledListener")
             }
-            dd?.let {
-                firebaseDataListener?.getAllComments(dd)
-            }
-            for (dc in value!!.documentChanges) {
-                when (dc.type) {
-                    DocumentChange.Type.ADDED -> {
-
-                    }
-                    DocumentChange.Type.MODIFIED -> {
-
-                    }
-                    DocumentChange.Type.REMOVED -> {
-
-                    }
-                }
-            }
-
-        }
     }
 
-    fun getAllUsersFromFirebase(firebaseDataListener: FirebaseDataListener?) {
+    fun injectPostsToFirebase(data: PostModelItem) {
         val db = Firebase.firestore
-        db.collection("users").addSnapshotListener { value, error ->
-
-            val dd = value?.documents?.map { it.data }?.map { it ->
-                Gson().fromJson(Gson().toJson(it), User::class.java)
+        db.collection("posts")
+            .document(data.id.toString())
+            .set(data)
+            .addOnCompleteListener {
+                Log.d("wkjbfqa", "OnComplete")
+            }.addOnCanceledListener {
+                Log.d("wkjbfqa", "addOnCanceledListener")
             }
-            dd?.let {
-                firebaseDataListener?.getAllUsers(dd)
+    }
+
+    suspend fun getAllPostsFromFirebase() {
+        val db = Firebase.firestore
+        db.collection("posts").get().await().documents.let {it->
+            val data = it?.map { it.data }?.map {data->
+                Gson().fromJson(Gson().toJson(data), PostModelItem::class.java)
             }
-
-            for (dc in value!!.documentChanges) {
-                when (dc.type) {
-                    DocumentChange.Type.ADDED -> {
-
-                    }
-                    DocumentChange.Type.MODIFIED -> {
-
-                    }
-                    DocumentChange.Type.REMOVED -> {
-
-                    }
-                }
+            data?.let {
+                roomRepository.postsDao.insert(it)
             }
-
         }
     }
 
-    fun getUserPosts(userId: Int, listener: FirebaseDataListener) {
+    suspend fun getAllCommentsFromFirebase() {
+        val db = Firebase.firestore
+        db.collection("comments").get().await().documents.let {it->
+            val data = it?.map { it.data }?.map {data->
+                Gson().fromJson(Gson().toJson(data), Comment::class.java)
+            }
+            data?.let {
+                roomRepository.commentsDao.insert(it)
+            }
+        }
+    }
+
+    suspend fun getAllUsersFromFirebase() {
+        val db = Firebase.firestore
+        db.collection("users").get().await().documents.let {it->
+            val data = it?.map { it.data }?.map {data->
+                Gson().fromJson(Gson().toJson(data), User::class.java)
+            }
+            data?.let {
+                roomRepository.usersDao.insert(it)
+            }
+        }
+    }
+
+    fun getUserPosts(userId: Int) {
         val db = Firebase.firestore
 
         db.collection("posts").whereLessThanOrEqualTo("userId", userId)
@@ -155,13 +110,12 @@ class FirebaseRepository @Inject constructor(
                     Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
                 }
                 dd?.let {
-                    listener.getDisplayablePosts(dd)
                 }
 
             }
     }
 
-    fun getAllCommentsForPost(postId: Int, listener: FirebaseCommentsListener?) {
+    fun getAllCommentsForPost(postId: Int) {
         val db = Firebase.firestore
 
         db.collection("comments").whereEqualTo("postId", postId)
@@ -172,12 +126,11 @@ class FirebaseRepository @Inject constructor(
                 }
 
                 commentsList?.let {
-                    listener?.getAllCommentsFromFirebase(commentsList)
                 }
             }
     }
 
-    fun getPost(postId: Int, listener: FirebasePostListener?) {
+    fun getPost(postId: Int) {
         val db = Firebase.firestore
 
         db.collection("posts").whereEqualTo("id", postId).addSnapshotListener { value, error ->
@@ -188,13 +141,12 @@ class FirebaseRepository @Inject constructor(
 
             post?.let { post ->
                 post.isNotEmpty()?.let {
-                    listener?.getPost(post.get(0))
                 }
             }
         }
     }
 
-    fun getUser(userId: Int, listener: FirebaseUserListener?, getLoggedInUser: Boolean) {
+    fun getUser(userId: Int, getLoggedInUser: Boolean) {
         val db = Firebase.firestore
 
         db.collection("users").whereEqualTo("id", userId).addSnapshotListener { value, error ->
@@ -205,7 +157,6 @@ class FirebaseRepository @Inject constructor(
 
             user?.let { user ->
                 user.isNotEmpty()?.let {
-                    listener?.getUser(user.get(0), getLoggedInUser)
                 }
             }
         }
@@ -222,6 +173,5 @@ class FirebaseRepository @Inject constructor(
 
             }
     }
-
 
 }

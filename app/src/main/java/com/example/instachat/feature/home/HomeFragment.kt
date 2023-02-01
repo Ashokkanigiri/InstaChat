@@ -13,7 +13,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
+import com.example.instachat.services.repository.RoomRepository
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -21,6 +23,9 @@ class HomeFragment : Fragment() {
     lateinit var binding: FragmentHomeBinding
 
     private val viewModel: HomeViewModel by viewModels()
+
+    @Inject
+    lateinit var roomRepository: RoomRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,10 +39,8 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initFragment()
         setUpActionBar()
-        viewModel.injectDatabases()
-        loadDataFromViewModel()
         handleSwipeLayout()
-        handleViewModelEvents()
+        observeViewModel()
 
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")?.observe(viewLifecycleOwner) { shouldRefreshPost ->
             if(shouldRefreshPost){
@@ -53,7 +56,7 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).setMessageIconvisibility(true)
     }
 
-    private fun handleViewModelEvents() {
+    private fun observeViewModel() {
         viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer {postId->
             postId?.let {
                 findNavController().navigate(
@@ -61,17 +64,31 @@ class HomeFragment : Fragment() {
                 )
             }
         })
+
+        roomRepository.postsDao.getAllPosts().observe(viewLifecycleOwner, Observer {
+            viewModel.adapter.submitList(it)
+        })
+
+        roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
+            viewModel.usersAdapter.submitList(it)
+        })
     }
 
     private fun handleSwipeLayout() {
         binding.swipeLayout.setOnRefreshListener {
-            viewModel.getAllDataFromFirebase()
+            loadDataFromViewModel()
+            roomRepository.postsDao.getAllPosts().observe(viewLifecycleOwner, Observer {
+                viewModel.adapter.submitList(it)
+            })
+            roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
+                viewModel.usersAdapter.submitList(it)
+            })
             binding.swipeLayout.isRefreshing = false
         }
     }
 
     private fun loadDataFromViewModel() {
-        viewModel.getAllDataFromFirebase()
+        viewModel.injectDatabases()
     }
 
     private fun initFragment() {
