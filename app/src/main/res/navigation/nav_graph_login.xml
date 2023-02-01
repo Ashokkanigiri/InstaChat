@@ -9,5 +9,18 @@
         android:id="@+id/loginFragment"
         tools:layout="@layout/fragment_login"
         android:name="com.example.instachat.feature.login.LoginFragment"
-        android:label="LoginFragment" />
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_loginFragment_to_registrationFragment"
+            app:destination="@id/registrationFragment"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right"/>
+    </fragment>
+    <fragment
+        android:id="@+id/registrationFragment"
+        tools:layout="@layout/fragment_registration"
+        android:name="com.example.instachat.feature.register.RegistrationFragment"
+        android:label="RegistrationFragment" />
 </navigation>
