@@ -41,7 +41,6 @@ class HomeFragment : Fragment() {
         setUpActionBar()
         handleSwipeLayout()
         observeViewModel()
-
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")?.observe(viewLifecycleOwner) { shouldRefreshPost ->
             if(shouldRefreshPost){
                 viewModel.refreshPost()

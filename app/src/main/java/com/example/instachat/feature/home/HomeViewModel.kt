@@ -32,7 +32,7 @@ class HomeViewModel @Inject constructor(
 
     fun loadViewModel(){
         viewModelScope.launch(Dispatchers.IO) {
-
+            restApiRepository.injectAllDataBases()
         }
     }
 

@@ -6,25 +6,20 @@ import com.example.instachat.services.room.typeconverters.CompanyTypeConverter
 import com.example.instachat.services.room.typeconverters.HairTypeConverter
 import com.example.instachat.services.room.typeconverters.UserAddressTypeConverter
 
-data class UsersModel(
+data class UsersRestModel(
     val limit: Int,
     val skip: Int,
     val total: Int,
-    val users: List<User>
+    val users: List<UserRest>
 )
 
-@Entity("users")
-data class User(
+data class UserRest(
 
-    @ColumnInfo("userAddress")
-    @TypeConverters(UserAddressTypeConverter::class)
     val address: Address,
     val age: Int,
-    @TypeConverters(BankTypeConverter::class)
     val bank: Bank,
     val birthDate: String,
     val bloodGroup: String,
-    @TypeConverters(CompanyTypeConverter::class)
     val company: Company,
     val domain: String,
     val ein: String,
@@ -32,11 +27,9 @@ data class User(
     val eyeColor: String,
     val firstName: String,
     val gender: String,
-    @TypeConverters(HairTypeConverter::class)
     val hair: Hair,
     val height: Int,
-    @PrimaryKey
-    val id: String,
+    val id: Int,
     val image: String,
     val ip: String,
     val lastName: String,
@@ -51,7 +44,7 @@ data class User(
     val weight: Double
 )
 
-data class Address(
+data class AddressRest(
     val address: String,
     val city: String,
     @Embedded
@@ -60,7 +53,7 @@ data class Address(
     val state: String
 )
 
-data class Bank(
+data class BankRest(
     val cardExpire: String,
     val cardNumber: String,
     val cardType: String,
@@ -68,19 +61,19 @@ data class Bank(
     val iban: String
 )
 
-data class Company(
+data class CompanyRest(
     @ColumnInfo("company_address")
     val department: String,
     val name: String,
     val title: String
 )
 
-data class Hair(
+data class HairRest(
     val color: String,
     val type: String
 )
 
-data class Coordinates(
+data class CoordinatesRest(
     val lat: Double,
     val lng: Double
 )

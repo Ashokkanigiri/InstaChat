@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.models.dummyjson.UserRest
 import com.example.instachat.services.repository.RestApiRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.google.firebase.firestore.DocumentChange

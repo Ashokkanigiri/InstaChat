@@ -23,10 +23,9 @@ class LoginActivity : AppCompatActivity() {
         if (auth.currentUser != null) {
             startActivity(Intent(this, MainActivity::class.java))
             this.finish()
-
-            binding = DataBindingUtil.setContentView(this, R.layout.layout_login_activity)
-
-
         }
+
+        binding = DataBindingUtil.setContentView(this, R.layout.layout_login_activity)
+
     }
 }

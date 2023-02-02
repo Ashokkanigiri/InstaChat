@@ -77,7 +77,7 @@ class CommentViewModel
             body = comment.value ?: "",
             id = Random().nextInt(),
             postId = currentPost.value?.id ?: 0,
-            user = CommentUser(id = currentUser?.id ?: 0, username = currentUser?.username ?: "")
+            user = CommentUser(id = currentUser?.id ?: "", username = currentUser?.username ?: "")
         )
         viewModelScope.launch {
             roomRepository.commentsDao.insert(newComment)

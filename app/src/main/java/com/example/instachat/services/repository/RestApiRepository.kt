@@ -1,9 +1,16 @@
 package com.example.instachat.services.repository
 
 import com.example.instachat.services.firebase.FirebaseRepository
+import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.models.dummyjson.UserRest
+import com.example.instachat.services.models.dummyjson.UsersModel
 import com.example.instachat.services.rest.restclient.DummyJsonRestClient
 import com.example.instachat.services.rest.restclient.LorealImageListRestClient
+import com.google.common.reflect.TypeToken
+import com.google.gson.Gson
+import com.squareup.moshi.Json
 import kotlinx.coroutines.supervisorScope
+import java.lang.reflect.Type
 import javax.inject.Inject
 
 class RestApiRepository @Inject constructor(
@@ -13,7 +20,7 @@ class RestApiRepository @Inject constructor(
     val firebaseRepository: FirebaseRepository
 ) {
 
-    suspend fun injectAllDataBases(){
+    suspend fun injectAllDataBases() {
         supervisorScope {
             injectAllPosts()
             injectUsers()
@@ -32,10 +39,17 @@ class RestApiRepository @Inject constructor(
     }
 
     private suspend fun injectUsers() {
-        val usersList = dummyJsonRestClient.getAllUsers().users
+        val restUsersList = dummyJsonRestClient.getAllUsers().users
+        val dd : List<UserRest> = restUsersList.apply {
+            this.map { it -> it.id.toString() }
+        }
+        val json = Gson().toJson(dd)
+        val listType: Type = object : TypeToken<ArrayList<User?>?>() {}.getType()
+        val usersList : List<User> = (Gson().fromJson(json, listType ) )
+
         usersList.forEach {
             firebaseRepository.injectUsersToFirebase(it)
-            roomRepository.usersDao.insert(usersList)
+            roomRepository.usersDao.insert(it)
         }
     }
 

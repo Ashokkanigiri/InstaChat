@@ -24,6 +24,6 @@ data class Comment(
 
 data class CommentUser(
     @ColumnInfo("commentedUsersId")
-    val id: Int,
+    val id: String,
     val username: String
 )

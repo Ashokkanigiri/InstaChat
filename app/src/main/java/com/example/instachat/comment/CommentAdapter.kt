@@ -34,7 +34,7 @@ class CommentViewHolder(val binding: LayoutItemCommentBinding): RecyclerView.Vie
         getUser(comment.user.id)
     }
 
-    fun getUser(userId: Int){
+    fun getUser(userId: String){
         val db = Firebase.firestore
         db.collection("users").whereEqualTo("id", userId).addSnapshotListener { value, error ->
             val user = value?.documents?.map { it.data }?.map {it ->
@@ -43,7 +43,7 @@ class CommentViewHolder(val binding: LayoutItemCommentBinding): RecyclerView.Vie
             if(user?.isNotEmpty()?:false){
                 binding.user = user?.get(0)
             }else{
-                getUser(10)
+                getUser("10")
             }
         }
     }
