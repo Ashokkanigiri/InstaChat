@@ -25,6 +25,11 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         setupBottomNavigation()
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewModel.roomRepositorySync.commentsDao
     }
 
     private fun setupBottomNavigation() {

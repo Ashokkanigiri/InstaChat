@@ -17,5 +17,8 @@ interface PostsDaoSync : BaseDaoSync<PostModelItemSync> {
    @Query("SELECT * FROM posts_sync where userId =:userId")
    fun getPostsForUser(userId: String): LiveData<List<PostModelItemSync>>
 
+   @Query("DELETE FROM posts_sync WHERE id =:postId")
+   fun deletePost(postId: Int)
+
 
 }
