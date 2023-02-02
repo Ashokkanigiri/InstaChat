@@ -22,13 +22,10 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    lateinit var binding: FragmentHomeBinding
-
-    private val viewModel: HomeViewModel by viewModels()
-
     @Inject
     lateinit var roomRepository: RoomRepository
-
+    lateinit var binding: FragmentHomeBinding
+    private val viewModel: HomeViewModel by viewModels()
     val auth = Firebase.auth
 
     override fun onCreateView(
@@ -45,19 +42,20 @@ class HomeFragment : Fragment() {
         setUpActionBar()
         handleSwipeLayout()
         observeViewModel()
-        viewModel.loadViewModel()
+        handleRefreshPost()
+    }
+
+    private fun initFragment() {
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
+    }
+
+    private fun handleRefreshPost() {
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")?.observe(viewLifecycleOwner) { shouldRefreshPost ->
             if(shouldRefreshPost){
                 viewModel.refreshPost()
             }
         }
-    }
-
-    private fun setUpActionBar() {
-        (activity as BaseActivity).setupActionBar(binding.actionBar)
-        (activity as BaseActivity).setBackButtonVisibility(false)
-        (activity as BaseActivity).setSearchIconvisibility(true)
-        (activity as BaseActivity).setMessageIconvisibility(true)
     }
 
     private fun observeViewModel() {
@@ -82,12 +80,6 @@ class HomeFragment : Fragment() {
     private fun handleSwipeLayout() {
         binding.swipeLayout.setOnRefreshListener {
             loadDataFromViewModel()
-            roomRepository.postsDao.getPostsForUser(auth.currentUser?.uid?:"1").observe(viewLifecycleOwner, Observer {
-                viewModel.adapter.submitList(it)
-            })
-            roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
-                viewModel.usersAdapter.submitList(it)
-            })
             binding.swipeLayout.isRefreshing = false
         }
     }
@@ -96,9 +88,11 @@ class HomeFragment : Fragment() {
         viewModel.injectDatabases()
     }
 
-    private fun initFragment() {
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
+    private fun setUpActionBar() {
+        (activity as BaseActivity).setupActionBar(binding.actionBar)
+        (activity as BaseActivity).setBackButtonVisibility(false)
+        (activity as BaseActivity).setSearchIconvisibility(true)
+        (activity as BaseActivity).setMessageIconvisibility(true)
     }
 
 }
