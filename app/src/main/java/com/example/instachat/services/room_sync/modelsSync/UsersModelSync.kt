@@ -1,31 +1,36 @@
-package com.example.instachat.services.models.dummyjson
+package com.example.instachat.services.room_sync.modelsSync
 
 import androidx.room.*
+import com.example.instachat.services.room.typeconverters.BankTypeConverter
+import com.example.instachat.services.room.typeconverters.CompanyTypeConverter
+import com.example.instachat.services.room.typeconverters.UserAddressTypeConverter
+import com.example.instachat.services.room_sync.typeconvertersSync.HairSyncTypeConverterSync
 
-data class UsersRestModel(
-    val limit: Int,
-    val skip: Int,
-    val total: Int,
-    val users: List<UserRest>
-)
 
-data class UserRest(
+@Entity("users_sync")
+data class UserSync(
 
-    val address: Address,
+    @ColumnInfo("userAddress")
+    @TypeConverters(UserAddressTypeConverter::class)
+    val address: AddressSync,
     val age: Int,
-    val bank: Bank,
+    @TypeConverters(BankTypeConverter::class)
+    val bank: BankSync,
     val birthDate: String,
     val bloodGroup: String,
-    val company: Company,
+    @TypeConverters(CompanyTypeConverter::class)
+    val company: CompanySync,
     val domain: String,
     val ein: String,
     val email: String,
     val eyeColor: String,
     val firstName: String,
     val gender: String,
-    val hair: Hair,
+    @TypeConverters(HairSyncTypeConverterSync::class)
+    val hair: HairSync,
     val height: Int,
-    val id: Int,
+    @PrimaryKey
+    val id: String,
     val image: String,
     val ip: String,
     val lastName: String,
@@ -40,16 +45,16 @@ data class UserRest(
     val weight: Double
 )
 
-data class AddressRest(
+data class AddressSync(
     val address: String,
     val city: String,
     @Embedded
-    val coordinates: Coordinates,
+    val coordinates: CoordinatesSync,
     val postalCode: String,
     val state: String
 )
 
-data class BankRest(
+data class BankSync(
     val cardExpire: String,
     val cardNumber: String,
     val cardType: String,
@@ -57,19 +62,19 @@ data class BankRest(
     val iban: String
 )
 
-data class CompanyRest(
+data class CompanySync(
     @ColumnInfo("company_address")
     val department: String,
     val name: String,
     val title: String
 )
 
-data class HairRest(
+data class HairSync(
     val color: String,
     val type: String
 )
 
-data class CoordinatesRest(
+data class CoordinatesSync(
     val lat: Double,
     val lng: Double
 )

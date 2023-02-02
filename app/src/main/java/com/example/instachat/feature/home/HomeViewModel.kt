@@ -8,6 +8,7 @@ import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RestApiRepository
 import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.RoomRepositorySync
 import com.example.instachat.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     val firebaseRepository: FirebaseRepository,
     val roomRepository: RoomRepository,
-    val restApiRepository: RestApiRepository
+    val restApiRepository: RestApiRepository,
+    val roomRepositorySync: RoomRepositorySync
 ) : ViewModel() {
 
     val adapter = HomeDataAdapter(this)

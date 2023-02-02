@@ -1,18 +1,12 @@
-package com.example.instachat.services.models
+package com.example.instachat.services.room_sync.modelsSync
 
 import androidx.room.*
 import com.example.instachat.services.room_sync.typeconvertersSync.TagsTypeConverterSync
 import com.google.gson.annotations.SerializedName
 
-data class PostModel(
-    val limit: Int,
-    val posts: List<PostModelItem>,
-    val skip: Int,
-    val total: Int
-)
 
-@Entity("posts")
-data class PostModelItem(
+@Entity("posts_sync")
+data class PostModelItemSync(
     @SerializedName("body")
     val body: String,
 

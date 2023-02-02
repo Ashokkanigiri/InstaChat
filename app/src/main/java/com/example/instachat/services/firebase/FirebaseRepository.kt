@@ -10,6 +10,9 @@ import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.models.dummyjson.UserRest
 import com.example.instachat.services.repository.RestApiRepository
 import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.RoomRepositorySync
+import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
+import com.example.instachat.utils.ObjectConverterUtil
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -25,7 +28,8 @@ import javax.inject.Inject
 
 class FirebaseRepository @Inject constructor(
     @ApplicationContext val context: Context,
-    val roomRepository: RoomRepository
+    val roomRepository: RoomRepository,
+    val roomRepositorySync: RoomRepositorySync
 ) {
 
     fun injectCommentsToFirebase(data: Comment) {
