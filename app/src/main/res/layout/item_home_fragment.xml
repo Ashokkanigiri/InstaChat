@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
 
@@ -17,6 +18,10 @@
         <variable
             name="comment"
             type="com.example.instachat.services.models.dummyjson.Comment" />
+
+        <variable
+            name="viewModel"
+            type="com.example.instachat.feature.home.HomeViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -94,6 +99,8 @@
             <include
                 android:id="@+id/bottom_tools"
                 layout="@layout/layout_post_bottom_tools"
+                bind:postModelItem="@{post}"
+                bind:viewModel="@{viewModel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

@@ -2,25 +2,28 @@ package com.example.instachat.utils
 
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.services.models.dummyjson.UserRest
-import com.example.instachat.services.models.rest.PostModelItemRest
+import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
+import com.example.instachat.services.room_sync.modelsSync.UserSync
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import java.lang.reflect.Type
 
-class ObjectConverterUtil<T, J> {
+object ObjectConverterUtil {
 
-    fun convertToObject(fromObject: T) : J{
-        val json = Gson().toJson(fromObject)
-        val listType: Type = object : TypeToken<J?>() {}.getType()
-        val postModelItems: J = (Gson().fromJson(json, listType))
-        return postModelItems
+    fun convertUserToUserSync(user: User): UserSync{
+        return Gson().fromJson(Gson().toJson(user), UserSync::class.java)
     }
 
-    fun convertListToObject(fromObjectList: List<T>) : List<J>{
-        val json = Gson().toJson(fromObjectList)
-        val listType: Type = object : TypeToken<ArrayList<J?>?>() {}.getType()
-        val usersList: List<J> = (Gson().fromJson(json, listType))
-        return usersList
+    fun convertUserSyncToUser(userSync: UserSync): User{
+        return Gson().fromJson(Gson().toJson(userSync), User::class.java)
     }
+
+    fun convertPostToPostSync(post: PostModelItem): PostModelItemSync{
+        return Gson().fromJson(Gson().toJson(post), PostModelItemSync::class.java)
+    }
+
+    fun convertPostSyncToPost(postModelItemSync: PostModelItemSync): PostModelItem{
+        return Gson().fromJson(Gson().toJson(postModelItemSync), PostModelItem::class.java)
+    }
+
 }

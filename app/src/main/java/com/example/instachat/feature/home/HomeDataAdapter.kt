@@ -48,6 +48,7 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
 
     fun bind(postModelItem: PostModelItem) {
         binding.post = postModelItem
+        binding.viewModel = viewModel
         getUser(postModelItem.userId)
         getFirstCommentForPost(postModelItem.id)
 

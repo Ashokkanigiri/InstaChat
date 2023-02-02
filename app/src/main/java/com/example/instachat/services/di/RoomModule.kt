@@ -19,7 +19,8 @@ object RoomModule {
 
     @Provides
     fun providesRoomInstance(@ApplicationContext context: Context): InstaChatDb {
-        return Room.databaseBuilder(context, InstaChatDb::class.java, "insta-chat-db").build()
+        return Room.databaseBuilder(context, InstaChatDb::class.java, "insta-chat-db")
+            .allowMainThreadQueries().build()
     }
 
     @Provides

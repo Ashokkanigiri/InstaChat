@@ -7,7 +7,9 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.example.instachat.services.models.PostModelItem
+import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
+import com.example.instachat.services.room_sync.modelsSync.UserSync
 import com.example.instachat.services.sync.SyncTables
 import com.example.instachat.services.workManager.SyncWorker
 import com.example.instachat.utils.ObjectConverterUtil
@@ -22,17 +24,15 @@ class SyncRepository @Inject constructor(
     @ApplicationContext val context: Context
 ) {
 
-    fun launchWorker(syncTables: SyncTables, itemId: Int) {
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.UNMETERED)
-            .build()
+    fun launchWorker(syncTables: SyncTables, itemId: Int =0, userId: String="") {
 
         val data = Data.Builder()
         data.putInt("ID", itemId)
         data.putString("SYNC_TABLE", syncTables.name)
+        data.putString("USER_ID", userId)
 
         val workRequest =
-            OneTimeWorkRequest.Builder(SyncWorker::class.java).setConstraints(constraints)
+            OneTimeWorkRequest.Builder(SyncWorker::class.java)
                 .setInputData(data.build()).build()
 
         WorkManager.getInstance(context).enqueue(workRequest)
@@ -40,10 +40,15 @@ class SyncRepository @Inject constructor(
 
     suspend fun updateLikeForPost(post: PostModelItem) {
         roomRepositorySync.postsDao.insert(
-            ObjectConverterUtil<PostModelItem, PostModelItemSync>().convertToObject(
-                post
-            )
+            ObjectConverterUtil.convertPostToPostSync(post)
         )
         launchWorker(SyncTables.POSTS, post.id)
+    }
+
+    suspend fun updateUser(user: User) {
+        roomRepositorySync.usersDao.insert(
+            ObjectConverterUtil.convertUserToUserSync(user)
+        )
+        launchWorker(SyncTables.USERS, userId = user.id)
     }
 }

@@ -33,5 +33,7 @@ data class PostModelItem(
     @SerializedName("userId")
     val userId: String,
 
-    var postImageUrl: String = ""
+    var postImageUrl: String = "",
+
+    var likesCount: Int? = 0
 )

@@ -14,5 +14,8 @@ interface UsersDaoSync : BaseDaoSync<UserSync> {
     @Query("SELECT * FROM users_sync WHERE id =:userId ")
     suspend fun getUser(userId: String): UserSync
 
+    @Query("DELETE FROM users_sync WHERE id =:userId")
+    fun deleteUser(userId: String)
+
 
 }

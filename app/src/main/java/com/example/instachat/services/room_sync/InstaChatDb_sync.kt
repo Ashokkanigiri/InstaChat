@@ -17,7 +17,8 @@ import com.example.instachat.services.room_sync.typeconvertersSync.*
         TagsTypeConverterSync::class,
         BankSyncTypeConverterSync::class,
         CompanyTypeConverterSync::class,
-        HairSyncTypeConverterSync::class]
+        HairSyncTypeConverterSync::class,
+        LikesTypeConverterSync::class]
 )
 @Database(
     entities = [UserSync::class, PostModelItemSync::class, CommentSync::class],

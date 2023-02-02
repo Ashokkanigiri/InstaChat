@@ -23,7 +23,8 @@ object RoomModule_Sync {
 
     @Provides
     fun providesRoomInstance(@ApplicationContext context: Context): InstaChatDb_sync {
-        return Room.databaseBuilder(context, InstaChatDb_sync::class.java, "insta-chat-db-sync").build()
+        return Room.databaseBuilder(context, InstaChatDb_sync::class.java, "insta-chat-db-sync")
+            .allowMainThreadQueries().build()
     }
 
     @Provides

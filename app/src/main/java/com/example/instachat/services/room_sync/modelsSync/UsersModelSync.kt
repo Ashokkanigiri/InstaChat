@@ -3,8 +3,10 @@ package com.example.instachat.services.room_sync.modelsSync
 import androidx.room.*
 import com.example.instachat.services.room.typeconverters.BankTypeConverter
 import com.example.instachat.services.room.typeconverters.CompanyTypeConverter
+import com.example.instachat.services.room.typeconverters.LikesTypeConverter
 import com.example.instachat.services.room.typeconverters.UserAddressTypeConverter
 import com.example.instachat.services.room_sync.typeconvertersSync.HairSyncTypeConverterSync
+import com.example.instachat.services.room_sync.typeconvertersSync.LikesTypeConverterSync
 
 
 @Entity("users_sync")
@@ -42,8 +44,14 @@ data class UserSync(
     val university: String,
     val userAgent: String,
     val username: String,
-    val weight: Double
+    val weight: Double,
+
+    @TypeConverters(LikesTypeConverterSync::class)
+    var likedPosts: List<LikedPosts>? = emptyList()
 )
+
+data class LikedPosts(val postId: Int)
+
 
 data class AddressSync(
     val address: String,

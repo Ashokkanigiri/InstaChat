@@ -16,7 +16,8 @@ import com.example.instachat.services.room.typeconverters.*
         TagsTypeConverter::class,
         BankTypeConverter::class,
         CompanyTypeConverter::class,
-        HairTypeConverter::class]
+        HairTypeConverter::class,
+        LikesTypeConverter::class]
 )
 @Database(
     entities = [User::class, PostModelItem::class, Comment::class],
