@@ -50,7 +50,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getPostedUser(userId: Int?, userData: ((User?) -> Unit)) {
+    fun getPostedUser(userId: String?, userData: ((User?) -> Unit)) {
         viewModelScope.launch(Dispatchers.IO) {
             userId?.let {
                 roomRepository.usersDao.getUser(userId)?.let {
@@ -82,7 +82,7 @@ class HomeViewModel @Inject constructor(
         commentsLayoutClickedEvent.postValue(postId)
     }
 
-    fun getUser(userId: Int): User? {
+    fun getUser(userId: String): User? {
         var user: User? = null
         viewModelScope.async {
             user = roomRepository.usersDao.getUser(userId)

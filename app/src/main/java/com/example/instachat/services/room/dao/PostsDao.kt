@@ -16,6 +16,7 @@ interface PostsDao : BaseDao<PostModelItem> {
    suspend fun getPost(postId: Int): PostModelItem
 
    @Query("SELECT * FROM posts where userId =:userId")
-   suspend fun getPostsForUser(userId: Int): List<PostModelItem>
+   fun getPostsForUser(userId: String): LiveData<List<PostModelItem>>
+
 
 }

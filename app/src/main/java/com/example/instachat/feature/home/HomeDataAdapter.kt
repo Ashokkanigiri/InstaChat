@@ -56,7 +56,7 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
         }
     }
 
-    fun getUser(userId: Int?) {
+    fun getUser(userId: String?) {
        viewModel.getPostedUser(userId) {
            it?.let {
                binding.user = it

@@ -31,7 +31,7 @@ data class PostModelItem(
     val title: String,
 
     @SerializedName("userId")
-    val userId: Int,
+    val userId: String,
 
     var postImageUrl: String = ""
 )

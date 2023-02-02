@@ -14,6 +14,8 @@ import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import com.example.instachat.services.repository.RoomRepository
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -26,6 +28,8 @@ class HomeFragment : Fragment() {
 
     @Inject
     lateinit var roomRepository: RoomRepository
+
+    val auth = Firebase.auth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,6 +45,7 @@ class HomeFragment : Fragment() {
         setUpActionBar()
         handleSwipeLayout()
         observeViewModel()
+        viewModel.loadViewModel()
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")?.observe(viewLifecycleOwner) { shouldRefreshPost ->
             if(shouldRefreshPost){
                 viewModel.refreshPost()
@@ -64,7 +69,8 @@ class HomeFragment : Fragment() {
             }
         })
 
-        roomRepository.postsDao.getAllPosts().observe(viewLifecycleOwner, Observer {
+
+        roomRepository.postsDao.getPostsForUser(auth.currentUser?.uid?:"1").observe(viewLifecycleOwner, Observer {
             viewModel.adapter.submitList(it)
         })
 
@@ -76,7 +82,7 @@ class HomeFragment : Fragment() {
     private fun handleSwipeLayout() {
         binding.swipeLayout.setOnRefreshListener {
             loadDataFromViewModel()
-            roomRepository.postsDao.getAllPosts().observe(viewLifecycleOwner, Observer {
+            roomRepository.postsDao.getPostsForUser(auth.currentUser?.uid?:"1").observe(viewLifecycleOwner, Observer {
                 viewModel.adapter.submitList(it)
             })
             roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {

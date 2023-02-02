@@ -13,7 +13,7 @@ interface UsersDao: BaseDao<User> {
     fun getallUsers(): LiveData<List<User>>
 
     @Query("SELECT * FROM users WHERE id =:userId ")
-    suspend fun getUser(userId: Int): User
+    suspend fun getUser(userId: String): User
 
 
 }

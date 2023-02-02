@@ -31,7 +31,7 @@ class CommentViewModel
 
     init {
         viewModelScope.launch {
-            roomRepository.usersDao.getUser(29).apply {
+            roomRepository.usersDao.getUser("29").apply {
                 currentUser = this
             }
         }
@@ -61,7 +61,7 @@ class CommentViewModel
         }
     }
 
-    private fun loadCurrentPostedUser(userId: Int) {
+    private fun loadCurrentPostedUser(userId: String) {
         viewModelScope.launch {
             roomRepository.usersDao.getUser(userId).apply {
                 postedUser.postValue(this)
