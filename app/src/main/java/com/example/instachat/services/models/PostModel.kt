@@ -1,5 +1,7 @@
 package com.example.instachat.services.models
 
+import androidx.room.*
+import com.example.instachat.services.room.typeconverters.TagsTypeConverter
 import com.google.gson.annotations.SerializedName
 
 data class PostModel(
@@ -9,10 +11,12 @@ data class PostModel(
     val total: Int
 )
 
+@Entity("posts")
 data class PostModelItem(
     @SerializedName("body")
     val body: String,
 
+    @PrimaryKey
     @SerializedName("id")
     val id: Int,
 
@@ -20,13 +24,14 @@ data class PostModelItem(
     val reactions: Int,
 
     @SerializedName("tags")
+    @TypeConverters(TagsTypeConverter::class)
     val tags: List<String>,
 
     @SerializedName("title")
     val title: String,
 
     @SerializedName("userId")
-    val userId: Int,
+    val userId: String,
 
     var postImageUrl: String = ""
 )

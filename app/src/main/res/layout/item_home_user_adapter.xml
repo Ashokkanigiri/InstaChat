@@ -16,8 +16,8 @@
         <ImageView
             android:id="@+id/imageView3"
             loadCircularImageWithGlide="@{user.image}"
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:scaleType="fitCenter"
             android:background="@drawable/circular_image_bg"
             app:layout_constraintBottom_toTopOf="@+id/textView3"

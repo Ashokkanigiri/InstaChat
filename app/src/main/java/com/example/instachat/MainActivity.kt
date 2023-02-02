@@ -16,7 +16,7 @@ import com.example.instachat.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : BaseActivity() {
 
     lateinit var binding: ActivityMainBinding
     private val viewModel: MainActivityViewModel by viewModels()

@@ -1,5 +1,11 @@
 package com.example.instachat.services.models.dummyjson
 
+import androidx.room.*
+import com.example.instachat.services.room.typeconverters.BankTypeConverter
+import com.example.instachat.services.room.typeconverters.CompanyTypeConverter
+import com.example.instachat.services.room.typeconverters.HairTypeConverter
+import com.example.instachat.services.room.typeconverters.UserAddressTypeConverter
+
 data class UsersModel(
     val limit: Int,
     val skip: Int,
@@ -7,12 +13,18 @@ data class UsersModel(
     val users: List<User>
 )
 
+@Entity("users")
 data class User(
+
+    @ColumnInfo("userAddress")
+    @TypeConverters(UserAddressTypeConverter::class)
     val address: Address,
     val age: Int,
+    @TypeConverters(BankTypeConverter::class)
     val bank: Bank,
     val birthDate: String,
     val bloodGroup: String,
+    @TypeConverters(CompanyTypeConverter::class)
     val company: Company,
     val domain: String,
     val ein: String,
@@ -20,9 +32,11 @@ data class User(
     val eyeColor: String,
     val firstName: String,
     val gender: String,
+    @TypeConverters(HairTypeConverter::class)
     val hair: Hair,
     val height: Int,
-    val id: Int,
+    @PrimaryKey
+    val id: String,
     val image: String,
     val ip: String,
     val lastName: String,
@@ -40,6 +54,7 @@ data class User(
 data class Address(
     val address: String,
     val city: String,
+    @Embedded
     val coordinates: Coordinates,
     val postalCode: String,
     val state: String
@@ -54,7 +69,7 @@ data class Bank(
 )
 
 data class Company(
-    val address: Address,
+    @ColumnInfo("company_address")
     val department: String,
     val name: String,
     val title: String

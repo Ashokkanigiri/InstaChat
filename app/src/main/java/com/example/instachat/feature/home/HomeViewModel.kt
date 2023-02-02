@@ -1,64 +1,96 @@
 package com.example.instachat.feature.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.instachat.services.firebase.FirebaseDataInjector
-import com.example.instachat.services.firebase.FirebaseDataListener
 import com.example.instachat.services.firebase.FirebaseRepository
-import com.example.instachat.services.models.PostModel
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RestApiRepository
-import com.google.firebase.firestore.DocumentChange
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
+import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor(val firebaseRepository: FirebaseRepository) : ViewModel(),
-    FirebaseDataListener {
+class HomeViewModel @Inject constructor(
+    val firebaseRepository: FirebaseRepository,
+    val roomRepository: RoomRepository,
+    val restApiRepository: RestApiRepository
+) : ViewModel() {
 
-    val adapter = HomeDataAdapter()
+    val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter()
+    var currentClickedPostAdapterPosition = 0
 
-    fun injectDatabases() {
+    val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
+
+    fun loadViewModel(){
         viewModelScope.launch(Dispatchers.IO) {
-            firebaseRepository.injectDatabasesToFirebase()
+            restApiRepository.injectAllDataBases()
         }
     }
 
-    fun getAllDataFromFirebase() {
-        firebaseRepository.getAllPostsFromFirebase(this)
-//        firebaseRepository.getAllCommentsFromFirebase(this)
-        firebaseRepository.getAllUsersFromFirebase(this)
+    /**
+     * This method injects all the data from API into Firebase
+     *
+     * Need to be used with care
+     */
+    fun injectDatabases() {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            firebaseRepository.getAllPostsFromFirebase()
+            firebaseRepository.getAllUsersFromFirebase()
+            firebaseRepository.getAllCommentsFromFirebase()
+        }
     }
 
-
-    override fun getAllPosts(posts: List<PostModelItem>) {
-        adapter.submitList(posts)
+    fun getPostedUser(userId: String?, userData: ((User?) -> Unit)) {
+        viewModelScope.launch(Dispatchers.IO) {
+            userId?.let {
+                roomRepository.usersDao.getUser(userId)?.let {
+                    withContext(Dispatchers.Main) {
+                        userData.invoke(it)
+                    }
+                }
+            }
+        }
     }
 
-    override fun getAllComments(comments: List<Comment>) {
+    fun getFirstCommentForPost(postId: Int, comment: ((Comment) -> Unit)) {
+        viewModelScope.launch(Dispatchers.IO) {
+            roomRepository.commentsDao.getFirstCommentForPost(postId)?.let {
+                withContext(Dispatchers.Main) {
+                    comment.invoke(it)
+                }
+            }
+
+        }
     }
 
-    override fun getAllUsers(users: List<User>) {
-        usersAdapter.submitList(users)
+    /**
+     * This Method will be trigerred when comments edittext
+     * in post gets clicked
+     */
+    fun onCommentsTextClicked(postId: Int, adapterPosition: Int) {
+        currentClickedPostAdapterPosition = adapterPosition
+        commentsLayoutClickedEvent.postValue(postId)
     }
 
-    override fun onCleared() {
-        firebaseRepository.getAllPostsFromFirebase(null)
-        firebaseRepository.getAllCommentsFromFirebase(null)
-        firebaseRepository.getAllUsersFromFirebase(null)
+    fun getUser(userId: String): User? {
+        var user: User? = null
+        viewModelScope.async {
+            user = roomRepository.usersDao.getUser(userId)
+        }
+        return user
     }
 
+    fun refreshPost() {
+        adapter.notifyItemChanged(currentClickedPostAdapterPosition)
+    }
 }
