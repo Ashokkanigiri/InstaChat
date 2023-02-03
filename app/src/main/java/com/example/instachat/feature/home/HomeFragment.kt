@@ -101,20 +101,6 @@ class HomeFragment : Fragment() {
 
     }
 
-    /**
-     *
-     * when(workInfo?.map { it.state }?.map { it.name }?.get(0)){
-    WorkInfo.State.SUCCEEDED.name->{
-    viewModel.adapter.notifyItemChanged(viewModel.currentClickedPostAdapterPosition)
-    }
-    else -> {
-
-    }
-    }
-     *
-     *
-     */
-
     private fun handleSwipeLayout() {
         binding.swipeLayout.setOnRefreshListener {
             loadDataFromViewModel()
