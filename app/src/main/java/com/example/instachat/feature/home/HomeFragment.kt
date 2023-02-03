@@ -40,9 +40,14 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initFragment()
         setUpActionBar()
+        loadViewModel()
         handleSwipeLayout()
         observeViewModel()
         handleRefreshPost()
+    }
+
+    private fun loadViewModel() {
+        viewModel.loadViewModel()
     }
 
     private fun initFragment() {
@@ -66,15 +71,6 @@ class HomeFragment : Fragment() {
                 )
             }
         })
-
-
-        roomRepository.postsDao.getPostsForUser(auth.currentUser?.uid?:"1").observe(viewLifecycleOwner, Observer {
-            viewModel.adapter.submitList(it)
-        })
-
-        roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
-            viewModel.usersAdapter.submitList(it)
-        })
     }
 
     private fun handleSwipeLayout() {
@@ -85,7 +81,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadDataFromViewModel() {
-        viewModel.injectDatabases()
+        viewModel.injectDataFromFirebase()
     }
 
     private fun setUpActionBar() {

@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="user"
-            type="com.example.instachat.services.models.dummyjson.User" />
+            name="homeDataModel"
+            type="com.example.instachat.feature.home.HomeDataModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,7 +15,7 @@
 
         <ImageView
             android:id="@+id/imageView3"
-            loadCircularImageWithGlide="@{user.image}"
+            loadCircularImageWithGlide="@{homeDataModel.userImageUrl}"
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:scaleType="fitCenter"
@@ -33,7 +33,7 @@
             android:layout_height="20dp"
             android:ellipsize="end"
             android:gravity="center"
-            android:text="@{user.username}"
+            android:text="@{homeDataModel.userName}"
             android:textSize="11sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/imageView3"

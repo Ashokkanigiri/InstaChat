@@ -19,6 +19,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -41,7 +42,12 @@ class HomeViewModel @Inject constructor(
 
     fun loadViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
-            restApiRepository.injectAllDataBases()
+            roomRepository.postsDao.getPostsHomeData(auth.currentUser?.uid?:"").collect {
+                withContext(Dispatchers.Main){
+                    adapter.submitList(it)
+                    usersAdapter.submitList(it)
+                }
+            }
         }
     }
 
@@ -50,7 +56,7 @@ class HomeViewModel @Inject constructor(
      *
      * Need to be used with care
      */
-    fun injectDatabases() {
+    fun injectDataFromFirebase() {
 
         viewModelScope.launch(Dispatchers.IO) {
             firebaseRepository.getAllPostsFromFirebase()
@@ -58,30 +64,6 @@ class HomeViewModel @Inject constructor(
             firebaseRepository.getAllCommentsFromFirebase()
         }
     }
-
-    fun getPostedUser(userId: String?, userData: ((User?) -> Unit)) {
-        viewModelScope.launch(Dispatchers.IO) {
-            userId?.let {
-                roomRepository.usersDao.getUser(userId)?.let {
-                    withContext(Dispatchers.Main) {
-                        userData.invoke(it)
-                    }
-                }
-            }
-        }
-    }
-
-    fun getFirstCommentForPost(postId: Int, comment: ((Comment) -> Unit)) {
-        viewModelScope.launch(Dispatchers.IO) {
-            roomRepository.commentsDao.getFirstCommentForPost(postId)?.let {
-                withContext(Dispatchers.Main) {
-                    comment.invoke(it)
-                }
-            }
-
-        }
-    }
-
     /**
      * This Method will be trigerred when comments edittext
      * in post gets clicked
@@ -99,10 +81,10 @@ class HomeViewModel @Inject constructor(
         return user
     }
 
-    fun onLikeButtonClicked(postModelItem: PostModelItem) {
+    fun onLikeButtonClicked(homeDataModel: HomeDataModel) {
         viewModelScope.launch {
             val currentUser = roomRepository.usersDao.getUser(auth.currentUser?.uid ?: "0")
-
+            val postModelItem = roomRepository.postsDao.getPost(homeDataModel.postId)
 
             if (currentUser.likedPosts != null) {
 

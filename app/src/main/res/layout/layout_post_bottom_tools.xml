@@ -8,8 +8,8 @@
             name="viewModel"
             type="com.example.instachat.feature.home.HomeViewModel" />
         <variable
-            name="postModelItem"
-            type="com.example.instachat.services.models.PostModelItem" />
+            name="homeDataModel"
+            type="com.example.instachat.feature.home.HomeDataModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -20,7 +20,7 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginStart="20dp"
-            android:onClick="@{() -> viewModel.onLikeButtonClicked(postModelItem)}"
+            android:onClick="@{() -> viewModel.onLikeButtonClicked(homeDataModel)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

@@ -5,9 +5,9 @@
 
 
     <data>
-        <variable
-            name="comment"
-            type="com.example.instachat.services.models.dummyjson.Comment" />
+       <variable
+           name="homeDataModel"
+           type="com.example.instachat.feature.home.HomeDataModel" />
 
         <variable
             name="totalCommentsCount"
@@ -26,9 +26,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
                 android:textSize="13sp"
-                android:visibility="@{comment == null ? View.GONE : View.VISIBLE}"
+                android:visibility="@{homeDataModel.commentBody == null ? View.GONE : View.VISIBLE}"
                 tools:text="Ashok Kanigiri :  "
-                android:text="@{comment.user.username + ` : `}"
+                android:text="@{homeDataModel.userName + ` : `}"
                 android:textColor="@color/black"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -67,10 +67,10 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
-                android:text="@{comment.body}"
+                android:text="@{homeDataModel.commentBody}"
                 android:layout_marginEnd="10dp"
                 android:textSize="13sp"
-                android:visibility="@{comment == null ? View.GONE : View.VISIBLE}"
+                android:visibility="@{homeDataModel.commentBody == null ? View.GONE : View.VISIBLE}"
                 app:layout_constraintBottom_toBottomOf="@+id/tv_first_comment_username"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/tv_first_comment_username"

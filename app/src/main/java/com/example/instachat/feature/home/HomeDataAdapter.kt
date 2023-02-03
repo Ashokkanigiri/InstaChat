@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
-    ListAdapter<PostModelItem, HomeDataViewHolder>(DiffUtilCallBack()) {
+    ListAdapter<HomeDataModel, HomeDataViewHolder>(DiffUtilCallBack()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeDataViewHolder {
         val inflator = LayoutInflater.from(parent.context)
@@ -46,39 +46,23 @@ class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
 class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: HomeViewModel) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(postModelItem: PostModelItem) {
-        binding.post = postModelItem
+    fun bind(homeData: HomeDataModel) {
+        binding.homeDataModel = homeData
         binding.viewModel = viewModel
-        getUser(postModelItem.userId)
-        getFirstCommentForPost(postModelItem.id)
 
         binding.commentSection.etAddComment.setOnClickListener {
-            viewModel.onCommentsTextClicked(postModelItem.id, adapterPosition)
-        }
-    }
-
-    fun getUser(userId: String?) {
-       viewModel.getPostedUser(userId) {
-           it?.let {
-               binding.user = it
-           }
-       }
-    }
-
-    fun getFirstCommentForPost(postId: Int) {
-        viewModel.getFirstCommentForPost(postId){
-            binding.comment = it
+            viewModel.onCommentsTextClicked(homeData.postId, adapterPosition)
         }
     }
 }
 
-class DiffUtilCallBack : DiffUtil.ItemCallback<PostModelItem>() {
-    override fun areItemsTheSame(oldItem: PostModelItem, newItem: PostModelItem): Boolean {
+class DiffUtilCallBack : DiffUtil.ItemCallback<HomeDataModel>() {
+    override fun areItemsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: PostModelItem, newItem: PostModelItem): Boolean {
-        return oldItem.id == newItem.id
+    override fun areContentsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
+        return oldItem.postId == newItem.postId
     }
 
 }
