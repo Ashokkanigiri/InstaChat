@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
 
     fun loadViewModel() {
         viewModelScope.launch {
-            restApiRepository.roomRepository.postsDao.getPostsHomeData(auth?.uid?:"").collect() {
+            restApiRepository.roomRepository.getHomeData(auth.currentUser?.uid?:"").collect(){
                 adapter.submitList(it)
                 usersAdapter.submitList(it)
             }

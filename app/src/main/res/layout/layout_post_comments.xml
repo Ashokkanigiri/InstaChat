@@ -7,12 +7,8 @@
     <data>
 
         <variable
-            name="comment"
-            type="String" />
-
-        <variable
-            name="homeDataModel"
-            type="com.example.instachat.feature.home.HomeDataModel" />
+            name="homeDataModel1"
+            type="com.example.instachat.feature.home.HomeDataModel1" />
 
         <variable
             name="viewModel"
@@ -30,10 +26,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:text="@{homeDataModel.userName + ` : `}"
+            android:text="@{homeDataModel1.homeDataModel.userName + ` : `}"
             android:textColor="@color/black"
             android:textSize="13sp"
-            android:visibility="@{homeDataModel.commentBody == null ? View.GONE : View.VISIBLE}"
+            android:visibility="@{(homeDataModel1.comments == null || homeDataModel1.comments.empty)  ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Ashok Kanigiri :  " />
@@ -45,6 +41,8 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="15dp"
             android:textSize="11sp"
+            viewAllCommentsVisibility="@{homeDataModel1.comments}"
+            android:text="@{`View all `+ homeDataModel1.comments.size() + ` Comments`}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_first_comment_username"
             tools:text="View all 3 comments" />
@@ -71,9 +69,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:ellipsize="end"
-            android:text="@{homeDataModel.commentBody}"
             android:textSize="13sp"
-            android:visibility="@{homeDataModel.commentBody == null ? View.GONE : View.VISIBLE}"
+            getfirstCommentBody="@{homeDataModel1.comments}"
+            android:visibility="@{(homeDataModel1.comments == null || homeDataModel1.comments.empty)  ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="@+id/tv_first_comment_username"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tv_first_comment_username"

@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.instachat.R
 import com.example.instachat.databinding.ItemHomeUserAdapterBinding
 
-class HomeUsersAdapter: ListAdapter<HomeDataModel, HomeUsersViewHolder>(HomeUserDiffUtil()) {
+class HomeUsersAdapter: ListAdapter<HomeDataModel1, HomeUsersViewHolder>(HomeUserDiffUtil()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeUsersViewHolder {
         val inflator = LayoutInflater.from(parent.context)
         val binding = DataBindingUtil.inflate<ItemHomeUserAdapterBinding>(inflator, R.layout.item_home_user_adapter, parent, false)
@@ -22,18 +22,18 @@ class HomeUsersAdapter: ListAdapter<HomeDataModel, HomeUsersViewHolder>(HomeUser
 }
 
 class HomeUsersViewHolder(val binding: ItemHomeUserAdapterBinding): RecyclerView.ViewHolder(binding.root){
-    fun bind(homeDataModel: HomeDataModel){
-        binding.homeDataModel = homeDataModel
+    fun bind(homeDataModel: HomeDataModel1){
+        binding.homeDataModel = homeDataModel.homeDataModel
     }
 }
 
-class HomeUserDiffUtil: DiffUtil.ItemCallback<HomeDataModel>(){
-    override fun areItemsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
+class HomeUserDiffUtil: DiffUtil.ItemCallback<HomeDataModel1>(){
+    override fun areItemsTheSame(oldItem: HomeDataModel1, newItem: HomeDataModel1): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
-        return oldItem.userId == newItem.userId
+    override fun areContentsTheSame(oldItem: HomeDataModel1, newItem: HomeDataModel1): Boolean {
+        return oldItem.homeDataModel.userId == newItem.homeDataModel.userId
     }
 
 }

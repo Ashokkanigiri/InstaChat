@@ -23,4 +23,7 @@ interface CommentsDao : BaseDao<Comment> {
 
     @Query("SELECT COUNT(*) FROM comments WHERE comments.postId =:postId")
     fun getTotalCommentsCount(postId: Int): Flow<Int>
+
+    @Query("SELECT * FROM comments WHERE postId =:postId")
+    fun getCommentsForUser(postId: Int): Flow<List<Comment>>
 }

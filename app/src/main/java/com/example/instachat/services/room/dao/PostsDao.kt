@@ -23,7 +23,7 @@ interface PostsDao : BaseDao<PostModelItem> {
     @Update
     fun updatePost(postModelItem: PostModelItem)
 
-    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrl as postImageUrl, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, comments.body as commentBody FROM users INNER JOIN posts ON users.id  = posts.userId INNER JOIN comments ON users.id = comments.commentedUsersId WHERE users.id =:userId")
+    @Query("SELECT   posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrl as postImageUrl, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName  FROM posts INNER JOIN users ON posts.userId  = users.id  WHERE users.id =:userId")
     fun getPostsHomeData(userId: String): Flow<List<HomeDataModel>>
 
 }

@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
-    ListAdapter<HomeDataModel, HomeDataViewHolder>(DiffUtilCallBack()) {
+    ListAdapter<HomeDataModel1, HomeDataViewHolder>(DiffUtilCallBack()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeDataViewHolder {
         val inflator = LayoutInflater.from(parent.context)
@@ -46,23 +46,28 @@ class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
 class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: HomeViewModel) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(homeData: HomeDataModel) {
-        binding.homeDataModel = homeData
-        binding.viewModel = viewModel
+    fun bind(homeData: HomeDataModel1) {
         binding.commentSection.viewModel = viewModel
+        binding.viewModel = viewModel
+        binding.homeDataModel1 = homeData
+        if(homeData.comments.isNotEmpty()){
+            binding.firstComment = homeData.comments.first()
+        }
+
+
         binding.commentSection.etAddComment.setOnClickListener {
-            viewModel.onCommentsTextClicked(homeData.postId, adapterPosition)
+            viewModel.onCommentsTextClicked(homeData.homeDataModel.postId, adapterPosition)
         }
     }
 }
 
-class DiffUtilCallBack : DiffUtil.ItemCallback<HomeDataModel>() {
-    override fun areItemsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
+class DiffUtilCallBack : DiffUtil.ItemCallback<HomeDataModel1>() {
+    override fun areItemsTheSame(oldItem: HomeDataModel1, newItem: HomeDataModel1): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
-        return oldItem.postId == newItem.postId
+    override fun areContentsTheSame(oldItem: HomeDataModel1, newItem: HomeDataModel1): Boolean {
+        return oldItem.homeDataModel.postId == newItem.homeDataModel.postId
     }
 
 }
