@@ -54,6 +54,34 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
             binding.firstComment = homeData.comments.first()
         }
 
+        if(homeData.homeDataModel.likedPosts.isNotEmpty()){
+            if(homeData.homeDataModel.likedPosts.map { it.postId }.contains(homeData.homeDataModel.postId)){
+                binding.bottomTools.imageView4.setImageResource(R.drawable.icon_like_clicked)
+            }else{
+                binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
+            }
+        }else{
+            binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
+        }
+
+
+        binding.bottomTools.imageView4.setOnClickListener {
+
+            if(homeData.homeDataModel.likedPosts.isNotEmpty()){
+                if(homeData.homeDataModel.likedPosts.map { it.postId }.contains(homeData.homeDataModel.postId)){
+                    binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
+                }else{
+                    binding.bottomTools.imageView4.setImageResource(R.drawable.icon_like_clicked)
+                }
+            }else{
+                binding.bottomTools.imageView4.setImageResource(R.drawable.icon_like_clicked)
+            }
+
+            viewModel.onLikeButtonClicked(homeData.homeDataModel, adapterPosition)
+
+        }
+
+
 
         binding.commentSection.etAddComment.setOnClickListener {
             viewModel.onCommentsTextClicked(homeData.homeDataModel.postId, adapterPosition)

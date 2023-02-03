@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Ignore
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
+import com.example.instachat.services.models.dummyjson.LikedPosts
 import com.example.instachat.services.models.dummyjson.User
 
 data class HomeDataModel(
@@ -18,6 +19,7 @@ data class HomeDataModel(
     val userImageUrl: String="",
     val firstName: String="",
     val lastName: String="",
+    val likedPosts: List<LikedPosts> = emptyList()
 )
 
 data class HomeDataModel1(

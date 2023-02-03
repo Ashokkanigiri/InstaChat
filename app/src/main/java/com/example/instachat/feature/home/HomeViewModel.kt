@@ -83,12 +83,13 @@ class HomeViewModel @Inject constructor(
         return user
     }
 
-    fun onLikeButtonClicked(homeDataModel: HomeDataModel) {
-        viewModelScope.launch {
+    fun onLikeButtonClicked(homeDataModel: HomeDataModel, adapterPosition: Int) {
+        currentClickedPostAdapterPosition = adapterPosition
+        viewModelScope.launch(Dispatchers.IO) {
             val currentUser = roomRepository.usersDao.getUser(auth.currentUser?.uid ?: "0")
             val postModelItem = roomRepository.postsDao.getPost(homeDataModel.postId)
 
-            if (currentUser.likedPosts != null) {
+            if (currentUser.likedPosts != null || (currentUser.likedPosts?.isNotEmpty()?:false)) {
 
                 val isUserLikedPost =
                     currentUser.likedPosts?.map { it.postId }?.contains(postModelItem.id)
@@ -147,9 +148,10 @@ class HomeViewModel @Inject constructor(
                     this.likesCount = (this.likesCount ?: 0) + 1
                 }
 
-                val currentList = currentUser.likedPosts ?: emptyList()
+                val currentList = (currentUser.likedPosts ?: emptyList()) + (listOf<LikedPosts>(
+                    LikedPosts(post.id)
+                ))
 
-                currentList.toMutableList().add(LikedPosts(post.id))
 
                 currentUser.likedPosts = currentList
 
@@ -158,6 +160,7 @@ class HomeViewModel @Inject constructor(
                 syncRepository.updateUser(currentUser)
             }
         }
+        adapter.notifyItemChanged(adapterPosition)
     }
 
     fun refreshPost() {
