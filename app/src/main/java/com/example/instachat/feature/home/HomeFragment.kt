@@ -1,6 +1,7 @@
 package com.example.instachat.feature.home
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,12 +12,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.work.Operation.State.SUCCESS
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import com.example.instachat.services.repository.RoomRepository
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -26,7 +31,7 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var roomRepository: RoomRepository
     lateinit var binding: FragmentHomeBinding
-    lateinit var  viewModel: HomeViewModel
+    lateinit var viewModel: HomeViewModel
     val auth = Firebase.auth
 
     override fun onCreateView(
@@ -60,22 +65,55 @@ class HomeFragment : Fragment() {
     }
 
     private fun handleRefreshPost() {
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")?.observe(viewLifecycleOwner) { shouldRefreshPost ->
-            if(shouldRefreshPost){
-                viewModel.refreshPost()
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")
+            ?.observe(viewLifecycleOwner) { shouldRefreshPost ->
+                if (shouldRefreshPost) {
+                    viewModel.refreshPost()
+                }
             }
-        }
     }
 
     private fun observeViewModel() {
-        viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer {postId->
+        viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer { postId ->
             postId?.let {
                 findNavController().navigate(
                     HomeFragmentDirections.actionHomeToCommentFragment(it)
                 )
             }
         })
+
+        //TODO: NEED TO LOOK INTO THIS PIECE LATER
+        viewModel.getWorkManageStatusEvent.observe(viewLifecycleOwner, Observer { tag ->
+            WorkManager.getInstance(requireContext()).getWorkInfosByTagLiveData(tag)
+                .observe(viewLifecycleOwner, Observer { workInfo ->
+                    if(workInfo?.map { it.state }?.isNotEmpty()?:false){
+                        when (workInfo?.map { it.state }?.get(0)?.name) {
+                            WorkInfo.State.SUCCEEDED.name -> {
+                                viewModel.adapter.notifyItemChanged(viewModel.currentClickedPostAdapterPosition)
+                            }
+                            else -> {
+
+                            }
+                        }
+                    }
+                })
+        })
+
     }
+
+    /**
+     *
+     * when(workInfo?.map { it.state }?.map { it.name }?.get(0)){
+    WorkInfo.State.SUCCEEDED.name->{
+    viewModel.adapter.notifyItemChanged(viewModel.currentClickedPostAdapterPosition)
+    }
+    else -> {
+
+    }
+    }
+     *
+     *
+     */
 
     private fun handleSwipeLayout() {
         binding.swipeLayout.setOnRefreshListener {

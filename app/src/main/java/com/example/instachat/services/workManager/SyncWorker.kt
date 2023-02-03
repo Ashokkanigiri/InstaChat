@@ -6,6 +6,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result.*
+import androidx.work.Operation.State.SUCCESS
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.instachat.services.models.PostModelItem
@@ -50,7 +51,7 @@ class SyncWorker @AssistedInject constructor(
             }
         }
 
-        return Result.failure()
+        return success()
     }
 
     private fun updateToFirebase(item_id: Int, updatedPost: PostModelItem) {
@@ -66,6 +67,8 @@ class SyncWorker @AssistedInject constructor(
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
                 retry()
+            }.addOnSuccessListener {
+                Result.success()
             }
     }
 
@@ -77,11 +80,12 @@ class SyncWorker @AssistedInject constructor(
             .addOnCompleteListener {
                 roomRepository.usersDao.updateUser(user)
                 roomRepositorySync.usersDao.deleteUser(user_id)
-                success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
-                retry()
+                Result.retry()
+            }.addOnSuccessListener {
+                Result.success()
             }
     }
 }

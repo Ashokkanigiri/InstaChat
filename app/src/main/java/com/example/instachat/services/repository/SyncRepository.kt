@@ -31,9 +31,13 @@ class SyncRepository @Inject constructor(
         data.putString("SYNC_TABLE", syncTables.name)
         data.putString("USER_ID", userId)
 
+        val tag = if(itemId == 0) userId else "${itemId}"
+
         val workRequest =
             OneTimeWorkRequest.Builder(SyncWorker::class.java)
-                .setInputData(data.build()).build()
+                .setInputData(data.build())
+                .addTag(tag).build()
+
 
         WorkManager.getInstance(context).enqueue(workRequest)
     }

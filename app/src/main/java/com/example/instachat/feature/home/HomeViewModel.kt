@@ -1,10 +1,12 @@
 package com.example.instachat.feature.home
 
+import android.content.Context
 import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkManager
 import com.example.instachat.services.firebase.FirebaseRepository
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
@@ -19,6 +21,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
@@ -34,7 +37,8 @@ class HomeViewModel @Inject constructor(
     val roomRepository: RoomRepository,
     val restApiRepository: RestApiRepository,
     val roomRepositorySync: RoomRepositorySync,
-    val syncRepository: SyncRepository
+    val syncRepository: SyncRepository,
+    @ApplicationContext val context: Context
 ) : ViewModel() {
 
     val adapter = HomeDataAdapter(this)
@@ -42,6 +46,7 @@ class HomeViewModel @Inject constructor(
     var currentClickedPostAdapterPosition = 0
     val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
     val auth = Firebase.auth
+    val getWorkManageStatusEvent = SingleLiveEvent<String>()
 
     fun loadViewModel() {
         viewModelScope.launch {
@@ -160,7 +165,7 @@ class HomeViewModel @Inject constructor(
                 syncRepository.updateUser(currentUser)
             }
         }
-        adapter.notifyItemChanged(adapterPosition)
+        getWorkManageStatusEvent.postValue("${homeDataModel.postId}")
     }
 
     fun refreshPost() {
