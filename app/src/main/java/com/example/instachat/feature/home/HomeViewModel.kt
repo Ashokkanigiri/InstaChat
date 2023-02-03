@@ -1,6 +1,8 @@
 package com.example.instachat.feature.home
 
 import android.util.Log
+import androidx.databinding.ObservableField
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.firebase.FirebaseRepository
@@ -19,6 +21,7 @@ import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -41,12 +44,10 @@ class HomeViewModel @Inject constructor(
     val auth = Firebase.auth
 
     fun loadViewModel() {
-        viewModelScope.launch(Dispatchers.IO) {
-            roomRepository.postsDao.getPostsHomeData(auth.currentUser?.uid?:"").collect {
-                withContext(Dispatchers.Main){
-                    adapter.submitList(it)
-                    usersAdapter.submitList(it)
-                }
+        viewModelScope.launch {
+            restApiRepository.roomRepository.postsDao.getPostsHomeData(auth?.uid?:"").collect() {
+                adapter.submitList(it)
+                usersAdapter.submitList(it)
             }
         }
     }
@@ -64,6 +65,7 @@ class HomeViewModel @Inject constructor(
             firebaseRepository.getAllCommentsFromFirebase()
         }
     }
+
     /**
      * This Method will be trigerred when comments edittext
      * in post gets clicked

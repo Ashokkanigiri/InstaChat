@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
 import com.example.instachat.R
@@ -25,7 +26,7 @@ class HomeFragment : Fragment() {
     @Inject
     lateinit var roomRepository: RoomRepository
     lateinit var binding: FragmentHomeBinding
-    private val viewModel: HomeViewModel by viewModels()
+    lateinit var  viewModel: HomeViewModel
     val auth = Firebase.auth
 
     override fun onCreateView(
@@ -38,7 +39,10 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initFragment()
+        binding.lifecycleOwner = viewLifecycleOwner
+        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        binding.viewModel = viewModel
+
         setUpActionBar()
         loadViewModel()
         handleSwipeLayout()
@@ -51,8 +55,8 @@ class HomeFragment : Fragment() {
     }
 
     private fun initFragment() {
-        binding.viewModel = viewModel
-        binding.lifecycleOwner = viewLifecycleOwner
+
+
     }
 
     private fun handleRefreshPost() {

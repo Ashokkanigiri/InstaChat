@@ -49,7 +49,7 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
     fun bind(homeData: HomeDataModel) {
         binding.homeDataModel = homeData
         binding.viewModel = viewModel
-
+        binding.commentSection.viewModel = viewModel
         binding.commentSection.etAddComment.setOnClickListener {
             viewModel.onCommentsTextClicked(homeData.postId, adapterPosition)
         }
