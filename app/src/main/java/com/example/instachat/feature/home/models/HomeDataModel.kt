@@ -1,4 +1,4 @@
-package com.example.instachat.feature.home
+package com.example.instachat.feature.home.models
 
 import androidx.room.Embedded
 import androidx.room.Ignore

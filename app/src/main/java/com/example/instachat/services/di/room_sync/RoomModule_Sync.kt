@@ -2,15 +2,12 @@ package com.example.instachat.services.di.room_sync
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.RoomSQLiteQuery
-import com.example.instachat.services.repository.RoomRepository
-import com.example.instachat.services.repository.RoomRepositorySync
-import com.example.instachat.services.room.InstaChatDb
+import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.room.dao.*
 import com.example.instachat.services.room_sync.InstaChatDb_sync
-import com.example.instachat.services.room_sync.daoSync.CommentsDaoSync
-import com.example.instachat.services.room_sync.daoSync.PostsDaoSync
-import com.example.instachat.services.room_sync.daoSync.UsersDaoSync
+import com.example.instachat.services.room_sync.dao.CommentsDaoSync
+import com.example.instachat.services.room_sync.dao.PostsDaoSync
+import com.example.instachat.services.room_sync.dao.UsersDaoSync
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -47,7 +44,7 @@ object RoomModule_Sync {
         usersDao: UsersDaoSync,
         commentsDao: CommentsDaoSync,
         postsDao: PostsDaoSync
-    ): RoomRepositorySync {
-        return RoomRepositorySync(usersDao, postsDao, commentsDao)
+    ): RoomSyncRepository {
+        return RoomSyncRepository(usersDao, postsDao, commentsDao)
     }
 }

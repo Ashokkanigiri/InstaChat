@@ -8,11 +8,11 @@
 
         <variable
             name="homeDataCommentsModel"
-            type="com.example.instachat.feature.home.HomeDataCommentsModel" />
+            type="com.example.instachat.feature.home.models.HomeDataCommentsModel" />
 
         <variable
             name="viewModel"
-            type="com.example.instachat.feature.home.HomeViewModel" />
+            type="com.example.instachat.feature.home.viewmodel.HomeViewModel" />
 
         <import type="android.view.View" />
     </data>

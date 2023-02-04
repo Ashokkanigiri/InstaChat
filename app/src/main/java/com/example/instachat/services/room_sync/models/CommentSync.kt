@@ -1,4 +1,4 @@
-package com.example.instachat.services.room_sync.modelsSync
+package com.example.instachat.services.room_sync.models
 
 import androidx.room.ColumnInfo
 import androidx.room.Embedded

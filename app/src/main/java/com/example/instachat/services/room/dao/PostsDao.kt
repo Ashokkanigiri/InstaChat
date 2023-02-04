@@ -4,9 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Update
-import com.example.instachat.feature.home.HomeDataModel
+import com.example.instachat.feature.home.models.HomeDataModel
 import com.example.instachat.services.models.PostModelItem
-import com.example.instachat.services.models.dummyjson.LikedPosts
 import kotlinx.coroutines.flow.Flow
 
 @Dao

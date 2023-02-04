@@ -1,7 +1,7 @@
-package com.example.instachat.services.room_sync.typeconvertersSync
+package com.example.instachat.services.room_sync.typeconverters
 
 import androidx.room.TypeConverter
-import com.example.instachat.services.room_sync.modelsSync.LikedPosts
+import com.example.instachat.services.room_sync.models.LikedPosts
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
 import com.squareup.moshi.Moshi

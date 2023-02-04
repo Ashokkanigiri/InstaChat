@@ -1,6 +1,5 @@
 package com.example.instachat.feature.home
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -9,7 +8,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instachat.R
 import com.example.instachat.databinding.ItemHomeFragmentBinding
-import com.google.gson.Gson
+import com.example.instachat.feature.home.models.HomeDataModel
+import com.example.instachat.feature.home.viewmodel.HomeViewModel
 
 class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
     ListAdapter<HomeDataModel, HomeDataViewHolder>(DiffUtilCallBack()) {

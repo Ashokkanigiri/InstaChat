@@ -1,4 +1,4 @@
-package com.example.instachat.services.room_sync.daoSync
+package com.example.instachat.services.room_sync.dao
 
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy

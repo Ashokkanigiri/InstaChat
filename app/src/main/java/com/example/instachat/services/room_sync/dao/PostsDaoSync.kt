@@ -1,9 +1,9 @@
-package com.example.instachat.services.room_sync.daoSync
+package com.example.instachat.services.room_sync.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
-import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
+import com.example.instachat.services.room_sync.models.PostModelItemSync
 
 @Dao
 interface PostsDaoSync : BaseDaoSync<PostModelItemSync> {

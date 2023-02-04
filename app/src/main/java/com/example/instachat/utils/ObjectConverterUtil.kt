@@ -3,12 +3,10 @@ package com.example.instachat.utils
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.services.room_sync.modelsSync.CommentSync
-import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
-import com.example.instachat.services.room_sync.modelsSync.UserSync
-import com.google.common.reflect.TypeToken
+import com.example.instachat.services.room_sync.models.CommentSync
+import com.example.instachat.services.room_sync.models.PostModelItemSync
+import com.example.instachat.services.room_sync.models.UserSync
 import com.google.gson.Gson
-import java.lang.reflect.Type
 
 object ObjectConverterUtil {
 

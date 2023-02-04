@@ -1,25 +1,20 @@
 package com.example.instachat.services.repository
 
 import android.content.Context
-import androidx.work.Constraints
 import androidx.work.Data
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
-import com.example.instachat.services.room_sync.modelsSync.UserSync
-import com.example.instachat.services.sync.SyncTables
+import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.services.workManager.SyncWorker
 import com.example.instachat.utils.ObjectConverterUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
-import retrofit2.http.POST
 import javax.inject.Inject
 
 class SyncRepository @Inject constructor(
-    val roomRepositorySync: RoomRepositorySync,
+    val roomSyncRepository: RoomSyncRepository,
     val roomRepository: RoomRepository,
     val apiRepository: RestApiRepository,
     @ApplicationContext val context: Context
@@ -57,21 +52,21 @@ class SyncRepository @Inject constructor(
     }
 
     suspend fun updateLikeForPost(post: PostModelItem) {
-        roomRepositorySync.postsDao.insert(
+        roomSyncRepository.postsDao.insert(
             ObjectConverterUtil.convertPostToPostSync(post)
         )
         launchWorker(SyncTables.POSTS, post.id)
     }
 
     suspend fun updateUser(user: User) {
-        roomRepositorySync.usersDao.insert(
+        roomSyncRepository.usersDao.insert(
             ObjectConverterUtil.convertUserToUserSync(user)
         )
         launchWorker(SyncTables.USERS, userId = user.id)
     }
 
     suspend fun addNewComment(comment: Comment){
-        roomRepositorySync.commentsDao.insert(
+        roomSyncRepository.commentsDao.insert(
             ObjectConverterUtil.convertCommentToCommentSync(comment)
         )
         launchWorker(SyncTables.COMMENTS, commentId = comment.id)

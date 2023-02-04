@@ -1,7 +1,7 @@
 package com.example.instachat.services.models
 
 import androidx.room.*
-import com.example.instachat.services.room_sync.typeconvertersSync.TagsTypeConverterSync
+import com.example.instachat.services.room_sync.typeconverters.TagsTypeConverterSync
 import com.google.gson.annotations.SerializedName
 
 data class PostModel(

@@ -3,7 +3,7 @@ package com.example.instachat.services.room.dao
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
-import com.example.instachat.feature.home.HomeDataCommentsModel
+import com.example.instachat.feature.home.models.HomeDataCommentsModel
 import com.example.instachat.services.models.dummyjson.Comment
 import kotlinx.coroutines.flow.Flow
 

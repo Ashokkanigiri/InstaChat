@@ -1,4 +1,4 @@
-package com.example.instachat.services.room_sync.typeconvertersSync
+package com.example.instachat.services.room_sync.typeconverters
 
 import androidx.room.TypeConverter
 import com.google.common.reflect.TypeToken

@@ -1,4 +1,4 @@
-package com.example.instachat.feature.home
+package com.example.instachat.feature.home.models
 
 data class HomeDataCommentsModel(
     val commentId: Int?,

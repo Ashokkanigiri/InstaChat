@@ -6,17 +6,13 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result.*
-import androidx.work.Operation.State.SUCCESS
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RoomRepository
-import com.example.instachat.services.repository.RoomRepositorySync
-import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
-import com.example.instachat.services.room_sync.modelsSync.UserSync
-import com.example.instachat.services.sync.SyncTables
+import com.example.instachat.services.repository.RoomSyncRepository
+import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.utils.ObjectConverterUtil
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -27,7 +23,7 @@ import dagger.assisted.AssistedInject
 class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
-    val roomRepositorySync: RoomRepositorySync,
+    val roomSyncRepository: RoomSyncRepository,
     val roomRepository: RoomRepository
 ) : CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result {
@@ -39,17 +35,17 @@ class SyncWorker @AssistedInject constructor(
 
         when (sync_table) {
             SyncTables.POSTS.name -> {
-                val updatedPost = roomRepositorySync.postsDao.getPost(item_id)
+                val updatedPost = roomSyncRepository.postsDao.getPost(item_id)
                 val convertToPostModelItem = ObjectConverterUtil.convertPostSyncToPost(updatedPost)
                 updateToFirebase(item_id, convertToPostModelItem)
             }
             SyncTables.COMMENTS.name -> {
-                val newComment = roomRepositorySync.commentsDao.getComment(commentId)
+                val newComment = roomSyncRepository.commentsDao.getComment(commentId)
                 val convertToComment = ObjectConverterUtil.convertCommentSyncToComment(newComment)
                 addNewCommentToFirebase(convertToComment)
             }
             SyncTables.USERS.name -> {
-                val updatedUser = roomRepositorySync.usersDao.getUser(user_id?:"")
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id?:"")
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
                 updateUserToFirebase(user_id?:"", convertToUser)
             }
@@ -65,7 +61,7 @@ class SyncWorker @AssistedInject constructor(
             .document("${comment.id}")
             .set(comment)
             .addOnCompleteListener {
-                roomRepositorySync.commentsDao.deleteComment(comment.id)
+                roomSyncRepository.commentsDao.deleteComment(comment.id)
                 roomRepository.commentsDao.insertBlocking(comment)
                 success()
             }.addOnCanceledListener {
@@ -84,7 +80,7 @@ class SyncWorker @AssistedInject constructor(
             .set(updatedPost)
             .addOnCompleteListener {
                 roomRepository.postsDao.updateLikedCountForPost(updatedPost.id, updatedPost.likesCount?:0)
-                roomRepositorySync.postsDao.deletePost(item_id)
+                roomSyncRepository.postsDao.deletePost(item_id)
                 Log.d("wlfkqwnbgf", "update post addOnCompleteListener")
 
                 success()
@@ -105,7 +101,7 @@ class SyncWorker @AssistedInject constructor(
             .set(user)
             .addOnCompleteListener {
                 roomRepository.usersDao.updateUserLikedPosts(user.likedPosts?: emptyList(), user.id)
-                roomRepositorySync.usersDao.deleteUser(user_id)
+                roomSyncRepository.usersDao.deleteUser(user_id)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {

@@ -1,20 +1,15 @@
 package com.example.instachat.utils
 
-import android.graphics.Bitmap
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.graphics.drawable.RoundedBitmapDrawable
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.BitmapImageViewTarget
 import com.example.instachat.R
-import com.example.instachat.feature.home.HomeDataModel
+import com.example.instachat.feature.home.models.HomeDataModel
 import com.example.instachat.services.models.dummyjson.Comment
-import com.example.instachat.services.models.dummyjson.LikedPosts
 
 @BindingAdapter("loadImageWithGlide")
 fun ImageView.loadImageWithGlide( imageUrl: String){

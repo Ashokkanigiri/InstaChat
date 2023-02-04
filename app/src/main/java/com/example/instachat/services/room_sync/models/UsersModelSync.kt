@@ -1,12 +1,11 @@
-package com.example.instachat.services.room_sync.modelsSync
+package com.example.instachat.services.room_sync.models
 
 import androidx.room.*
 import com.example.instachat.services.room.typeconverters.BankTypeConverter
 import com.example.instachat.services.room.typeconverters.CompanyTypeConverter
-import com.example.instachat.services.room.typeconverters.LikesTypeConverter
 import com.example.instachat.services.room.typeconverters.UserAddressTypeConverter
-import com.example.instachat.services.room_sync.typeconvertersSync.HairSyncTypeConverterSync
-import com.example.instachat.services.room_sync.typeconvertersSync.LikesTypeConverterSync
+import com.example.instachat.services.room_sync.typeconverters.HairSyncTypeConverterSync
+import com.example.instachat.services.room_sync.typeconverters.LikesTypeConverterSync
 
 
 @Entity("users_sync")

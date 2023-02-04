@@ -1,18 +1,15 @@
 package com.example.instachat.services.repository
 
-import com.example.instachat.services.firebase.FirebaseRepository
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.models.dummyjson.UserRest
-import com.example.instachat.services.models.dummyjson.UsersModel
 import com.example.instachat.services.models.rest.PostModelItemRest
 import com.example.instachat.services.models.rest.RestComment
 import com.example.instachat.services.rest.restclient.DummyJsonRestClient
 import com.example.instachat.services.rest.restclient.LorealImageListRestClient
 import com.google.common.reflect.TypeToken
 import com.google.gson.Gson
-import com.squareup.moshi.Json
 import kotlinx.coroutines.supervisorScope
 import java.lang.reflect.Type
 import javax.inject.Inject
