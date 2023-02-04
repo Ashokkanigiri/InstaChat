@@ -15,21 +15,6 @@ class RoomRepository @Inject constructor(
     val postsDao: PostsDao,
     val commentsDao: CommentsDao
 ) {
-     fun getHomeData(userId: String) = flow {
-        val postsForUserFlow = postsDao.getPostsHomeData(userId)
 
-         postsForUserFlow.collect(){
-             val data = ArrayList<HomeDataModel1>()
-             it.forEach {
-                 val comment = commentsDao.getAllCommentsForPost(it.postId)
-                 data.add(HomeDataModel1(homeDataModel = it, comments = comment))
-             }
-             emit(data)
-         }
-    }
-
-    fun getRoomData(userId: String){
-        val postsForUsers = postsDao.getPostsHomeDataLive(userId)
-    }
 
 }

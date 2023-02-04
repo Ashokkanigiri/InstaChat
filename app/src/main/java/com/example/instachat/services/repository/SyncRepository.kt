@@ -7,6 +7,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.example.instachat.services.models.PostModelItem
+import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
 import com.example.instachat.services.room_sync.modelsSync.UserSync
@@ -24,14 +25,27 @@ class SyncRepository @Inject constructor(
     @ApplicationContext val context: Context
 ) {
 
-    fun launchWorker(syncTables: SyncTables, itemId: Int =0, userId: String="") {
+    fun launchWorker(syncTables: SyncTables, itemId: Int =0, userId: String="", commentId: Int = 0) {
 
         val data = Data.Builder()
         data.putInt("ID", itemId)
         data.putString("SYNC_TABLE", syncTables.name)
         data.putString("USER_ID", userId)
+        data.putInt("COMMENT_ID", commentId)
 
-        val tag = if(itemId == 0) userId else "${itemId}"
+//        val tag = if(itemId == 0) userId else "${itemId}"
+        val tag : String = when {
+            syncTables.name.equals(SyncTables.POSTS.name) ->{
+                "itemId"
+            }
+            syncTables.name.equals(SyncTables.COMMENTS.name) ->{
+                userId
+            }
+            syncTables.name.equals(SyncTables.USERS.name) ->{
+                "commentId"
+            }
+            else->""
+        }
 
         val workRequest =
             OneTimeWorkRequest.Builder(SyncWorker::class.java)
@@ -54,5 +68,12 @@ class SyncRepository @Inject constructor(
             ObjectConverterUtil.convertUserToUserSync(user)
         )
         launchWorker(SyncTables.USERS, userId = user.id)
+    }
+
+    suspend fun addNewComment(comment: Comment){
+        roomRepositorySync.commentsDao.insert(
+            ObjectConverterUtil.convertCommentToCommentSync(comment)
+        )
+        launchWorker(SyncTables.COMMENTS, commentId = comment.id)
     }
 }

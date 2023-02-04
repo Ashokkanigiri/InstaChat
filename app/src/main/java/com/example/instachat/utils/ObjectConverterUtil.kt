@@ -1,7 +1,9 @@
 package com.example.instachat.utils
 
 import com.example.instachat.services.models.PostModelItem
+import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.room_sync.modelsSync.CommentSync
 import com.example.instachat.services.room_sync.modelsSync.PostModelItemSync
 import com.example.instachat.services.room_sync.modelsSync.UserSync
 import com.google.common.reflect.TypeToken
@@ -24,6 +26,14 @@ object ObjectConverterUtil {
 
     fun convertPostSyncToPost(postModelItemSync: PostModelItemSync): PostModelItem{
         return Gson().fromJson(Gson().toJson(postModelItemSync), PostModelItem::class.java)
+    }
+
+    fun convertCommentToCommentSync(comment: Comment): CommentSync{
+        return Gson().fromJson(Gson().toJson(comment), CommentSync::class.java)
+    }
+
+    fun convertCommentSyncToComment(commentSync: CommentSync): Comment{
+        return Gson().fromJson(Gson().toJson(commentSync), Comment::class.java)
     }
 
 }

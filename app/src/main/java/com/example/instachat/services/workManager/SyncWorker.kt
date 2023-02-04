@@ -10,6 +10,7 @@ import androidx.work.Operation.State.SUCCESS
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.instachat.services.models.PostModelItem
+import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.RoomRepositorySync
@@ -34,6 +35,7 @@ class SyncWorker @AssistedInject constructor(
         val item_id = inputData.getInt("ID", 0)
         val sync_table = inputData.getString("SYNC_TABLE")
         val user_id = inputData.getString("USER_ID")
+        val commentId = inputData.getInt("COMMENT_ID",0)
 
         when (sync_table) {
             SyncTables.POSTS.name -> {
@@ -42,7 +44,9 @@ class SyncWorker @AssistedInject constructor(
                 updateToFirebase(item_id, convertToPostModelItem)
             }
             SyncTables.COMMENTS.name -> {
-
+                val newComment = roomRepositorySync.commentsDao.getComment(commentId)
+                val convertToComment = ObjectConverterUtil.convertCommentSyncToComment(newComment)
+                addNewCommentToFirebase(convertToComment)
             }
             SyncTables.USERS.name -> {
                 val updatedUser = roomRepositorySync.usersDao.getUser(user_id?:"")
@@ -53,6 +57,24 @@ class SyncWorker @AssistedInject constructor(
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
         return failure()
+    }
+
+    private fun addNewCommentToFirebase(comment: Comment) {
+        val db = Firebase.firestore
+        db.collection("comments")
+            .document("${comment.id}")
+            .set(comment)
+            .addOnCompleteListener {
+                roomRepositorySync.commentsDao.deleteComment(comment.id)
+                roomRepository.commentsDao.insertBlocking(comment)
+                success()
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                retry()
+            }.addOnSuccessListener {
+                Result.success()
+            }
     }
 
     private fun updateToFirebase(item_id: Int, updatedPost: PostModelItem) {

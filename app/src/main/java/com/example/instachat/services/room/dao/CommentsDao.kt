@@ -17,7 +17,7 @@ interface CommentsDao : BaseDao<Comment> {
     suspend fun getComment(commentId: Int): Comment
 
     @Query("SELECT * FROM comments WHERE postId =:postId")
-    suspend fun getAllCommentsForPost(postId: Int): List<Comment>
+    fun getAllCommentsForPost(postId: Int): LiveData<List<Comment>>
 
     @Query("SELECT * FROM comments WHERE postId =:postId LIMIT 1")
     suspend fun getFirstCommentForPost(postId: Int): Comment
