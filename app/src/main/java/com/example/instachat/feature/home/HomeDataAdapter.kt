@@ -49,11 +49,16 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
 
         if(homeData.likedPosts.isNotEmpty()){
             if(homeData.likedPosts.map { it.postId }.contains(homeData.postId)){
+                Log.d("qjfbqf", "\n ${homeData.postId} contains post id -> like red")
                 binding.bottomTools.imageView4.setImageResource(R.drawable.icon_like_clicked)
             }else{
+                Log.d("qjfbqf", "\n" +
+                        " ${homeData.postId} not contains post id -> like blank")
                 binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
             }
         }else{
+            Log.d("qjfbqf", " \n" +
+                    " ${homeData.postId}list empty :: ${Gson().toJson(homeData)} -> like blank")
             binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
         }
 

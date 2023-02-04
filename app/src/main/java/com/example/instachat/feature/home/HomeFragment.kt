@@ -11,6 +11,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.work.Operation.State.SUCCESS
 import androidx.work.WorkInfo
@@ -23,6 +24,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -46,12 +49,12 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-        binding.viewModel = viewModel
-        binding.rvHome.adapter = viewModel.adapter
-        binding.rvHome.itemAnimator?.endAnimations()
         if(!viewModel.adapter.hasObservers()){
             viewModel.adapter.setHasStableIds(true)
         }
+        binding.viewModel = viewModel
+        binding.rvHome.adapter = viewModel.adapter
+
 
 
         setUpActionBar()
@@ -75,8 +78,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-
-        viewModel.roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid?:"").observe(viewLifecycleOwner, Observer {
+        roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid?:"").observe(viewLifecycleOwner, Observer {
             viewModel.adapter.submitList(it)
         })
 

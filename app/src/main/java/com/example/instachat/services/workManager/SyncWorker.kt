@@ -61,8 +61,10 @@ class SyncWorker @AssistedInject constructor(
             .document("${item_id}")
             .set(updatedPost)
             .addOnCompleteListener {
-                roomRepository.postsDao.updatePost(updatedPost)
+                roomRepository.postsDao.updateLikedCountForPost(updatedPost.id, updatedPost.likesCount?:0)
                 roomRepositorySync.postsDao.deletePost(item_id)
+                Log.d("wlfkqwnbgf", "update post addOnCompleteListener")
+
                 success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
@@ -70,7 +72,7 @@ class SyncWorker @AssistedInject constructor(
                 retry()
             }.addOnSuccessListener {
                 Result.success()
-                Log.d("wlfkqwnbgf", "update post sucess")
+                Log.d("wlfkqwnbgf", "update post addOnSuccessListener")
             }
     }
 
@@ -80,7 +82,7 @@ class SyncWorker @AssistedInject constructor(
             .document("1")
             .set(user)
             .addOnCompleteListener {
-                roomRepository.usersDao.updateUser(user)
+                roomRepository.usersDao.updateUserLikedPosts(user.likedPosts?: emptyList(), user.id)
                 roomRepositorySync.usersDao.deleteUser(user_id)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()

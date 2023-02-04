@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Update
+import com.example.instachat.services.models.dummyjson.LikedPosts
 import com.example.instachat.services.models.dummyjson.User
 
 @Dao
@@ -17,6 +18,9 @@ interface UsersDao: BaseDao<User> {
 
     @Update
     fun updateUser(user: User)
+
+    @Query("UPDATE users SET likedPosts =:likedPosts WHERE id =:userId")
+    fun updateUserLikedPosts(likedPosts: List<LikedPosts>, userId: String)
 
 
 }

@@ -18,6 +18,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object RoomModule {
 
+    @Singleton
     @Provides
     fun providesRoomInstance(@ApplicationContext context: Context): InstaChatDb {
         return Room.databaseBuilder(context, InstaChatDb::class.java, "insta-chat-db")
