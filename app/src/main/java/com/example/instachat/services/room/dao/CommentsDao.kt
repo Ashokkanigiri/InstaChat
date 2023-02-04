@@ -26,4 +26,7 @@ interface CommentsDao : BaseDao<Comment> {
 
     @Query("SELECT * FROM comments WHERE postId =:postId")
     fun getCommentsForUser(postId: Int): Flow<List<Comment>>
+
+    @Query("SELECT * FROM comments WHERE postId =:postId")
+    fun getAllCommentsForPostLive(postId: Int): LiveData<List<Comment>>
 }

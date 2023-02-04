@@ -41,7 +41,12 @@ class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
     override fun onBindViewHolder(holder: HomeDataViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
+
+    override fun getItemId(position: Int): Long {
+        return getItem(position).homeDataModel.postId.toLong()
+    }
 }
+
 
 class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: HomeViewModel) :
     RecyclerView.ViewHolder(binding.root) {
@@ -66,22 +71,8 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
 
 
         binding.bottomTools.imageView4.setOnClickListener {
-
-            if(homeData.homeDataModel.likedPosts.isNotEmpty()){
-                if(homeData.homeDataModel.likedPosts.map { it.postId }.contains(homeData.homeDataModel.postId)){
-                    binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
-                }else{
-                    binding.bottomTools.imageView4.setImageResource(R.drawable.icon_like_clicked)
-                }
-            }else{
-                binding.bottomTools.imageView4.setImageResource(R.drawable.icon_like_clicked)
-            }
-
-            viewModel.onLikeButtonClicked(homeData.homeDataModel, adapterPosition)
-
+            viewModel.onLikeButtonClicked(homeData.homeDataModel)
         }
-
-
 
         binding.commentSection.etAddComment.setOnClickListener {
             viewModel.onCommentsTextClicked(homeData.homeDataModel.postId, adapterPosition)

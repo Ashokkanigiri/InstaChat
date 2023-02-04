@@ -28,4 +28,8 @@ class RoomRepository @Inject constructor(
          }
     }
 
+    fun getRoomData(userId: String){
+        val postsForUsers = postsDao.getPostsHomeDataLive(userId)
+    }
+
 }

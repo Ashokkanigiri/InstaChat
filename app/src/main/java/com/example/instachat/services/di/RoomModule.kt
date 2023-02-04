@@ -12,6 +12,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -23,21 +24,25 @@ object RoomModule {
             .allowMainThreadQueries().build()
     }
 
+    @Singleton
     @Provides
     fun providesUserDao(instaChatDb: InstaChatDb): UsersDao {
         return instaChatDb.usersDao()
     }
 
+    @Singleton
     @Provides
     fun providesPostsDao(instaChatDb: InstaChatDb): PostsDao {
         return instaChatDb.postsDao()
     }
 
+    @Singleton
     @Provides
     fun providesCommentsDao(instaChatDb: InstaChatDb): CommentsDao {
         return instaChatDb.commentsDao()
     }
 
+    @Singleton
     @Provides
     fun providesRoomRepository(
         usersDao: UsersDao,

@@ -50,8 +50,9 @@ class SyncWorker @AssistedInject constructor(
                 updateUserToFirebase(user_id?:"", convertToUser)
             }
         }
+        Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
-        return success()
+        return failure()
     }
 
     private fun updateToFirebase(item_id: Int, updatedPost: PostModelItem) {
@@ -69,6 +70,7 @@ class SyncWorker @AssistedInject constructor(
                 retry()
             }.addOnSuccessListener {
                 Result.success()
+                Log.d("wlfkqwnbgf", "update post sucess")
             }
     }
 
@@ -86,6 +88,8 @@ class SyncWorker @AssistedInject constructor(
                 Result.retry()
             }.addOnSuccessListener {
                 Result.success()
+                Log.d("wlfkqwnbgf", "update user sucess")
+
             }
     }
 }

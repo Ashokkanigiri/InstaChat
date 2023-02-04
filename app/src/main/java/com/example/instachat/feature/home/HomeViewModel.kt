@@ -49,12 +49,7 @@ class HomeViewModel @Inject constructor(
     val getWorkManageStatusEvent = SingleLiveEvent<String>()
 
     fun loadViewModel() {
-        viewModelScope.launch {
-            restApiRepository.roomRepository.getHomeData(auth.currentUser?.uid?:"").collect(){
-                adapter.submitList(it)
-                usersAdapter.submitList(it)
-            }
-        }
+
     }
 
     /**
@@ -88,13 +83,12 @@ class HomeViewModel @Inject constructor(
         return user
     }
 
-    fun onLikeButtonClicked(homeDataModel: HomeDataModel, adapterPosition: Int) {
-        currentClickedPostAdapterPosition = adapterPosition
+    fun onLikeButtonClicked(homeDataModel: HomeDataModel) {
         viewModelScope.launch(Dispatchers.IO) {
             val currentUser = roomRepository.usersDao.getUser(auth.currentUser?.uid ?: "0")
             val postModelItem = roomRepository.postsDao.getPost(homeDataModel.postId)
 
-            if (currentUser.likedPosts != null || (currentUser.likedPosts?.isNotEmpty()?:false)) {
+            if (currentUser.likedPosts != null || (currentUser.likedPosts?.isNotEmpty() ?: false)) {
 
                 val isUserLikedPost =
                     currentUser.likedPosts?.map { it.postId }?.contains(postModelItem.id)
@@ -160,12 +154,10 @@ class HomeViewModel @Inject constructor(
 
                 currentUser.likedPosts = currentList
 
-
                 syncRepository.updateLikeForPost(post)
                 syncRepository.updateUser(currentUser)
             }
         }
-        getWorkManageStatusEvent.postValue("${homeDataModel.postId}")
     }
 
     fun refreshPost() {

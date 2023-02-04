@@ -47,6 +47,12 @@ class HomeFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
         binding.viewModel = viewModel
+        binding.rvHome.adapter = viewModel.adapter
+        binding.rvHome.itemAnimator?.endAnimations()
+        if(!viewModel.adapter.hasObservers()){
+            viewModel.adapter.setHasStableIds(true)
+        }
+
 
         setUpActionBar()
         loadViewModel()
@@ -59,11 +65,6 @@ class HomeFragment : Fragment() {
         viewModel.loadViewModel()
     }
 
-    private fun initFragment() {
-
-
-    }
-
     private fun handleRefreshPost() {
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")
             ?.observe(viewLifecycleOwner) { shouldRefreshPost ->
@@ -74,6 +75,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+
+        viewModel.roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid?:"").observe(viewLifecycleOwner, Observer {
+//            viewModel.adapter.submitList(it)
+        })
+
         viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer { postId ->
             postId?.let {
                 findNavController().navigate(
@@ -81,24 +87,6 @@ class HomeFragment : Fragment() {
                 )
             }
         })
-
-        //TODO: NEED TO LOOK INTO THIS PIECE LATER
-        viewModel.getWorkManageStatusEvent.observe(viewLifecycleOwner, Observer { tag ->
-            WorkManager.getInstance(requireContext()).getWorkInfosByTagLiveData(tag)
-                .observe(viewLifecycleOwner, Observer { workInfo ->
-                    if(workInfo?.map { it.state }?.isNotEmpty()?:false){
-                        when (workInfo?.map { it.state }?.get(0)?.name) {
-                            WorkInfo.State.SUCCEEDED.name -> {
-                                viewModel.adapter.notifyItemChanged(viewModel.currentClickedPostAdapterPosition)
-                            }
-                            else -> {
-
-                            }
-                        }
-                    }
-                })
-        })
-
     }
 
     private fun handleSwipeLayout() {
