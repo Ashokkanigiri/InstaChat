@@ -31,11 +31,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    @Inject
-    lateinit var roomRepository: RoomRepository
     lateinit var binding: FragmentHomeBinding
-    lateinit var viewModel: HomeViewModel
-    val auth = Firebase.auth
+    val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,43 +44,28 @@ class HomeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.lifecycleOwner = viewLifecycleOwner
-        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-        if(!viewModel.adapter.hasObservers()){
-            viewModel.adapter.setHasStableIds(true)
-        }
-        binding.viewModel = viewModel
-        binding.rvHome.adapter = viewModel.adapter
-
-
-
+        initFragment()
         setUpActionBar()
-        loadViewModel()
         handleSwipeLayout()
         observeViewModel()
-        handleRefreshPost()
     }
 
-    private fun loadViewModel() {
-        viewModel.loadViewModel()
-    }
-
-    private fun handleRefreshPost() {
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("Should_refresh_post")
-            ?.observe(viewLifecycleOwner) { shouldRefreshPost ->
-                if (shouldRefreshPost) {
-                    viewModel.refreshPost()
-                }
-            }
+    private fun initFragment() {
+        binding.lifecycleOwner = viewLifecycleOwner
+        if (!viewModel.adapter.hasObservers()) viewModel.adapter.setHasStableIds(true)
+        binding.viewModel = viewModel
+        binding.rvHome.adapter = viewModel.adapter
     }
 
     private fun observeViewModel() {
-        roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
+        viewModel.roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
             viewModel.usersAdapter.submitList(it)
         })
-        roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid?:"").observe(viewLifecycleOwner, Observer {
-            viewModel.adapter.submitList(it)
-        })
+
+        viewModel.roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid ?: "")
+            .observe(viewLifecycleOwner, Observer {
+                viewModel.adapter.submitList(it)
+            })
 
         viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer { postId ->
             postId?.let {
@@ -96,13 +78,9 @@ class HomeFragment : Fragment() {
 
     private fun handleSwipeLayout() {
         binding.swipeLayout.setOnRefreshListener {
-            loadDataFromViewModel()
+            viewModel.injectDataFromFirebase()
             binding.swipeLayout.isRefreshing = false
         }
-    }
-
-    private fun loadDataFromViewModel() {
-        viewModel.injectDataFromFirebase()
     }
 
     private fun setUpActionBar() {
@@ -111,5 +89,4 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).setSearchIconvisibility(true)
         (activity as BaseActivity).setMessageIconvisibility(true)
     }
-
 }

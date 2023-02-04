@@ -22,23 +22,14 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     val firebaseRepository: FirebaseRepository,
     val roomRepository: RoomRepository,
-    val restApiRepository: RestApiRepository,
     val roomRepositorySync: RoomRepositorySync,
-    val syncRepository: SyncRepository,
-    @ApplicationContext val context: Context
+    val syncRepository: SyncRepository
 ) : ViewModel() {
 
     val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter()
-    var currentClickedPostAdapterPosition = 0
-    var homeDataAdapterListener: HomeDataInterface? = null
     val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
     val auth = Firebase.auth
-    val getWorkManageStatusEvent = SingleLiveEvent<String>()
-
-    fun loadViewModel() {
-
-    }
 
     /**
      * This method injects all the data from API into Firebase
@@ -58,17 +49,8 @@ class HomeViewModel @Inject constructor(
      * This Method will be trigerred when comments edittext
      * in post gets clicked
      */
-    fun onCommentsTextClicked(postId: Int, adapterPosition: Int) {
-        currentClickedPostAdapterPosition = adapterPosition
+    fun onCommentsTextClicked(postId: Int) {
         commentsLayoutClickedEvent.postValue(postId)
-    }
-
-    fun getUser(userId: String): User? {
-        var user: User? = null
-        viewModelScope.async {
-            user = roomRepository.usersDao.getUser(userId)
-        }
-        return user
     }
 
     fun onLikeButtonClicked(homeDataModel: HomeDataModel) {
@@ -94,7 +76,7 @@ class HomeViewModel @Inject constructor(
                         this.likesCount = (this.likesCount ?: 0) - 1
                     }
 
-                    val currentList = (currentUser.likedPosts ?: emptyList()) - (listOf<LikedPosts>(
+                    val currentList = (currentUser.likedPosts ?: emptyList()) - (listOf(
                         LikedPosts(post.id)
                     ))
 
@@ -148,16 +130,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getFirstCommentForPost(postId: Int, commentData: ((HomeDataCommentsModel)->Unit)){
+    fun getFirstCommentForPost(postId: Int, commentData: ((HomeDataCommentsModel) -> Unit)) {
         viewModelScope.launch {
             val data = roomRepository.commentsDao.getAllCommentsForPostLiveData(postId)
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 commentData(data)
             }
         }
-    }
-
-    fun refreshPost() {
-        adapter.notifyItemChanged(currentClickedPostAdapterPosition)
     }
 }

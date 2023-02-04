@@ -39,36 +39,11 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
     RecyclerView.ViewHolder(binding.root) {
 
     fun bind(homeData: HomeDataModel) {
-        binding.commentSection.viewModel = viewModel
         binding.viewModel = viewModel
         binding.homeDataModel = homeData
 
         viewModel.getFirstCommentForPost(homeData.postId){
             binding.commentSection.homeDataCommentsModel = it
-        }
-
-        if(homeData.likedPosts.isNotEmpty()){
-            if(homeData.likedPosts.map { it.postId }.contains(homeData.postId)){
-                Log.d("qjfbqf", "\n ${homeData.postId} contains post id -> like red")
-                binding.bottomTools.imageView4.setImageResource(R.drawable.icon_like_clicked)
-            }else{
-                Log.d("qjfbqf", "\n" +
-                        " ${homeData.postId} not contains post id -> like blank")
-                binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
-            }
-        }else{
-            Log.d("qjfbqf", " \n" +
-                    " ${homeData.postId}list empty :: ${Gson().toJson(homeData)} -> like blank")
-            binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
-        }
-
-
-        binding.bottomTools.imageView4.setOnClickListener {
-            viewModel.onLikeButtonClicked(homeData)
-        }
-
-        binding.commentSection.etAddComment.setOnClickListener {
-            viewModel.onCommentsTextClicked(homeData.postId, adapterPosition)
         }
     }
 }
@@ -81,5 +56,4 @@ class DiffUtilCallBack : DiffUtil.ItemCallback<HomeDataModel>() {
     override fun areContentsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
         return oldItem.postId == newItem.postId
     }
-
 }

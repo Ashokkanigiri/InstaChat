@@ -11,7 +11,10 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.BitmapImageViewTarget
+import com.example.instachat.R
+import com.example.instachat.feature.home.HomeDataModel
 import com.example.instachat.services.models.dummyjson.Comment
+import com.example.instachat.services.models.dummyjson.LikedPosts
 
 @BindingAdapter("loadImageWithGlide")
 fun ImageView.loadImageWithGlide( imageUrl: String){
@@ -57,5 +60,18 @@ fun TextView.viewAllCommentsVisibility(commentsList: List<Comment>?){
         }else{
             this.visibility = View.GONE
         }
+    }
+}
+
+@BindingAdapter("setLikeImageDrawable")
+fun ImageView.setLikeImageDrawable(homeData: HomeDataModel){
+    if(homeData.likedPosts.isNotEmpty()){
+        if(homeData.likedPosts.map { it.postId }.contains(homeData.postId)){
+            this.setImageResource(R.drawable.icon_like_clicked)
+        }else{
+            this.setImageResource(R.drawable.post_like)
+        }
+    }else{
+        this.setImageResource(R.drawable.post_like)
     }
 }

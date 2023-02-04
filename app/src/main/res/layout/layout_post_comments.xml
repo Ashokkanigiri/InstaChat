@@ -57,6 +57,7 @@
             android:background="@drawable/bg_rounded_edittext"
             android:clickable="true"
             android:padding="6dp"
+            android:onClick="@{()-> viewModel.onCommentsTextClicked(homeDataCommentsModel.postId)}"
             android:text="Add a comment"
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
