@@ -29,7 +29,7 @@ class CommentViewModel
     var comment = MutableLiveData<String>()
     var isCommentUpdated = false
 
-    private val adapter = CommentAdapter()
+    val adapter = CommentAdapter()
 
     init {
         viewModelScope.launch {
@@ -37,10 +37,6 @@ class CommentViewModel
                 currentUser = this
             }
         }
-    }
-
-    fun setAdapter(): CommentAdapter {
-        return adapter
     }
 
     fun loadCurrentPost(postId: Int) {
