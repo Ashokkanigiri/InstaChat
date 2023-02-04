@@ -78,6 +78,9 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
+            viewModel.usersAdapter.submitList(it)
+        })
         roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid?:"").observe(viewLifecycleOwner, Observer {
             viewModel.adapter.submitList(it)
         })
