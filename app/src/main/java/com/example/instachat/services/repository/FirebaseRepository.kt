@@ -1,31 +1,22 @@
-package com.example.instachat.services.firebase
+package com.example.instachat.services.repository
 
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.services.models.dummyjson.UserRest
-import com.example.instachat.services.repository.RestApiRepository
-import com.example.instachat.services.repository.RoomRepository
-import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FirebaseRepository @Inject constructor(
     @ApplicationContext val context: Context,
-    val roomRepository: RoomRepository
+    val roomRepository: RoomRepository,
+    val roomSyncRepository: RoomSyncRepository
 ) {
 
     fun injectCommentsToFirebase(data: Comment) {

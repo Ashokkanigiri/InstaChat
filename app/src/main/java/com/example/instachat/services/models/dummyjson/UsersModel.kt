@@ -1,10 +1,7 @@
 package com.example.instachat.services.models.dummyjson
 
 import androidx.room.*
-import com.example.instachat.services.room.typeconverters.BankTypeConverter
-import com.example.instachat.services.room.typeconverters.CompanyTypeConverter
-import com.example.instachat.services.room.typeconverters.HairTypeConverter
-import com.example.instachat.services.room.typeconverters.UserAddressTypeConverter
+import com.example.instachat.services.room.typeconverters.*
 
 data class UsersModel(
     val limit: Int,
@@ -48,8 +45,13 @@ data class User(
     val university: String,
     val userAgent: String,
     val username: String,
-    val weight: Double
+    val weight: Double,
+
+    @TypeConverters(LikesTypeConverter::class)
+    var likedPosts: List<LikedPosts>? = emptyList()
 )
+
+data class LikedPosts(val postId: Int)
 
 data class Address(
     val address: String,

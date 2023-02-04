@@ -2,7 +2,6 @@ package com.example.instachat.services.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
@@ -17,7 +16,8 @@ import com.example.instachat.services.room.typeconverters.*
         TagsTypeConverter::class,
         BankTypeConverter::class,
         CompanyTypeConverter::class,
-        HairTypeConverter::class]
+        HairTypeConverter::class,
+        LikesTypeConverter::class]
 )
 @Database(
     entities = [User::class, PostModelItem::class, Comment::class],

@@ -12,4 +12,7 @@ interface BaseDao<T> {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(items: List<T>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertBlocking(items: T)
+
 }

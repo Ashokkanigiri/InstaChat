@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
 
     <data>
 
-        <variable
-            name="post"
-            type="com.example.instachat.services.models.PostModelItem" />
+       <variable
+           name="homeDataModel"
+           type="com.example.instachat.feature.home.models.HomeDataModel" />
 
         <variable
-            name="user"
-            type="com.example.instachat.services.models.dummyjson.User" />
+            name="viewModel"
+            type="com.example.instachat.feature.home.viewmodel.HomeViewModel" />
 
-
-        <variable
-            name="comment"
-            type="com.example.instachat.services.models.dummyjson.Comment" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -37,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:text="@{user.username}"
+                android:text="@{homeDataModel.userName}"
                 android:textColor="@color/black"
                 android:textSize="13sp"
                 app:layout_constraintStart_toEndOf="@+id/imageView2"
@@ -46,7 +43,7 @@
 
             <ImageView
                 android:id="@+id/imageView2"
-                loadCircularImageWithGlide="@{user.image}"
+                loadCircularImageWithGlide="@{homeDataModel.userImageUrl}"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="10dp"
@@ -60,7 +57,7 @@
                 android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@{user.firstName + ` ` + user.lastName}"
+                android:text="@{homeDataModel.firstName + ` ` + homeDataModel.lastName}"
                 android:textSize="8sp"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView2"
                 app:layout_constraintStart_toStartOf="@+id/textView"
@@ -71,7 +68,7 @@
 
         <ImageView
             android:id="@+id/imageView"
-            loadImageWithGlide="@{post.postImageUrl}"
+            loadImageWithGlide="@{homeDataModel.postImageUrl}"
             android:layout_width="0dp"
             android:layout_height="400dp"
             android:layout_marginTop="5dp"
@@ -94,6 +91,8 @@
             <include
                 android:id="@+id/bottom_tools"
                 layout="@layout/layout_post_bottom_tools"
+                bind:homeDataModel="@{homeDataModel}"
+                bind:viewModel="@{viewModel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -104,7 +103,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                app:comment="@{comment}"
+                bind:viewModel="@{viewModel}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/bottom_tools" />

@@ -3,6 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.instachat.feature.home.viewmodel.HomeViewModel" />
+        <variable
+            name="homeDataModel"
+            type="com.example.instachat.feature.home.models.HomeDataModel" />
+    </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="40dp">
@@ -12,10 +20,11 @@
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginStart="20dp"
+            android:onClick="@{()->viewModel.onLikeButtonClicked(homeDataModel)}"
+            setLikeImageDrawable="@{homeDataModel}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/post_like" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/imageView5"

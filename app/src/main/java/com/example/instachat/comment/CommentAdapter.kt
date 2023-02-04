@@ -26,6 +26,10 @@ class CommentAdapter: ListAdapter<Comment, CommentViewHolder>(CommentDiffUtil())
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
+
+    override fun getItemId(position: Int): Long {
+        return super.getItemId(getItem(position).id)
+    }
 }
 
 class CommentViewHolder(val binding: LayoutItemCommentBinding): RecyclerView.ViewHolder(binding.root){

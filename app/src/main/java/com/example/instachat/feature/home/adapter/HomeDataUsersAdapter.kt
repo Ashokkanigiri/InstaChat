@@ -23,8 +23,8 @@ class HomeUsersAdapter: ListAdapter<User, HomeUsersViewHolder>(HomeUserDiffUtil(
 }
 
 class HomeUsersViewHolder(val binding: ItemHomeUserAdapterBinding): RecyclerView.ViewHolder(binding.root){
-    fun bind(user: User){
-        binding.user = user
+    fun bind(homeDataModel: User){
+        binding.user = homeDataModel
     }
 }
 
