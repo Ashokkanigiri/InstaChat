@@ -2,6 +2,7 @@ package com.example.instachat
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.instachat.databinding.LayoutLoginActivityBinding
@@ -14,7 +15,7 @@ class LoginActivity : AppCompatActivity() {
 
     lateinit var binding: LayoutLoginActivityBinding
 
-
+    val viewModel: LoginViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -26,6 +27,8 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding = DataBindingUtil.setContentView(this, R.layout.layout_login_activity)
+
+        viewModel.injectDataFromFirebase()
 
     }
 }

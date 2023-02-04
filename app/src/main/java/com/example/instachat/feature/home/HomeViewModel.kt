@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.firebase.FirebaseRepository
+import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.LikedPosts
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RestApiRepository
@@ -58,76 +59,62 @@ class HomeViewModel @Inject constructor(
             val currentUser = roomRepository.usersDao.getUser(auth.currentUser?.uid ?: "0")
             val postModelItem = roomRepository.postsDao.getPost(homeDataModel.postId)
 
-            if (currentUser.likedPosts != null || (currentUser.likedPosts?.isNotEmpty() ?: false)) {
+            val isUserAlreadyLikedPost =
+                currentUser.likedPosts?.map { it.postId }?.contains(postModelItem.id)
 
-                val isUserLikedPost =
-                    currentUser.likedPosts?.map { it.postId }?.contains(postModelItem.id)
+            val incrementLikeCondition =
+                currentUser.likedPosts.isNullOrEmpty()
 
-                /**
-                 * user already had liked the post
-                 *
-                 * removed likes (likes - 1) count in post table
-                 *
-                 * removed the post from current user likedPosts list
-                 */
-                if (isUserLikedPost == true) {
-
-                    val post = postModelItem.apply {
-                        this.likesCount = (this.likesCount ?: 0) - 1
-                    }
-
-                    val currentList = (currentUser.likedPosts ?: emptyList()) - (listOf(
-                        LikedPosts(post.id)
-                    ))
-
-                    currentUser.likedPosts = currentList
-
-                    syncRepository.updateLikeForPost(post)
-                    syncRepository.updateUser(currentUser)
-
-
+            when {
+                (incrementLikeCondition) -> {
+                    incrementAndSyncPost(postModelItem, currentUser)
                 }
-
-                /**
-                 * User havent liked the post yet -> adding post id into user
-                 *
-                 * adding postitem likes count
-                 */
-                else {
-
-                    val post = postModelItem.apply {
-                        this.likesCount = (this.likesCount ?: 0) + 1
-                    }
-
-                    val currentList = (currentUser.likedPosts ?: emptyList()) + (listOf<LikedPosts>(
-                        LikedPosts(post.id)
-                    ))
-
-
-                    currentUser.likedPosts = currentList
-
-
-                    syncRepository.updateLikeForPost(post)
-                    syncRepository.updateUser(currentUser)
-
+                isUserAlreadyLikedPost == true -> {
+                    decrementAndSyncPost(postModelItem, currentUser)
                 }
-            } else {
-
-                val post = postModelItem.apply {
-                    this.likesCount = (this.likesCount ?: 0) + 1
+                isUserAlreadyLikedPost == false -> {
+                    incrementAndSyncPost(postModelItem, currentUser)
                 }
-
-                val currentList = (currentUser.likedPosts ?: emptyList()) + (listOf<LikedPosts>(
-                    LikedPosts(post.id)
-                ))
-
-
-                currentUser.likedPosts = currentList
-
-                syncRepository.updateLikeForPost(post)
-                syncRepository.updateUser(currentUser)
             }
         }
+    }
+
+    private suspend fun decrementAndSyncPost(
+        postModelItem: PostModelItem,
+        currentUser: User
+    ) {
+        val post = postModelItem.apply {
+            this.likesCount = (this.likesCount ?: 0) - 1
+        }
+        val currentList = (currentUser.likedPosts ?: emptyList()) - (listOf(
+            LikedPosts(post.id)
+        )).toSet()
+
+        currentUser.likedPosts = currentList
+        syncLikedPost(post, currentUser)
+    }
+
+    private suspend fun incrementAndSyncPost(
+        postModelItem: PostModelItem,
+        currentUser: User
+    ) {
+        val post = postModelItem.apply {
+            this.likesCount = (this.likesCount ?: 0) + 1
+        }
+        val currentList = (currentUser.likedPosts ?: emptyList()) + (listOf(
+            LikedPosts(post.id)
+        ))
+
+        currentUser.likedPosts = currentList
+        syncLikedPost(post, currentUser)
+    }
+
+    private suspend fun syncLikedPost(
+        post: PostModelItem,
+        currentUser: User
+    ) {
+        syncRepository.updateLikeForPost(post)
+        syncRepository.updateUser(currentUser)
     }
 
     fun getFirstCommentForPost(postId: Int, commentData: ((HomeDataCommentsModel) -> Unit)) {

@@ -21,9 +21,3 @@ data class HomeDataModel(
     val lastName: String="",
     val likedPosts: List<LikedPosts> = emptyList()
 )
-
-data class HomeDataModel1(
-    val homeDataModel: HomeDataModel = HomeDataModel(),
-
-    var comments: List<Comment> = emptyList()
-)
