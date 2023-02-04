@@ -7,8 +7,8 @@
     <data>
 
         <variable
-            name="homeDataModel1"
-            type="com.example.instachat.feature.home.HomeDataModel1" />
+            name="homeDataCommentsModel"
+            type="com.example.instachat.feature.home.HomeDataCommentsModel" />
 
         <variable
             name="viewModel"
@@ -26,10 +26,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
-            android:text="@{homeDataModel1.homeDataModel.userName + ` : `}"
+            android:visibility="@{(homeDataCommentsModel.totalCommentsForPost == 0 || homeDataCommentsModel.totalCommentsForPost == null) ? View.GONE : View.VISIBLE }"
+            android:text="@{homeDataCommentsModel.commentedUserName + ` : `}"
             android:textColor="@color/black"
             android:textSize="13sp"
-            android:visibility="@{(homeDataModel1.comments == null || homeDataModel1.comments.empty)  ? View.GONE : View.VISIBLE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Ashok Kanigiri :  " />
@@ -41,8 +41,8 @@
             android:layout_marginStart="15dp"
             android:layout_marginTop="15dp"
             android:textSize="11sp"
-            viewAllCommentsVisibility="@{homeDataModel1.comments}"
-            android:text="@{`View all `+ homeDataModel1.comments.size() + ` Comments`}"
+            android:visibility="@{(homeDataCommentsModel.totalCommentsForPost == 0 || homeDataCommentsModel.totalCommentsForPost == null) ? View.GONE : View.VISIBLE }"
+            android:text="@{`View all `+ homeDataCommentsModel.totalCommentsForPost + ` comments`}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_first_comment_username"
             tools:text="View all 3 comments" />
@@ -70,8 +70,8 @@
             android:layout_marginEnd="10dp"
             android:ellipsize="end"
             android:textSize="13sp"
-            getfirstCommentBody="@{homeDataModel1.comments}"
-            android:visibility="@{(homeDataModel1.comments == null || homeDataModel1.comments.empty)  ? View.GONE : View.VISIBLE}"
+            android:visibility="@{(homeDataCommentsModel.totalCommentsForPost == 0 || homeDataCommentsModel.totalCommentsForPost == null) ? View.GONE : View.VISIBLE }"
+            android:text="@{homeDataCommentsModel.commentBody}"
             app:layout_constraintBottom_toBottomOf="@+id/tv_first_comment_username"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tv_first_comment_username"

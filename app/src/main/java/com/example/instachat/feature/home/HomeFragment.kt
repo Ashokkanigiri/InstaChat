@@ -77,7 +77,7 @@ class HomeFragment : Fragment() {
     private fun observeViewModel() {
 
         viewModel.roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid?:"").observe(viewLifecycleOwner, Observer {
-//            viewModel.adapter.submitList(it)
+            viewModel.adapter.submitList(it)
         })
 
         viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer { postId ->

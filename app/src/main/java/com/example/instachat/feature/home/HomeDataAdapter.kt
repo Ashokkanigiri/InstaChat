@@ -4,28 +4,15 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instachat.R
 import com.example.instachat.databinding.ItemHomeFragmentBinding
-import com.example.instachat.services.models.PostModelItem
-import com.example.instachat.services.models.dummyjson.Comment
-import com.example.instachat.services.models.dummyjson.User
-import com.google.firebase.firestore.AggregateSource
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
-    ListAdapter<HomeDataModel1, HomeDataViewHolder>(DiffUtilCallBack()) {
+    ListAdapter<HomeDataModel, HomeDataViewHolder>(DiffUtilCallBack()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeDataViewHolder {
         val inflator = LayoutInflater.from(parent.context)
@@ -43,7 +30,7 @@ class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
     }
 
     override fun getItemId(position: Int): Long {
-        return getItem(position).homeDataModel.postId.toLong()
+        return getItem(position).postId.toLong()
     }
 }
 
@@ -51,16 +38,17 @@ class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
 class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: HomeViewModel) :
     RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(homeData: HomeDataModel1) {
+    fun bind(homeData: HomeDataModel) {
         binding.commentSection.viewModel = viewModel
         binding.viewModel = viewModel
-        binding.homeDataModel1 = homeData
-        if(homeData.comments.isNotEmpty()){
-            binding.firstComment = homeData.comments.first()
+        binding.homeDataModel = homeData
+
+        viewModel.getFirstCommentForPost(homeData.postId){
+            binding.commentSection.homeDataCommentsModel = it
         }
 
-        if(homeData.homeDataModel.likedPosts.isNotEmpty()){
-            if(homeData.homeDataModel.likedPosts.map { it.postId }.contains(homeData.homeDataModel.postId)){
+        if(homeData.likedPosts.isNotEmpty()){
+            if(homeData.likedPosts.map { it.postId }.contains(homeData.postId)){
                 binding.bottomTools.imageView4.setImageResource(R.drawable.icon_like_clicked)
             }else{
                 binding.bottomTools.imageView4.setImageResource(R.drawable.post_like)
@@ -71,22 +59,22 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
 
 
         binding.bottomTools.imageView4.setOnClickListener {
-            viewModel.onLikeButtonClicked(homeData.homeDataModel)
+            viewModel.onLikeButtonClicked(homeData)
         }
 
         binding.commentSection.etAddComment.setOnClickListener {
-            viewModel.onCommentsTextClicked(homeData.homeDataModel.postId, adapterPosition)
+            viewModel.onCommentsTextClicked(homeData.postId, adapterPosition)
         }
     }
 }
 
-class DiffUtilCallBack : DiffUtil.ItemCallback<HomeDataModel1>() {
-    override fun areItemsTheSame(oldItem: HomeDataModel1, newItem: HomeDataModel1): Boolean {
+class DiffUtilCallBack : DiffUtil.ItemCallback<HomeDataModel>() {
+    override fun areItemsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
         return oldItem == newItem
     }
 
-    override fun areContentsTheSame(oldItem: HomeDataModel1, newItem: HomeDataModel1): Boolean {
-        return oldItem.homeDataModel.postId == newItem.homeDataModel.postId
+    override fun areContentsTheSame(oldItem: HomeDataModel, newItem: HomeDataModel): Boolean {
+        return oldItem.postId == newItem.postId
     }
 
 }

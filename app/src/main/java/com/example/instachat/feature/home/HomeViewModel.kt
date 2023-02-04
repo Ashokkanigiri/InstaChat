@@ -1,15 +1,9 @@
 package com.example.instachat.feature.home
 
 import android.content.Context
-import android.util.Log
-import androidx.databinding.ObservableField
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkManager
 import com.example.instachat.services.firebase.FirebaseRepository
-import com.example.instachat.services.models.PostModelItem
-import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.LikedPosts
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RestApiRepository
@@ -19,16 +13,9 @@ import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -44,6 +31,7 @@ class HomeViewModel @Inject constructor(
     val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter()
     var currentClickedPostAdapterPosition = 0
+    var homeDataAdapterListener: HomeDataInterface? = null
     val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
     val auth = Firebase.auth
     val getWorkManageStatusEvent = SingleLiveEvent<String>()
@@ -156,6 +144,15 @@ class HomeViewModel @Inject constructor(
 
                 syncRepository.updateLikeForPost(post)
                 syncRepository.updateUser(currentUser)
+            }
+        }
+    }
+
+    fun getFirstCommentForPost(postId: Int, commentData: ((HomeDataCommentsModel)->Unit)){
+        viewModelScope.launch {
+            val data = roomRepository.commentsDao.getAllCommentsForPostLiveData(postId)
+            withContext(Dispatchers.Main){
+                commentData(data)
             }
         }
     }
