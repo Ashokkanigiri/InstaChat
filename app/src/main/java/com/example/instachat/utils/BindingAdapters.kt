@@ -12,7 +12,7 @@ import com.example.instachat.feature.home.models.HomeDataModel
 import com.example.instachat.services.models.dummyjson.Comment
 
 @BindingAdapter("loadImageWithGlide")
-fun ImageView.loadImageWithGlide( imageUrl: String){
+fun ImageView.loadImageWithGlide(imageUrl: String){
     Glide.with(this).load(imageUrl)
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .into(this)
@@ -69,4 +69,9 @@ fun ImageView.setLikeImageDrawable(homeData: HomeDataModel){
     }else{
         this.setImageResource(R.drawable.post_like)
     }
+}
+
+@BindingAdapter("loadNoInternetConnectionGif")
+fun ImageView.loadNoInternetConnectionGif(boolean: Boolean){
+    Glide.with(this).load(R.drawable.no_internet_connection).into(this)
 }

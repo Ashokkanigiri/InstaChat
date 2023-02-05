@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.instachat.databinding.LayoutLoginActivityBinding
+import com.example.instachat.utils.DialogUtils
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,8 +28,17 @@ class LoginActivity : AppCompatActivity() {
         }
 
         binding = DataBindingUtil.setContentView(this, R.layout.layout_login_activity)
+        binding.lifecycleOwner = this
 
         viewModel.injectDataFromFirebase()
 
+        observeViewModel()
+
+    }
+
+    private fun observeViewModel() {
+        viewModel.showConnectivityErrorDialog.observe(this){
+            DialogUtils.populateConnectivityErrorDialog(this)
+        }
     }
 }

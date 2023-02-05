@@ -6,6 +6,7 @@ import com.example.instachat.feature.home.HomeDataAdapter
 import com.example.instachat.feature.home.models.HomeDataCommentsModel
 import com.example.instachat.feature.home.models.HomeDataModel
 import com.example.instachat.feature.home.HomeUsersAdapter
+import com.example.instachat.feature.home.HomeViewModelEvent
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.LikedPosts
@@ -13,6 +14,7 @@ import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.repository.SyncRepository
+import com.example.instachat.utils.ConnectivityService
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -25,13 +27,15 @@ class HomeViewModel @Inject constructor(
     val firebaseRepository: FirebaseRepository,
     val roomRepository: RoomRepository,
     val roomSyncRepository: RoomSyncRepository,
-    val syncRepository: SyncRepository
+    val syncRepository: SyncRepository,
+    val connectivityService: ConnectivityService
 ) : ViewModel() {
 
     val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter()
     val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
     val auth = Firebase.auth
+    val event = SingleLiveEvent<HomeViewModelEvent>()
 
     /**
      * This method injects all the data from API into Firebase
@@ -39,11 +43,14 @@ class HomeViewModel @Inject constructor(
      * Need to be used with care
      */
     fun injectDataFromFirebase() {
-
-        viewModelScope.launch(Dispatchers.IO) {
-            firebaseRepository.getAllPostsFromFirebase()
-            firebaseRepository.getAllUsersFromFirebase()
-            firebaseRepository.getAllCommentsFromFirebase()
+        if(connectivityService.hasActiveNetwork()){
+            viewModelScope.launch(Dispatchers.IO) {
+                firebaseRepository.getAllPostsFromFirebase()
+                firebaseRepository.getAllUsersFromFirebase()
+                firebaseRepository.getAllCommentsFromFirebase()
+            }
+        }else{
+            event.postValue(HomeViewModelEvent.ShowConnectivityErrorDialog)
         }
     }
 

@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.utils.ConnectivityService
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
@@ -16,7 +17,8 @@ import javax.inject.Inject
 class FirebaseRepository @Inject constructor(
     @ApplicationContext val context: Context,
     val roomRepository: RoomRepository,
-    val roomSyncRepository: RoomSyncRepository
+    val roomSyncRepository: RoomSyncRepository,
+    val connectivityService: ConnectivityService
 ) {
 
     fun injectCommentsToFirebase(data: Comment) {
@@ -42,6 +44,7 @@ class FirebaseRepository @Inject constructor(
             }.addOnCanceledListener {
                 Log.d("wkjbfqa", "addOnCanceledListener")
             }
+
     }
 
     fun injectPostsToFirebase(data: PostModelItem) {
@@ -54,42 +57,46 @@ class FirebaseRepository @Inject constructor(
             }.addOnCanceledListener {
                 Log.d("wkjbfqa", "addOnCanceledListener")
             }
+
     }
 
     suspend fun getAllPostsFromFirebase() {
         val db = Firebase.firestore
-        db.collection("posts").get().await().documents.let {it->
-            val data = it?.map { it.data }?.map {data->
+        db.collection("posts").get().await().documents.let { it ->
+            val data = it?.map { it.data }?.map { data ->
                 Gson().fromJson(Gson().toJson(data), PostModelItem::class.java)
             }
             data?.let {
                 roomRepository.postsDao.insert(it)
             }
         }
+
     }
 
     suspend fun getAllCommentsFromFirebase() {
         val db = Firebase.firestore
-        db.collection("comments").get().await().documents.let {it->
-            val data = it?.map { it.data }?.map {data->
+        db.collection("comments").get().await().documents.let { it ->
+            val data = it?.map { it.data }?.map { data ->
                 Gson().fromJson(Gson().toJson(data), Comment::class.java)
             }
             data?.let {
                 roomRepository.commentsDao.insert(it)
             }
         }
+
     }
 
     suspend fun getAllUsersFromFirebase() {
         val db = Firebase.firestore
-        db.collection("users").get().await().documents.let {it->
-            val data = it?.map { it.data }?.map {data->
+        db.collection("users").get().await().documents.let { it ->
+            val data = it?.map { it.data }?.map { data ->
                 Gson().fromJson(Gson().toJson(data), User::class.java)
             }
             data?.let {
                 roomRepository.usersDao.insert(it)
             }
         }
+
     }
 
     fun getUserPosts(userId: Int) {
@@ -105,6 +112,7 @@ class FirebaseRepository @Inject constructor(
                 }
 
             }
+
     }
 
     fun getAllCommentsForPost(postId: Int) {
@@ -120,6 +128,7 @@ class FirebaseRepository @Inject constructor(
                 commentsList?.let {
                 }
             }
+
     }
 
     fun getPost(postId: Int) {
@@ -136,6 +145,7 @@ class FirebaseRepository @Inject constructor(
                 }
             }
         }
+
     }
 
     fun getUser(userId: Int, getLoggedInUser: Boolean) {
@@ -151,6 +161,7 @@ class FirebaseRepository @Inject constructor(
                 user.isNotEmpty()?.let {
                 }
             }
+
         }
     }
 
@@ -164,6 +175,7 @@ class FirebaseRepository @Inject constructor(
                 Toast.makeText(context, "Comment sucessfully added", Toast.LENGTH_SHORT).show()
 
             }
+
     }
 
 }

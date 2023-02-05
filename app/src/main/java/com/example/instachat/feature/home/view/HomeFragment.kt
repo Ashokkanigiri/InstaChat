@@ -12,7 +12,9 @@ import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
+import com.example.instachat.feature.home.HomeViewModelEvent
 import com.example.instachat.feature.home.viewmodel.HomeViewModel
+import com.example.instachat.utils.DialogUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,6 +47,14 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+
+        viewModel.event.observe(viewLifecycleOwner, Observer {
+            when(it){
+                is HomeViewModelEvent.ShowConnectivityErrorDialog ->{
+                    DialogUtils.populateConnectivityErrorDialog(requireActivity())
+                }
+            }
+        })
         viewModel.roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
             viewModel.usersAdapter.submitList(it)
         })
