@@ -8,7 +8,7 @@
 
     <fragment
         android:id="@+id/home"
-        android:name="com.example.instachat.feature.home.view.HomeFragment"
+        android:name="com.example.instachat.feature.hometab.view.HomeFragment"
         android:label="HomeFragment"
         tools:layout="@layout/fragment_home">
 
@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/search"
-        android:name="com.example.instachat.feature.search.SearchFragment"
+        android:name="com.example.instachat.feature.searchtab.SearchTabFragment"
         android:label="SearchFragment"
         tools:layout="@layout/fragment_search">
 
@@ -39,7 +39,7 @@
     </fragment>
     <fragment
         android:id="@+id/settings"
-        android:name="com.example.instachat.feature.settings.SettingsFragment"
+        android:name="com.example.instachat.feature.settingstab.SettingsFragment"
         android:label="SettingsFragment"
         tools:layout="@layout/fragment_settings">
 

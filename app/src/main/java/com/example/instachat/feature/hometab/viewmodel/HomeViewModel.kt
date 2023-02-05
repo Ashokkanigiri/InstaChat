@@ -1,12 +1,12 @@
-package com.example.instachat.feature.home.viewmodel
+package com.example.instachat.feature.hometab.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.instachat.feature.home.HomeDataAdapter
-import com.example.instachat.feature.home.models.HomeDataCommentsModel
-import com.example.instachat.feature.home.models.HomeDataModel
-import com.example.instachat.feature.home.HomeUsersAdapter
-import com.example.instachat.feature.home.HomeViewModelEvent
+import com.example.instachat.feature.hometab.HomeDataAdapter
+import com.example.instachat.feature.hometab.models.HomeDataCommentsModel
+import com.example.instachat.feature.hometab.models.HomeDataModel
+import com.example.instachat.feature.hometab.HomeUsersAdapter
+import com.example.instachat.feature.hometab.HomeViewModelEvent
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.LikedPosts

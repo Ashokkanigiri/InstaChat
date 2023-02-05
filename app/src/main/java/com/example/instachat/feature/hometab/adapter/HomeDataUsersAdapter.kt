@@ -1,4 +1,4 @@
-package com.example.instachat.feature.home
+package com.example.instachat.feature.hometab
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

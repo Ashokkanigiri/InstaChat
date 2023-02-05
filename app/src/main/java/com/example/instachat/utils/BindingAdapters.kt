@@ -8,7 +8,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.example.instachat.R
-import com.example.instachat.feature.home.models.HomeDataModel
+import com.example.instachat.feature.hometab.models.HomeDataModel
 import com.example.instachat.services.models.dummyjson.Comment
 
 @BindingAdapter("loadImageWithGlide")

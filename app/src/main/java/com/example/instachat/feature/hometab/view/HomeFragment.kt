@@ -1,4 +1,4 @@
-package com.example.instachat.feature.home.view
+package com.example.instachat.feature.hometab.view
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -12,8 +12,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
-import com.example.instachat.feature.home.HomeViewModelEvent
-import com.example.instachat.feature.home.viewmodel.HomeViewModel
+import com.example.instachat.feature.hometab.HomeViewModelEvent
+import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
 import com.example.instachat.utils.DialogUtils
 import dagger.hilt.android.AndroidEntryPoint
 

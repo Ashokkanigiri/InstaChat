@@ -8,11 +8,11 @@
 
        <variable
            name="homeDataModel"
-           type="com.example.instachat.feature.home.models.HomeDataModel" />
+           type="com.example.instachat.feature.hometab.models.HomeDataModel" />
 
         <variable
             name="viewModel"
-            type="com.example.instachat.feature.home.viewmodel.HomeViewModel" />
+            type="com.example.instachat.feature.hometab.viewmodel.HomeViewModel" />
 
     </data>
 
