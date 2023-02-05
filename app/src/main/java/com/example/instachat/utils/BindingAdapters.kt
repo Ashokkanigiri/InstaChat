@@ -75,3 +75,21 @@ fun ImageView.setLikeImageDrawable(homeData: HomeDataModel){
 fun ImageView.loadNoInternetConnectionGif(boolean: Boolean){
     Glide.with(this).load(R.drawable.no_internet_connection).into(this)
 }
+
+@BindingAdapter("displayTag1ForPost")
+fun TextView.displayTag1ForPost(tags: List<String>?){
+    tags?.let {
+        this.text = "#"+tags.get(0)
+    }
+}
+
+@BindingAdapter("displayTag2ForPost")
+fun TextView.displayTag2ForPost(tags: List<String>?){
+    tags?.let {
+        if(tags.size >= 2){
+            this.text = "#"+tags.get(1)
+        }else{
+            this.visibility = View.GONE
+        }
+    }
+}
