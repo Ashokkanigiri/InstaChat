@@ -2,7 +2,11 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph_search"
-    >
+    app:startDestination="@id/searchTabFragment">
 
 
+    <fragment
+        android:id="@+id/searchTabFragment"
+        android:name="com.example.instachat.feature.searchtab.SearchTabFragment"
+        android:label="SearchTabFragment" />
 </navigation>

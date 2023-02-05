@@ -1,7 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph_home">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph_home"
+    app:startDestination="@id/home">
 
 
+
+
+    <fragment
+        android:id="@+id/home"
+        android:name="com.example.instachat.feature.hometab.view.HomeFragment"
+        android:label="HomeFragment"
+        tools:layout="@layout/fragment_home">
+
+        <action
+            android:id="@+id/action_home_to_nav_graph_home"
+            app:destination="@id/nav_graph_home"
+            app:popUpToSaveState="true"
+            app:restoreState="true"/>
+        <action
+            android:id="@+id/action_home_to_commentFragment"
+            app:destination="@id/commentFragment"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/commentFragment"
+        android:name="com.example.instachat.comment.CommentFragment"
+        android:label="CommentFragment" >
+        <argument
+            android:name="postId"
+            app:argType="integer"
+            android:defaultValue="0" />
+    </fragment>
 </navigation>
