@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentSearchBinding
@@ -37,6 +38,12 @@ class SearchTabFragment : Fragment() {
     private fun observeViewModel() {
         viewModel.roomRepository.postsDao.getAllPosts().observe(viewLifecycleOwner, Observer {
             viewModel.adapter.submitList(it)
+        })
+
+        viewModel.event.observe(viewLifecycleOwner, Observer {
+            findNavController().navigate(
+                SearchTabFragmentDirections.actionSearchTabFragmentToHomeFragment(it)
+            )
         })
     }
 

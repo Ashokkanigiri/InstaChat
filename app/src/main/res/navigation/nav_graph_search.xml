@@ -8,5 +8,40 @@
     <fragment
         android:id="@+id/searchTabFragment"
         android:name="com.example.instachat.feature.searchtab.SearchTabFragment"
-        android:label="SearchTabFragment" />
+        android:label="SearchTabFragment">
+        <action
+            android:id="@+id/action_searchTabFragment_to_homeFragment"
+            app:destination="@id/homeFragment"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right"/>
+    </fragment>
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.instachat.feature.hometab.view.HomeFragment"
+        android:label="HomeFragment">
+        <action
+            android:id="@+id/action_home_to_commentFragment"
+            app:destination="@id/commentFragment"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right"/>
+        <argument
+            android:name="postId"
+            android:defaultValue="0"
+            app:argType="integer" />
+    </fragment>
+    <fragment
+        android:id="@+id/commentFragment"
+        android:name="com.example.instachat.comment.CommentFragment"
+        android:label="CommentFragment">
+
+        <argument
+            android:name="postId"
+            android:defaultValue="0"
+            app:argType="integer" />
+    </fragment>
+
 </navigation>

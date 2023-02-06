@@ -36,6 +36,8 @@ class HomeViewModel @Inject constructor(
     val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
     val auth = Firebase.auth
     val event = SingleLiveEvent<HomeViewModelEvent>()
+    var selectedPostId = 0
+    var isFromSearchFragment = false
 
     /**
      * This method injects all the data from API into Firebase
@@ -133,4 +135,5 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
 }

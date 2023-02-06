@@ -43,6 +43,7 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
         binding.homeDataModel = homeData
 
         viewModel.getFirstCommentForPost(homeData.postId){
+
             binding.commentSection.homeDataCommentsModel = it
         }
     }

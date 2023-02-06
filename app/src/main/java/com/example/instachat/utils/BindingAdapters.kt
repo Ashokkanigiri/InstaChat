@@ -60,8 +60,8 @@ fun TextView.viewAllCommentsVisibility(commentsList: List<Comment>?){
 
 @BindingAdapter("setLikeImageDrawable")
 fun ImageView.setLikeImageDrawable(homeData: HomeDataModel){
-    if(homeData.likedPosts.isNotEmpty()){
-        if(homeData.likedPosts.map { it.postId }.contains(homeData.postId)){
+    if(homeData.likedPosts?.isNotEmpty() ?: false){
+        if(homeData.likedPosts?.map { it.postId }?.contains(homeData.postId) ?: false){
             this.setImageResource(R.drawable.icon_like_clicked)
         }else{
             this.setImageResource(R.drawable.post_like)

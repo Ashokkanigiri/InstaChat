@@ -47,4 +47,8 @@ open class BaseActivity : AppCompatActivity(){
     fun handleBackPressed(backButtonClickListener: View.OnClickListener){
         toolBarBinding.ivBack.setOnClickListener(backButtonClickListener)
     }
+
+    fun setBackLabelText(text: String){
+        toolBarBinding.tvBackLabel.setText(text)
+    }
 }

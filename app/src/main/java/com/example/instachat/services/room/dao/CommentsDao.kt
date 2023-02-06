@@ -31,6 +31,6 @@ interface CommentsDao : BaseDao<Comment> {
     @Query("SELECT * FROM comments WHERE postId =:postId")
     fun getAllCommentsForPostLive(postId: Int): LiveData<List<Comment>>
 
-    @Query("SELECT comments.id as commentId, comments.body as commentBody, users.username as commentedUserName, posts.id as postId, COUNT(comments.id) as totalCommentsForPost FROM users INNER JOIN posts on users.id = posts.userId INNER JOIN comments ON posts.id = comments.postId WHERE posts.id =:postId LIMIT 1")
+    @Query("SELECT comments.id as commentId, comments.body as commentBody, comments.username as commentedUserName, posts.id as postId, COUNT(comments.id) as totalCommentsForPost FROM posts LEFT JOIN comments ON posts.id = comments.postId WHERE posts.id =:postId")
     suspend fun getAllCommentsForPostLiveData(postId: Int): HomeDataCommentsModel
 }

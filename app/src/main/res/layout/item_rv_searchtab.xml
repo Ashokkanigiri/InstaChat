@@ -9,6 +9,10 @@
             name="post"
             type="com.example.instachat.services.models.PostModelItem" />
 
+        <variable
+            name="viewModel"
+            type="com.example.instachat.feature.searchtab.SearchTabViewModel" />
+
         <import type="android.view.View" />
     </data>
 
@@ -16,6 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="220dp"
         android:layout_margin="0.5dp"
+        android:onClick="@{() -> viewModel.onPostItemClicked(post.id)}"
         android:foreground="@drawable/foreground_tint"
         android:minHeight="220dp">
 
