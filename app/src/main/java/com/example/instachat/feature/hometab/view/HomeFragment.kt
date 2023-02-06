@@ -79,7 +79,7 @@ class HomeFragment : Fragment() {
                 viewModel.usersAdapter.submitList(it)
             })
 
-            viewModel.roomRepository.postsDao.getPostsHomeDataLive("12")
+            viewModel.roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid?:"")
                 .observe(viewLifecycleOwner, Observer {
                     viewModel.adapter.submitList(it)
                 })
