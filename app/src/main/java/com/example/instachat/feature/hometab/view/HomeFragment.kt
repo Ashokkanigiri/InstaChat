@@ -37,9 +37,15 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initFragment()
-        setUpActionBar()
         handleSwipeLayout()
+        loadViewModel()
         observeViewModel()
+    }
+
+    private fun loadViewModel() {
+        viewModel.loadHomeData()
+        viewModel.loadUsersData()
+        viewModel.setUpActionBar()
     }
 
     private fun initFragment() {
@@ -51,48 +57,45 @@ class HomeFragment : Fragment() {
         arguments?.getInt("postId")?.let {
             viewModel.selectedPostId = it
             viewModel.isFromSearchFragment = true
-            binding.rvUsers.visibility= View.GONE
+            binding.rvUsers.visibility = View.GONE
         }
     }
 
     private fun observeViewModel() {
 
         viewModel.event.observe(viewLifecycleOwner, Observer {
-            when(it){
-                is HomeViewModelEvent.ShowConnectivityErrorDialog ->{
+            when (it) {
+                is HomeViewModelEvent.ShowConnectivityErrorDialog -> {
                     DialogUtils.populateConnectivityErrorDialog(requireActivity())
+                }
+                is HomeViewModelEvent.ShowActionBarForHome -> {
+                    populateActionBarForHome()
+                }
+                is HomeViewModelEvent.ShowActionBarFromSearch -> {
+                    populateActionBarFromSearch()
+                }
+                is HomeViewModelEvent.LoadHomeData -> {
+                    viewModel.adapter.submitList(it.data)
+                }
+                is HomeViewModelEvent.LoadHomeUsersData -> {
+                    viewModel.usersAdapter.submitList(it.data)
+                }
+                is HomeViewModelEvent.LoadHomeDataFromSearch -> {
+                    viewModel.adapter.submitList(it.data)
+                }
+                is HomeViewModelEvent.NavigateFromHomeToCommentsFragment -> {
+                    navigateToCommentsFragment(it.postId)
                 }
             }
         })
+    }
 
-        if(viewModel.isFromSearchFragment){
-            viewModel.roomRepository.postsDao.getAllPostsHomeData()
-                .observe(viewLifecycleOwner, Observer {
-                    val list = it
-                    val clickedPost = list.filter { it.postId == viewModel.selectedPostId }.first()
-                    list?.toMutableList()?.remove(clickedPost)
-                    val finallist: List<HomeDataModel> = listOf(clickedPost)+list
-                    viewModel.adapter.submitList(finallist)
-                })
-        }else{
-            viewModel.roomRepository.usersDao.getallUsers().observe(viewLifecycleOwner, Observer {
-                viewModel.usersAdapter.submitList(it)
-            })
-
-            viewModel.roomRepository.postsDao.getPostsHomeDataLive(viewModel.auth.uid?:"")
-                .observe(viewLifecycleOwner, Observer {
-                    viewModel.adapter.submitList(it)
-                })
-
+    private fun navigateToCommentsFragment(postId: Int?) {
+        postId?.let {
+            findNavController().navigate(
+                HomeFragmentDirections.actionHomeToCommentFragment(it)
+            )
         }
-
-        viewModel.commentsLayoutClickedEvent.observe(viewLifecycleOwner, Observer { postId ->
-            postId?.let {
-                findNavController().navigate(
-                    HomeFragmentDirections.actionHomeToCommentFragment(it)
-                )
-            }
-        })
     }
 
     private fun handleSwipeLayout() {
@@ -102,24 +105,24 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun setUpActionBar() {
+    private fun populateActionBarForHome(){
         (activity as BaseActivity).setupActionBar(binding.actionBar)
-        if (viewModel.isFromSearchFragment) {
-            (activity as BaseActivity).setBackButtonVisibility(true)
-            (activity as BaseActivity).setSearchIconvisibility(false)
-            (activity as BaseActivity).setMessageIconvisibility(false)
-            (activity as BaseActivity).setBackLabelText("Explore")
-            (activity as BaseActivity).handleBackPressed(object : View.OnClickListener{
-                override fun onClick(p0: View?) {
-                    findNavController().popBackStack()
-                }
+        (activity as BaseActivity).setBackButtonVisibility(false)
+        (activity as BaseActivity).setSearchIconvisibility(true)
+        (activity as BaseActivity).setMessageIconvisibility(true)
+    }
 
-            })
-        } else {
-            (activity as BaseActivity).setBackButtonVisibility(false)
-            (activity as BaseActivity).setSearchIconvisibility(true)
-            (activity as BaseActivity).setMessageIconvisibility(true)
+    private fun populateActionBarFromSearch(){
+        (activity as BaseActivity).setupActionBar(binding.actionBar)
+        (activity as BaseActivity).setBackButtonVisibility(true)
+        (activity as BaseActivity).setSearchIconvisibility(false)
+        (activity as BaseActivity).setMessageIconvisibility(false)
+        (activity as BaseActivity).setBackLabelText("Explore")
+        (activity as BaseActivity).handleBackPressed(object : View.OnClickListener {
+            override fun onClick(p0: View?) {
+                findNavController().popBackStack()
+            }
 
-        }
+        })
     }
 }

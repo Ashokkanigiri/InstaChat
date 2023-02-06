@@ -20,6 +20,8 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,11 +35,62 @@ class HomeViewModel @Inject constructor(
 
     val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter()
-    val commentsLayoutClickedEvent = SingleLiveEvent<Int>()
     val auth = Firebase.auth
     val event = SingleLiveEvent<HomeViewModelEvent>()
     var selectedPostId = 0
     var isFromSearchFragment = false
+
+    fun loadHomeData(){
+        viewModelScope.launch {
+            if(isFromSearchFragment){
+                getHomeDataFromSearch().collect(){
+                    event.postValue(HomeViewModelEvent.LoadHomeDataFromSearch(it))
+                }
+            }else{
+                getHomeData().collect(){
+                    event.postValue(HomeViewModelEvent.LoadHomeData(it))
+                }
+            }
+        }
+    }
+
+    fun loadUsersData(){
+        viewModelScope.launch {
+            getHomeUsersData().collect(){
+                event.postValue(HomeViewModelEvent.LoadHomeUsersData(it))
+            }
+        }
+    }
+
+    fun setUpActionBar(){
+        if(isFromSearchFragment){
+            event.postValue(HomeViewModelEvent.ShowActionBarFromSearch)
+        }else{
+            event.postValue(HomeViewModelEvent.ShowActionBarForHome)
+        }
+    }
+
+    suspend fun getHomeData() = flow<List<HomeDataModel>>{
+        roomRepository.postsDao.getPostsHomeDataFlow(auth.uid?:"").collect(){
+            emit(it)
+        }
+    }
+
+    suspend fun getHomeDataFromSearch() = flow<List<HomeDataModel>>{
+        roomRepository.postsDao.getAllPostsHomeDataFlow().collect(){
+            val list = it
+            val clickedPost = list.filter { it.postId == selectedPostId }.first()
+            list.toMutableList().remove(clickedPost)
+            val finallist: List<HomeDataModel> = listOf(clickedPost)+list
+            emit(finallist)
+        }
+    }
+
+    suspend fun getHomeUsersData() = flow<List<User>>{
+        roomRepository.usersDao.getallUsersFlow().collect(){
+            emit(it)
+        }
+    }
 
     /**
      * This method injects all the data from API into Firebase
@@ -61,7 +114,7 @@ class HomeViewModel @Inject constructor(
      * in post gets clicked
      */
     fun onCommentsTextClicked(postId: Int) {
-        commentsLayoutClickedEvent.postValue(postId)
+        event.postValue(HomeViewModelEvent.NavigateFromHomeToCommentsFragment(postId))
     }
 
     fun onLikeButtonClicked(homeDataModel: HomeDataModel) {
