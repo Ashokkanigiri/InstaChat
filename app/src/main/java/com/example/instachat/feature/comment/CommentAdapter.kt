@@ -1,4 +1,4 @@
-package com.example.instachat.comment
+package com.example.instachat.feature.comment
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

@@ -8,7 +8,7 @@
 
         <variable
             name="viewModel"
-            type="com.example.instachat.comment.CommentViewModel" />
+            type="com.example.instachat.feature.comment.CommentViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

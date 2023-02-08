@@ -11,10 +11,9 @@ object DialogUtils {
         val binding = LayoutNetworkDialogBinding.inflate(LayoutInflater.from(context))
         val dialog = Dialog(context)
         dialog.setContentView(binding.root)
-        binding.ivClose.setOnClickListener {
+        binding.button2.setOnClickListener {
             dialog.dismiss()
         }
-
         dialog.setCancelable(false)
         dialog.show()
     }

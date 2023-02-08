@@ -1,4 +1,4 @@
-package com.example.instachat.comment
+package com.example.instachat.feature.comment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentCommentBinding
@@ -58,7 +57,7 @@ class CommentFragment : Fragment() {
     private fun setUpActionBar() {
         (activity as BaseActivity).setupActionBar(binding.actionBar)
         (activity as BaseActivity).setBackButtonVisibility(true)
-        (activity as BaseActivity).setSearchIconvisibility(false)
+        (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as BaseActivity).handleBackPressed(object : View.OnClickListener{
             override fun onClick(p0: View?) {

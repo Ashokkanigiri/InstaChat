@@ -1,4 +1,4 @@
-package com.example.instachat.feature.home
+package com.example.instachat.feature.hometab
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instachat.R
 import com.example.instachat.databinding.ItemHomeFragmentBinding
-import com.example.instachat.feature.home.models.HomeDataModel
-import com.example.instachat.feature.home.viewmodel.HomeViewModel
+import com.example.instachat.feature.hometab.models.HomeDataModel
+import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
 
 class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
     ListAdapter<HomeDataModel, HomeDataViewHolder>(DiffUtilCallBack()) {
@@ -43,6 +43,7 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
         binding.homeDataModel = homeData
 
         viewModel.getFirstCommentForPost(homeData.postId){
+
             binding.commentSection.homeDataCommentsModel = it
         }
     }

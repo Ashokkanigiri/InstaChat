@@ -1,33 +1,63 @@
 package com.example.instachat.utils
 
-import android.content.Context
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 
-object ConnectivityUtils {
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import com.example.instachat.InstaChatApplication
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-    fun isOnline(context: Context): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (connectivityManager != null) {
-            val capabilities =
-                connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-            if (capabilities != null) {
-                if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
-                    return true
-                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
-                    return true
-                } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                    Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
-                    return true
-                }
-            }
-        }
-        DialogUtils.populateConnectivityErrorDialog(context)
-        return false
+@Singleton
+class ConnectivityService @Inject constructor(@ApplicationContext val application: Context) {
+
+    private val connectivityManager: ConnectivityManager =
+        application.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private var receiver: BroadcastReceiver? = null
+
+    fun hasActiveNetwork(): Boolean{
+        val connectionType: Connectiontype = connectionType(connectivityManager)
+        return listOf(Connectiontype.WIFI, Connectiontype.CELLULAR).contains(connectionType)
     }
+
+    fun startListening(handle: (Connectiontype) -> Unit){
+        this.receiver = object : BroadcastReceiver(){
+            override fun onReceive(context: Context?, intent: Intent?) {
+                handle(connectionType(connectivityManager))
+            }
+
+        }
+        application.registerReceiver(this.receiver, IntentFilter().apply { addAction(ConnectivityManager.CONNECTIVITY_ACTION) })
+    }
+
+    fun stopListening(){
+        this.receiver?.also { application.unregisterReceiver(it) }
+        this.receiver = null
+    }
+
+    private fun connectionType(connectivityManager: ConnectivityManager): Connectiontype {
+        val activeNetwork: Network = connectivityManager.activeNetwork ?: return Connectiontype.NONE
+        val capabilities: NetworkCapabilities =
+            connectivityManager.getNetworkCapabilities(activeNetwork) ?: return Connectiontype.NONE
+
+        return when {
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> Connectiontype.CELLULAR
+            capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> Connectiontype.WIFI
+            else -> Connectiontype.NONE
+        }
+    }
+}
+
+enum class Connectiontype {
+    NONE,
+    CELLULAR,
+    WIFI
 }

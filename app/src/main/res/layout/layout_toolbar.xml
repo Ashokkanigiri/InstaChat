@@ -22,14 +22,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/iv_search"
+            android:id="@+id/iv_add_post"
             android:layout_width="25dp"
             android:layout_height="25dp"
             android:layout_marginEnd="20dp"
             app:layout_constraintBottom_toBottomOf="@+id/iv_messages"
             app:layout_constraintEnd_toStartOf="@+id/iv_messages"
             app:layout_constraintTop_toTopOf="@+id/iv_messages"
-            app:srcCompat="@drawable/baseline_search_24" />
+            app:srcCompat="@drawable/outline_add_box_24" />
 
         <ImageView
             android:id="@+id/iv_messages"

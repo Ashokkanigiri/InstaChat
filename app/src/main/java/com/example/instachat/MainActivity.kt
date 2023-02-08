@@ -6,6 +6,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import com.example.instachat.databinding.ActivityMainBinding
+import com.example.instachat.utils.setupWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -26,8 +27,17 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setupBottomNavigation() {
-        val navHost = supportFragmentManager.findFragmentById(R.id.container) as NavHostFragment
-        setupWithNavController(binding.bottomNav, navHost.navController)
+        val navGraphIds = listOf<Int>(
+            R.navigation.nav_graph_home,
+            R.navigation.nav_graph_search,
+            R.navigation.nav_graph_settings
+        )
+        binding.bottomNav.setupWithNavController(
+            navGraphIds = navGraphIds,
+            fragmentManager = supportFragmentManager,
+            containerId = R.id.container,
+            intent = intent
+        )
     }
 
 }
