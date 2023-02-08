@@ -12,7 +12,6 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentSearchBinding
-import com.example.instachat.feature.hometab.HomeViewModelEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -50,6 +49,9 @@ class SearchTabFragment : Fragment() {
                 is SearchViewModelEvent.GetAllPosts -> {
                     viewModel.adapter.submitList(it.postsList)
                 }
+                is SearchViewModelEvent.HandleSearchFocus ->{
+                    binding.isSearchLayout = it.hasFocus
+                }
             }
         })
     }
@@ -62,11 +64,13 @@ class SearchTabFragment : Fragment() {
 
     private fun initFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = viewModel
         if (!viewModel.adapter.hasObservers()) viewModel.adapter.setHasStableIds(true)
         val layoutManager =
             GridLayoutManager(requireContext(), 3, GridLayoutManager.VERTICAL, false)
         binding.rvSearchTab.layoutManager = layoutManager
         binding.rvSearchTab.adapter = viewModel.adapter
+        binding.isSearchLayout = false
     }
 
 }

@@ -1,5 +1,7 @@
 package com.example.instachat.feature.searchtab
 
+import android.util.Log
+import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.PostModelItem
@@ -17,6 +19,7 @@ class SearchTabViewModel @Inject constructor(val roomRepository: RoomRepository)
 
     val event = SingleLiveEvent<SearchViewModelEvent>()
 
+
     fun onPostItemClicked(postId: Int) {
         event.postValue(SearchViewModelEvent.NavigateToHomeFragment(postId))
     }
@@ -27,6 +30,19 @@ class SearchTabViewModel @Inject constructor(val roomRepository: RoomRepository)
                 event.postValue(SearchViewModelEvent.GetAllPosts(it))
             }
         }
+    }
+
+
+    fun onSearchTextChanged(text: CharSequence){
+
+    }
+
+    fun onSearchFocusChanged(view: View, hasFocus: Boolean){
+        event.postValue(SearchViewModelEvent.HandleSearchFocus(hasFocus))
+    }
+
+    fun onSearchBackButtonPressed(){
+        event.postValue(SearchViewModelEvent.HandleSearchFocus(false))
     }
 
 
