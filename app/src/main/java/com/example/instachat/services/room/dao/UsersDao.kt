@@ -26,5 +26,8 @@ interface UsersDao: BaseDao<User> {
     @Query("SELECT * FROM users")
     fun getallUsersFlow(): Flow<List<User>>
 
+    @Query("SELECT * FROM users WHERE users.username LIKE '%' || :match || '%'")
+    fun getAllUsersWithMatchingUserNameFlow(match: String): Flow<List<User>>
+
 
 }

@@ -13,7 +13,7 @@
             name="isSearchLayout"
             type="Boolean" />
 
-        <import type="android.view.View"/>
+        <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,8 +24,9 @@
 
         <EditText
             android:id="@+id/editTextTextPersonName2"
+            shouldClearAndHideFocus="@{!isSearchLayout}"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="35dp"
             android:layout_marginStart="15dp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
@@ -35,7 +36,6 @@
             android:drawablePadding="10dp"
             android:ems="10"
             android:hint="Search"
-            shouldClearAndHideFocus="@{!isSearchLayout}"
             android:inputType="textPersonName"
             android:onTextChanged="@{(text, start, before, count) -> viewModel.onSearchTextChanged(text)}"
             android:padding="10dp"
@@ -46,27 +46,40 @@
             app:layout_constraintTop_toTopOf="parent"
             app:onFocusChangeListener="@{viewModel::onSearchFocusChanged}" />
 
+        <View
+            android:id="@+id/line_seperator"
+            android:layout_width="match_parent"
+            android:layout_height="0.3dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/light_grey"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/editTextTextPersonName2" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_search_results"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="10dp"
+            android:adapter="@{viewModel.searchResultsAdapter}"
             android:visibility="@{isSearchLayout ? View.VISIBLE : View.GONE}"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName2" />
+            app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName2"
+            tools:listitem="@layout/item_layout_search_results" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_search_tab"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:visibility="@{isSearchLayout ? View.GONE : View.VISIBLE}"
             android:layout_marginTop="10dp"
+            android:visibility="@{isSearchLayout ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName2" />
+            app:layout_constraintTop_toBottomOf="@+id/line_seperator" />
 
         <ImageView
             android:id="@+id/iv_search_back"

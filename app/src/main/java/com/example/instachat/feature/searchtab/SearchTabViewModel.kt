@@ -16,6 +16,7 @@ import javax.inject.Inject
 class SearchTabViewModel @Inject constructor(val roomRepository: RoomRepository) : ViewModel() {
 
     val adapter = SearchTabHomeAdapter(this)
+    val searchResultsAdapter = SearchResultsAdapter()
 
     val event = SingleLiveEvent<SearchViewModelEvent>()
 
@@ -32,9 +33,19 @@ class SearchTabViewModel @Inject constructor(val roomRepository: RoomRepository)
         }
     }
 
+    fun getUsersFromRoom(matchingText: String) {
+        viewModelScope.launch {
+            roomRepository.usersDao.getAllUsersWithMatchingUserNameFlow(matchingText).collect(){
+                searchResultsAdapter.submitList(it)
+            }
+        }
+    }
 
-    fun onSearchTextChanged(text: CharSequence){
 
+    fun onSearchTextChanged(text: CharSequence?){
+        text?.let {
+            getUsersFromRoom(it.toString())
+        }
     }
 
     fun onSearchFocusChanged(view: View, hasFocus: Boolean){
