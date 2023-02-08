@@ -1,7 +1,6 @@
 package com.example.instachat.feature.hometab.view
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,10 +13,8 @@ import com.example.instachat.BaseActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import com.example.instachat.feature.hometab.HomeViewModelEvent
-import com.example.instachat.feature.hometab.models.HomeDataModel
 import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
 import com.example.instachat.utils.DialogUtils
-import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -105,24 +102,29 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun populateActionBarForHome(){
-        (activity as BaseActivity).setupActionBar(binding.actionBar)
-        (activity as BaseActivity).setBackButtonVisibility(false)
-        (activity as BaseActivity).setSearchIconvisibility(true)
-        (activity as BaseActivity).setMessageIconvisibility(true)
+    private fun navigateToNewPostFragment() {
+        findNavController().navigate(
+            HomeFragmentDirections.actionHomeToNewPostFragment()
+        )
     }
 
-    private fun populateActionBarFromSearch(){
+    private fun populateActionBarForHome() {
+        (activity as BaseActivity).setupActionBar(binding.actionBar)
+        (activity as BaseActivity).setBackButtonVisibility(false)
+        (activity as BaseActivity).setAddPostIconVisibility(true)
+        (activity as BaseActivity).setMessageIconvisibility(true)
+        (activity as BaseActivity).handleNewPostPressed {
+            navigateToNewPostFragment()
+        }
+    }
+
+    private fun populateActionBarFromSearch() {
         (activity as BaseActivity).setupActionBar(binding.actionBar)
         (activity as BaseActivity).setBackButtonVisibility(true)
-        (activity as BaseActivity).setSearchIconvisibility(false)
+        (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as BaseActivity).setBackLabelText("Explore")
-        (activity as BaseActivity).handleBackPressed(object : View.OnClickListener {
-            override fun onClick(p0: View?) {
-                findNavController().popBackStack()
-            }
+        (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
 
-        })
     }
 }

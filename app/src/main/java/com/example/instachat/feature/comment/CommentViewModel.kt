@@ -1,4 +1,4 @@
-package com.example.instachat.comment
+package com.example.instachat.feature.comment
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

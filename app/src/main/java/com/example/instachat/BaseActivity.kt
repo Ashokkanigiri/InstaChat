@@ -28,11 +28,11 @@ open class BaseActivity : AppCompatActivity(){
         }
     }
 
-    fun setSearchIconvisibility(shouldSearchIconVisible: Boolean){
+    fun setAddPostIconVisibility(shouldSearchIconVisible: Boolean){
         if(shouldSearchIconVisible == true){
-            toolBarBinding.ivSearch.visibility = View.VISIBLE
+            toolBarBinding.ivAddPost.visibility = View.VISIBLE
         }else{
-            toolBarBinding.ivSearch.visibility = View.GONE
+            toolBarBinding.ivAddPost.visibility = View.GONE
         }
     }
 
@@ -46,6 +46,10 @@ open class BaseActivity : AppCompatActivity(){
 
     fun handleBackPressed(backButtonClickListener: View.OnClickListener){
         toolBarBinding.ivBack.setOnClickListener(backButtonClickListener)
+    }
+
+    fun handleNewPostPressed(backButtonClickListener: View.OnClickListener){
+        toolBarBinding.ivAddPost.setOnClickListener(backButtonClickListener)
     }
 
     fun setBackLabelText(text: String){
