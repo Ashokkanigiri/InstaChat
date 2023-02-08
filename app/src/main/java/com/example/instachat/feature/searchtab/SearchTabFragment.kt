@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentSearchBinding
+import com.example.instachat.feature.hometab.HomeViewModelEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -32,25 +33,38 @@ class SearchTabFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initFragment()
+        loadViewModel()
         observeViewModel()
     }
 
-    private fun observeViewModel() {
-        viewModel.roomRepository.postsDao.getAllPosts().observe(viewLifecycleOwner, Observer {
-            viewModel.adapter.submitList(it)
-        })
+    private fun loadViewModel() {
+        viewModel.loadAllPosts()
+    }
 
+    private fun observeViewModel() {
         viewModel.event.observe(viewLifecycleOwner, Observer {
-            findNavController().navigate(
-                SearchTabFragmentDirections.actionSearchTabFragmentToHomeFragment(it)
-            )
+            when (it) {
+                is SearchViewModelEvent.NavigateToHomeFragment -> {
+                    navigateToHomeFragment(it.postId)
+                }
+                is SearchViewModelEvent.GetAllPosts -> {
+                    viewModel.adapter.submitList(it.postsList)
+                }
+            }
         })
+    }
+
+    private fun navigateToHomeFragment(postInt: Int) {
+        findNavController().navigate(
+            SearchTabFragmentDirections.actionSearchTabFragmentToHomeFragment(postInt)
+        )
     }
 
     private fun initFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
-        if(!viewModel.adapter.hasObservers()) viewModel.adapter.setHasStableIds(true)
-        val layoutManager = GridLayoutManager(requireContext(), 3, GridLayoutManager.VERTICAL, false)
+        if (!viewModel.adapter.hasObservers()) viewModel.adapter.setHasStableIds(true)
+        val layoutManager =
+            GridLayoutManager(requireContext(), 3, GridLayoutManager.VERTICAL, false)
         binding.rvSearchTab.layoutManager = layoutManager
         binding.rvSearchTab.adapter = viewModel.adapter
     }
