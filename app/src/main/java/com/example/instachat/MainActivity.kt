@@ -1,6 +1,7 @@
 package com.example.instachat
 
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.fragment.NavHostFragment
@@ -38,6 +39,14 @@ class MainActivity : BaseActivity() {
             containerId = R.id.container,
             intent = intent
         )
+    }
+
+    fun setBottomNavVisibility(bottomNavVisibility: Boolean){
+        if(bottomNavVisibility){
+            binding.bottomNav.visibility = View.VISIBLE
+        }else{
+            binding.bottomNav.visibility = View.GONE
+        }
     }
 
 }

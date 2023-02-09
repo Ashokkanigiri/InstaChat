@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
+import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import com.example.instachat.feature.hometab.HomeViewModelEvent
@@ -116,6 +117,7 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).handleNewPostPressed {
             navigateToNewPostFragment()
         }
+        (activity as MainActivity).setBottomNavVisibility(true)
     }
 
     private fun populateActionBarFromSearch() {
@@ -124,6 +126,7 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as BaseActivity).setBackLabelText("Explore")
+        (activity as MainActivity).setBottomNavVisibility(false)
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
 
     }
