@@ -84,8 +84,17 @@ class HomeFragment : Fragment() {
                 is HomeViewModelEvent.NavigateFromHomeToCommentsFragment -> {
                     navigateToCommentsFragment(it.postId)
                 }
+                is HomeViewModelEvent.NavigateToUserDetailScreen -> {
+                    navigateToUserDetails(it.userId)
+                }
             }
         })
+    }
+
+    private fun navigateToUserDetails(userId: String?) {
+        findNavController().navigate(
+            HomeFragmentDirections.actionHomeToUserDetailsFragment(userId)
+        )
     }
 
     private fun navigateToCommentsFragment(postId: Int?) {
@@ -128,6 +137,5 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).setBackLabelText("Explore")
         (activity as MainActivity).setBottomNavVisibility(false)
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
-
     }
 }

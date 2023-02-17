@@ -16,6 +16,9 @@
             app:exitAnim="@anim/exit_anim_left"
             app:popEnterAnim="@anim/enter_anim_left"
             app:popExitAnim="@anim/exit_anim_right"/>
+        <action
+            android:id="@+id/action_searchTabFragment_to_userDetailsFragment2"
+            app:destination="@id/userDetailsFragment2" />
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
@@ -43,5 +46,9 @@
             android:defaultValue="0"
             app:argType="integer" />
     </fragment>
+    <fragment
+        android:id="@+id/userDetailsFragment2"
+        android:name="com.example.instachat.feature.userdetails.UserDetailsFragment"
+        android:label="UserDetailsFragment" />
 
 </navigation>

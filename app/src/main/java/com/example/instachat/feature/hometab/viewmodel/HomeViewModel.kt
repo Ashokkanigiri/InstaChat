@@ -54,6 +54,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun navigateToUserDetails(userId: String){
+        event.postValue(HomeViewModelEvent.NavigateToUserDetailScreen(userId))
+    }
+
     fun loadUsersData(){
         viewModelScope.launch {
             getHomeUsersData().collect(){
