@@ -16,9 +16,7 @@
             app:exitAnim="@anim/exit_anim_left"
             app:popEnterAnim="@anim/enter_anim_left"
             app:popExitAnim="@anim/exit_anim_right"/>
-        <action
-            android:id="@+id/action_searchTabFragment_to_userDetailsFragment2"
-            app:destination="@id/userDetailsFragment2" />
+
     </fragment>
     <fragment
         android:id="@+id/homeFragment"
@@ -35,6 +33,14 @@
             android:name="postId"
             android:defaultValue="0"
             app:argType="integer" />
+
+        <action
+            android:id="@+id/action_home_to_userDetailsFragment"
+            app:destination="@id/userDetailsFragment2"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right" />
     </fragment>
     <fragment
         android:id="@+id/commentFragment"
@@ -49,6 +55,11 @@
     <fragment
         android:id="@+id/userDetailsFragment2"
         android:name="com.example.instachat.feature.userdetails.UserDetailsFragment"
-        android:label="UserDetailsFragment" />
+        android:label="UserDetailsFragment">
+        <argument
+            android:name="userId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
 
 </navigation>
