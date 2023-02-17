@@ -52,15 +52,17 @@ class UserDetailsFragment : Fragment() {
     private fun initFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
-        arguments?.getString("userId")?.let {
-            viewModel.loadUser(it)
-        }
+
 
         if (!viewModel.adapter.hasObservers()) viewModel.adapter.setHasStableIds(true)
         val layoutManager =
             GridLayoutManager(requireContext(), 3, GridLayoutManager.VERTICAL, false)
         binding.rvPosts.layoutManager = layoutManager
         binding.rvPosts.adapter = viewModel.adapter
+
+        arguments?.getString("userId")?.let {
+            viewModel.loadUser(it)
+        }
     }
 
     private fun loadViewModel() {
