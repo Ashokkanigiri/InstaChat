@@ -158,7 +158,7 @@ class NewPostFragment : Fragment() {
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     outputFileResults.savedUri?.let {
-                        viewModel.selectedAndCapturedList.add(it.toString())
+                        viewModel.addImageToSelectedAndCapturedList(it.toString())
                     }
                 }
             })
@@ -167,6 +167,7 @@ class NewPostFragment : Fragment() {
 
     private fun initFragment() {
         populateActionBarFromSearch()
+        binding.viewModel = viewModel
         binding.tvPermissionError.setOnClickListener {
             openSettingsScreen()
         }
@@ -196,7 +197,7 @@ class NewPostFragment : Fragment() {
     }
 
     private fun navigateToNewPostDetailFragment(){
-        val list : Array<String> = viewModel.selectedAndCapturedList.toTypedArray()
+        val list : Array<String> = viewModel.getSelectedAndCapturedList().toTypedArray()
         findNavController().navigate(
             NewPostFragmentDirections.actionNewPostFragmentToNewPostDetailFragment(list)
         )
@@ -204,7 +205,7 @@ class NewPostFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.selectedAndCapturedList.clear()
+        viewModel.getSelectedAndCapturedList().clear()
     }
 
 }

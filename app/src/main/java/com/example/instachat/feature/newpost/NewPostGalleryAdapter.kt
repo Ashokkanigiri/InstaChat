@@ -86,10 +86,10 @@ class NewPostGalleryAdapter(val viewModel: NewPostViewModel
       binding.ivImage.setOnClickListener {
         isClicked = !isClicked
         if(isClicked){
-          viewModel.selectedAndCapturedList.add(image.uri.toString())
+          viewModel.addImageToSelectedAndCapturedList(image.uri.toString())
           binding.ivImage.foreground = ColorDrawable(Color.parseColor("#90D0D0D0"))
         }else{
-          viewModel.selectedAndCapturedList.remove(image.uri.toString())
+          viewModel.removeImageToSelectedAndCapturedList(image.uri.toString())
           binding.ivImage.foreground = null
         }
       }

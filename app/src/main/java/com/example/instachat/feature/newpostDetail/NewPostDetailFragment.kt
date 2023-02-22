@@ -42,9 +42,11 @@ class NewPostDetailFragment : Fragment() {
     }
 
     private fun initFragment() {
+        binding.post = viewModel.newPost
         binding.viewModel = viewModel
         arguments?.getStringArray("selectedAndCapturedImages")?.let {
             viewModel.adapter.submitList(it.toList().map { it.toUri() })
+            viewModel.selectedImagesList = it.toList()
         }
     }
 
