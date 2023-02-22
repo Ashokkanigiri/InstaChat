@@ -6,7 +6,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.net.toUri
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentNewPostDetailBinding
 
@@ -14,6 +17,8 @@ import com.example.instachat.databinding.FragmentNewPostDetailBinding
 class NewPostDetailFragment : Fragment() {
 
     lateinit var binding: FragmentNewPostDetailBinding
+
+    val viewModel: NewPostDetailViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,8 +31,20 @@ class NewPostDetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        arguments?.getStringArray("selectedAndCapturedImages")?.let {
+       initFragment()
+        setUpToolBar()
+    }
 
+    private fun setUpToolBar() {
+        binding.layoutHeader.ivClose.setOnClickListener {
+            findNavController().popBackStack()
+        }
+    }
+
+    private fun initFragment() {
+        binding.viewModel = viewModel
+        arguments?.getStringArray("selectedAndCapturedImages")?.let {
+            viewModel.adapter.submitList(it.toList().map { it.toUri() })
         }
     }
 

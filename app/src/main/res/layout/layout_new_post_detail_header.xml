@@ -7,7 +7,7 @@
         android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/imageView13"
+            android:id="@+id/iv_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -27,20 +27,19 @@
             android:textSize="13sp"
             android:textColor="@color/white"
             app:layout_constraintTop_toTopOf="parent"
-            android:backgroundTint="@color/app_color"
             android:background="@drawable/bg_rounded_edittext"
-            android:text="Next"/>
+            android:text="Post"/>
 
         <TextView
             android:id="@+id/tv_header_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="30dp"
-            android:text="New Post"
+            android:text="Edit Post"
             android:textColor="@color/black"
             android:textSize="18sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageView13"
+            app:layout_constraintStart_toEndOf="@+id/iv_close"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

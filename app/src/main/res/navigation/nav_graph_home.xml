@@ -55,7 +55,11 @@
         android:label="NewPostFragment" >
         <action
             android:id="@+id/action_newPostFragment_to_newPostDetailFragment"
-            app:destination="@id/newPostDetailFragment" />
+            app:destination="@id/newPostDetailFragment"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right"/>
     </fragment>
     <fragment
         android:id="@+id/userDetailsFragment"
