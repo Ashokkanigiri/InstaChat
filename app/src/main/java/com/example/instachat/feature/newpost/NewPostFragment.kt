@@ -1,29 +1,22 @@
 package com.example.instachat.feature.newpost
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.registerForActivityResult
-import androidx.camera.core.Camera
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCapture.FLASH_MODE_ON
-import androidx.camera.core.ImageCaptureException
-import androidx.camera.core.Preview
+import androidx.camera.core.*
+import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -34,7 +27,6 @@ import com.example.instachat.utils.DialogUtils
 import com.example.instachat.utils.StorageUtils
 import com.example.instachat.utils.StorageUtils.isPermissionsGranted
 import com.google.common.util.concurrent.ListenableFuture
-import com.google.gson.Gson
 import java.io.File
 
 
@@ -130,7 +122,7 @@ class NewPostFragment : Fragment() {
 
         preview.setSurfaceProvider(binding.previewView.surfaceProvider)
 
-        imageCapture = ImageCapture.Builder().setFlashMode(FLASH_MODE_ON).build()
+        imageCapture = ImageCapture.Builder().setFlashMode(FLASH_MODE_OFF).build()
 
         cameraProvider.unbindAll()
 
@@ -153,15 +145,21 @@ class NewPostFragment : Fragment() {
 
 
     private fun captureImage() {
-        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(File("")).build()
+        val imageFile = File(
+            Environment.getExternalStorageDirectory().absolutePath+"/DCIM/CAMERA/${System.currentTimeMillis()}.jpg"
+        )
+        val path = requireContext().filesDir.absolutePath+"/${System.currentTimeMillis()}.jpg"
+
+        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(File(path)).build()
         imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(error: ImageCaptureException) {
-                    // insert your code here.
+                   Log.d("sgaqg", "ERRROR : ${error}")
                 }
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    // insert your code here.
+                    outputFileResults.savedUri
+                    Log.d("sgaqg", "SUCCESS : ${outputFileResults.savedUri?.toString()}")
                 }
             })
     }
