@@ -1,6 +1,7 @@
 package com.example.instachat.feature.newpost
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class NewPostViewModel @Inject constructor(): ViewModel() {
 
     val event = SingleLiveEvent<NewPostViewModelEvent>()
-    val adapter = NewPostGalleryAdapter()
+    val adapter = NewPostGalleryAdapter(this)
+    var selectedAndCapturedList = ArrayList<String>()
 
     fun getImages(context: Context){
         viewModelScope.launch (Dispatchers.IO){

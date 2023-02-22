@@ -35,6 +35,9 @@
 package com.example.instachat.feature.newpost
 
 import android.annotation.SuppressLint
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -43,9 +46,10 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instachat.R
 import com.example.instachat.databinding.LayoutItemImageBinding
+import com.google.gson.Gson
 
 
-class NewPostGalleryAdapter(
+class NewPostGalleryAdapter(val viewModel: NewPostViewModel
 ) : ListAdapter<Image, NewPostGalleryAdapter.GalleryViewHolder>(
     DiffCallback()) {
 
@@ -77,6 +81,18 @@ class NewPostGalleryAdapter(
   inner class GalleryViewHolder(val binding: LayoutItemImageBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(image: Image){
       binding.image = image
+      var isClicked = false
+
+      binding.ivImage.setOnClickListener {
+        isClicked = !isClicked
+        if(isClicked){
+          viewModel.selectedAndCapturedList.add(image.uri.toString())
+          binding.ivImage.foreground = ColorDrawable(Color.parseColor("#90D0D0D0"))
+        }else{
+          viewModel.selectedAndCapturedList.remove(image.uri.toString())
+          binding.ivImage.foreground = null
+        }
+      }
     }
   }
 }

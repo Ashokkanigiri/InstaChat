@@ -9,6 +9,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.*
 import androidx.camera.core.ImageCapture.FLASH_MODE_OFF
@@ -27,6 +28,7 @@ import com.example.instachat.utils.DialogUtils
 import com.example.instachat.utils.StorageUtils
 import com.example.instachat.utils.StorageUtils.isPermissionsGranted
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.gson.Gson
 import java.io.File
 
 
@@ -145,21 +147,19 @@ class NewPostFragment : Fragment() {
 
 
     private fun captureImage() {
-        val imageFile = File(
-            Environment.getExternalStorageDirectory().absolutePath+"/DCIM/CAMERA/${System.currentTimeMillis()}.jpg"
-        )
         val path = requireContext().filesDir.absolutePath+"/${System.currentTimeMillis()}.jpg"
 
         val outputFileOptions = ImageCapture.OutputFileOptions.Builder(File(path)).build()
         imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(error: ImageCaptureException) {
-                   Log.d("sgaqg", "ERRROR : ${error}")
+                    Toast.makeText(requireContext(), "Error while capturing image, please try again", Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    outputFileResults.savedUri
-                    Log.d("sgaqg", "SUCCESS : ${outputFileResults.savedUri?.toString()}")
+                    outputFileResults.savedUri?.let {
+                        viewModel.selectedAndCapturedList.add(it.toString())
+                    }
                 }
             })
     }
@@ -173,6 +173,9 @@ class NewPostFragment : Fragment() {
         if (!viewModel.adapter.hasObservers()) viewModel.adapter.setHasStableIds(true)
         binding.rvGalleryImages.layoutManager = GridLayoutManager(requireContext(), 5, GridLayoutManager.VERTICAL, false)
         binding.rvGalleryImages.adapter = viewModel.adapter
+        binding.layoutHeader.ivNext.setOnClickListener {
+
+        }
     }
 
     private fun populateEducationalDialog() {
@@ -190,6 +193,11 @@ class NewPostFragment : Fragment() {
         binding.layoutHeader.imageView13.setOnClickListener {
             findNavController().popBackStack()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.selectedAndCapturedList.clear()
     }
 
 }
