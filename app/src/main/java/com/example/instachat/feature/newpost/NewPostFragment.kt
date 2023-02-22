@@ -174,7 +174,7 @@ class NewPostFragment : Fragment() {
         binding.rvGalleryImages.layoutManager = GridLayoutManager(requireContext(), 5, GridLayoutManager.VERTICAL, false)
         binding.rvGalleryImages.adapter = viewModel.adapter
         binding.layoutHeader.ivNext.setOnClickListener {
-
+            navigateToNewPostDetailFragment()
         }
     }
 
@@ -193,6 +193,13 @@ class NewPostFragment : Fragment() {
         binding.layoutHeader.imageView13.setOnClickListener {
             findNavController().popBackStack()
         }
+    }
+
+    private fun navigateToNewPostDetailFragment(){
+        val list : Array<String> = viewModel.selectedAndCapturedList.toTypedArray()
+        findNavController().navigate(
+            NewPostFragmentDirections.actionNewPostFragmentToNewPostDetailFragment(list)
+        )
     }
 
     override fun onDestroyView() {
