@@ -9,11 +9,14 @@ import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentNewPostDetailBinding
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class NewPostDetailFragment : Fragment() {
 
     lateinit var binding: FragmentNewPostDetailBinding
@@ -24,15 +27,28 @@ class NewPostDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_new_post_detail, container, false)
+        binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_new_post_detail, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-       initFragment()
+        initFragment()
         setUpToolBar()
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewModel.event.observe(viewLifecycleOwner, Observer {
+            when (it) {
+                is NewPostDetailViewModelEvent.IsPostAddedSuccessFully -> {
+                    viewModel.addNewPost(it.postModelItem)
+                    findNavController().popBackStack()
+                    findNavController().popBackStack()
+                }
+            }
+        })
     }
 
     private fun setUpToolBar() {
@@ -42,8 +58,9 @@ class NewPostDetailFragment : Fragment() {
     }
 
     private fun initFragment() {
-        binding.post = viewModel.newPost
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
+        binding.post = viewModel.newPost
         arguments?.getStringArray("selectedAndCapturedImages")?.let {
             viewModel.adapter.submitList(it.toList().map { it.toUri() })
             viewModel.selectedImagesList = it.toList()

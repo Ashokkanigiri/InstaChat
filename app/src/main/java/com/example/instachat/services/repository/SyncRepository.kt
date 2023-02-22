@@ -17,6 +17,7 @@ class SyncRepository @Inject constructor(
     val roomSyncRepository: RoomSyncRepository,
     val roomRepository: RoomRepository,
     val apiRepository: RestApiRepository,
+    val firebaseRepository: FirebaseRepository,
     @ApplicationContext val context: Context
 ) {
 
@@ -28,7 +29,6 @@ class SyncRepository @Inject constructor(
         data.putString("USER_ID", userId)
         data.putInt("COMMENT_ID", commentId)
 
-//        val tag = if(itemId == 0) userId else "${itemId}"
         val tag : String = when {
             syncTables.name.equals(SyncTables.POSTS.name) ->{
                 "itemId"
@@ -70,5 +70,12 @@ class SyncRepository @Inject constructor(
             ObjectConverterUtil.convertCommentToCommentSync(comment)
         )
         launchWorker(SyncTables.COMMENTS, commentId = comment.id)
+    }
+
+    suspend fun addNewPost(postModelItem: PostModelItem){
+        roomSyncRepository.postsDao.insert(
+            ObjectConverterUtil.convertPostToPostSync(postModelItem)
+        )
+        launchWorker(SyncTables.POSTS, postModelItem.id)
     }
 }

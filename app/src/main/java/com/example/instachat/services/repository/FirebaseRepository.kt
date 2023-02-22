@@ -1,17 +1,24 @@
 package com.example.instachat.services.repository
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import androidx.core.net.toUri
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.utils.ConnectivityService
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.ktx.storage
+import com.google.firebase.storage.ktx.storageMetadata
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
+import java.io.File
 import javax.inject.Inject
 
 class FirebaseRepository @Inject constructor(
@@ -175,6 +182,25 @@ class FirebaseRepository @Inject constructor(
                 Toast.makeText(context, "Comment sucessfully added", Toast.LENGTH_SHORT).show()
 
             }
+
+    }
+
+    fun uploadPostImageToFirebase(postModelItem: PostModelItem, isPostUploadedSuccessfully: ((Boolean)-> Unit)) {
+        val storage = Firebase.storage
+        val storageRef = storage.reference
+        val imageRef =
+            storageRef.child("users/${postModelItem.userId}/posts/${postModelItem.id}/${System.currentTimeMillis()}.jpg")
+        val metaData = storageMetadata {
+            contentType = "image/jpeg"
+        }
+
+        val uploadTask = imageRef.putFile(postModelItem.postImageUrl.toUri(), metaData)
+
+        uploadTask.addOnSuccessListener {
+            isPostUploadedSuccessfully.invoke(true)
+        }.addOnFailureListener {
+            isPostUploadedSuccessfully.invoke(false)
+        }
 
     }
 

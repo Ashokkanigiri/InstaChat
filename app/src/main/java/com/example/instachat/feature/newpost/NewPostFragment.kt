@@ -29,9 +29,10 @@ import com.example.instachat.utils.StorageUtils
 import com.example.instachat.utils.StorageUtils.isPermissionsGranted
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.gson.Gson
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
 
-
+@AndroidEntryPoint
 class NewPostFragment : Fragment() {
 
 
