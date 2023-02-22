@@ -22,8 +22,11 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentNewPostBinding
@@ -40,13 +43,13 @@ class NewPostFragment : Fragment() {
     lateinit var binding: FragmentNewPostBinding
     lateinit var imageCapture: ImageCapture
     lateinit var camera: Camera
-
+    val viewModel : NewPostViewModel by viewModels()
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
 
     private val permissions = arrayOf(
         android.Manifest.permission.CAMERA,
         android.Manifest.permission.READ_EXTERNAL_STORAGE,
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
     )
 
     private val requestPermissionLauncher =
@@ -55,6 +58,7 @@ class NewPostFragment : Fragment() {
                 populateEducationalDialog()
             } else {
                 initCamera()
+                viewModel.getImages(requireActivity())
             }
         }
 
@@ -71,6 +75,17 @@ class NewPostFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initFragment()
         checkForCameraAndStoragePermissions()
+        loadViewModel()
+    }
+
+    private fun loadViewModel() {
+        viewModel.event.observe(viewLifecycleOwner, Observer {
+            when(it){
+                is NewPostViewModelEvent.LoadImagesFromGallery->{
+                    viewModel.adapter.submitList(it.imagesList)
+                }
+            }
+        })
     }
 
     private fun isPermissionsGranted(): Boolean {
@@ -95,6 +110,7 @@ class NewPostFragment : Fragment() {
         when {
             isPermissionsGranted() -> {
                 initCamera()
+                viewModel.getImages(requireActivity())
             }
             else -> {
                 requestPermissionLauncher.launch(permissions)
@@ -173,6 +189,9 @@ class NewPostFragment : Fragment() {
         binding.tvPermissionError.setOnClickListener {
             openSettingsScreen()
         }
+        if (!viewModel.adapter.hasObservers()) viewModel.adapter.setHasStableIds(true)
+        binding.rvGalleryImages.layoutManager = GridLayoutManager(requireContext(), 5, GridLayoutManager.VERTICAL, false)
+        binding.rvGalleryImages.adapter = viewModel.adapter
     }
 
     private fun populateEducationalDialog() {

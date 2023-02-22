@@ -1,6 +1,7 @@
 package com.example.instachat.utils
 
 import android.content.Context
+import android.net.Uri
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -17,6 +18,13 @@ import com.example.instachat.services.models.dummyjson.Comment
 @BindingAdapter("loadImageWithGlide")
 fun ImageView.loadImageWithGlide(imageUrl: String){
     Glide.with(this).load(imageUrl)
+        .diskCacheStrategy(DiskCacheStrategy.DATA)
+        .into(this)
+}
+
+@BindingAdapter("loadImageUriWithGlide")
+fun ImageView.loadImageUriWithGlide(uri: Uri){
+    Glide.with(this).load(uri)
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .into(this)
 }
