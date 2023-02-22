@@ -3,12 +3,38 @@ package com.example.instachat.utils
 import android.app.Activity
 import android.content.ContentUris
 import android.content.Context
+import android.content.pm.PackageManager
 import android.provider.MediaStore
+import androidx.core.content.ContextCompat
 import com.example.instachat.feature.newpost.Image
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 object StorageUtils {
+
+     val PERMISSIONS = arrayOf(
+        android.Manifest.permission.CAMERA,
+        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
+    )
+
+    fun Activity.isPermissionsGranted(): Boolean{
+        val isCameraPermissionGranted = ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val isReadStoragePermissionGranted = ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.READ_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val isWriteStoragePermissionGranted = ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ) == PackageManager.PERMISSION_GRANTED
+        return isCameraPermissionGranted && isReadStoragePermissionGranted && isWriteStoragePermissionGranted
+    }
 
     suspend fun queryImagesOnDevice(context: Context): List<Image> {
         val images = mutableListOf<Image>()

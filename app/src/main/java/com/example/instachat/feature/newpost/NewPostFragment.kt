@@ -32,6 +32,7 @@ import com.example.instachat.R
 import com.example.instachat.databinding.FragmentNewPostBinding
 import com.example.instachat.utils.DialogUtils
 import com.example.instachat.utils.StorageUtils
+import com.example.instachat.utils.StorageUtils.isPermissionsGranted
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.gson.Gson
 import java.io.File
@@ -43,25 +44,8 @@ class NewPostFragment : Fragment() {
     lateinit var binding: FragmentNewPostBinding
     lateinit var imageCapture: ImageCapture
     lateinit var camera: Camera
-    val viewModel : NewPostViewModel by viewModels()
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
-
-    private val permissions = arrayOf(
-        android.Manifest.permission.CAMERA,
-        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-    )
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            if (it.map { it.value }.contains(false)) {
-                populateEducationalDialog()
-            } else {
-                initCamera()
-                viewModel.getImages(requireActivity())
-            }
-        }
-
+    val viewModel : NewPostViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,39 +72,38 @@ class NewPostFragment : Fragment() {
         })
     }
 
-    private fun isPermissionsGranted(): Boolean {
-        val isCameraPermissionGranted = ContextCompat.checkSelfPermission(
-            requireContext(),
-            android.Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED
-
-        val isReadStoragePermissionGranted = ContextCompat.checkSelfPermission(
-            requireContext(),
-            android.Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-
-        val isWriteStoragePermissionGranted = ContextCompat.checkSelfPermission(
-            requireContext(),
-            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
-        return isCameraPermissionGranted && isReadStoragePermissionGranted && isWriteStoragePermissionGranted
-    }
-
-    private fun checkForCameraAndStoragePermissions() {
-        when {
-            isPermissionsGranted() -> {
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            if (it.map { it.value }.contains(false)) {
+                populateEducationalDialog()
+            } else {
                 initCamera()
                 viewModel.getImages(requireActivity())
             }
+        }
+
+
+    private fun checkForCameraAndStoragePermissions() {
+        when {
+            requireActivity().isPermissionsGranted() -> {
+                loadCameraAndImages()
+            }
             else -> {
-                requestPermissionLauncher.launch(permissions)
+                requestPermissionLauncher.launch(StorageUtils.PERMISSIONS)
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        if (isPermissionsGranted()) initCamera()
+        if (requireActivity().isPermissionsGranted()) {
+            loadCameraAndImages()
+        }
+    }
+
+    private fun loadCameraAndImages(){
+        initCamera()
+        viewModel.getImages(requireContext())
     }
 
     private fun initCamera() {
