@@ -18,6 +18,7 @@ import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.utils.ObjectConverterUtil
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -55,7 +56,7 @@ class SyncWorker @AssistedInject constructor(
             SyncTables.NEW_POST.name ->{
                 val updatedPost = roomSyncRepository.postsDao.getPost(item_id)
                 val convertToPostModelItem = ObjectConverterUtil.convertPostSyncToPost(updatedPost)
-                uploadPostedImagesToFirebaseAndGetUrl(item_id, convertToPostModelItem)
+                uploadPostedImagesToFirebaseAndGetUrl(convertToPostModelItem)
             }
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
@@ -69,14 +70,13 @@ class SyncWorker @AssistedInject constructor(
      * Then gets the downloadable url from firebase and later sync with room & Firestore
      */
     private suspend fun uploadPostedImagesToFirebaseAndGetUrl(
-        item_id: Int,
         convertToPostModelItem: PostModelItem
     ) {
         firebaseRepository.uploadPostImageToFirebase(convertToPostModelItem) {
             convertToPostModelItem.apply {
                 this.postImageUrl = it ?: ""
             }
-            updateToFirebase(item_id, convertToPostModelItem)
+            addNewPost(convertToPostModelItem)
         }
     }
 
@@ -88,6 +88,25 @@ class SyncWorker @AssistedInject constructor(
             .addOnCompleteListener {
                 roomSyncRepository.commentsDao.deleteComment(comment.id)
                 roomRepository.commentsDao.insertBlocking(comment)
+                Result.success()
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+            }
+    }
+
+    private fun addNewPost(newPost: PostModelItem) {
+        val db = Firebase.firestore
+        db.collection("posts")
+            .document("${newPost.id}")
+            .set(newPost)
+            .addOnCompleteListener {
+                roomSyncRepository.postsDao.deletePost(newPost.id)
+                roomRepository.postsDao.insert(newPost)
+                Log.d("jnqwljngfq", "DD: ${Gson().toJson(newPost)}")
                 Result.success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()

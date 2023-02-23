@@ -48,6 +48,7 @@ class NewPostDetailViewModel
     fun onPostButtonClicked(postModelItem: PostModelItem) {
         postModelItem.apply {
             this.postImageUrl = selectedImagesList?.get(0) ?: ""
+            this.postCreatedDate = System.currentTimeMillis().toString()
         }
         if(connectivityService.hasActiveNetwork()){
             viewModelScope.launch(Dispatchers.IO) {

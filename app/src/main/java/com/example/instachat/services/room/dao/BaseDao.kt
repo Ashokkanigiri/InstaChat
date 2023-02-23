@@ -7,7 +7,7 @@ import retrofit2.http.Query
 interface BaseDao<T> {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(item: T)
+    fun insert(item: T)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(items: List<T>)
