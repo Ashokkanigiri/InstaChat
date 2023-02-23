@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
+import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentCommentBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,6 +60,7 @@ class CommentFragment : Fragment() {
         (activity as BaseActivity).setBackButtonVisibility(true)
         (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
+        (activity as MainActivity).setBottomNavVisibility(false)
         (activity as BaseActivity).handleBackPressed(object : View.OnClickListener{
             override fun onClick(p0: View?) {
                 if(viewModel.isCommentUpdated){

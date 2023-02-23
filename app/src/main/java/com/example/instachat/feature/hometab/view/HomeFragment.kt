@@ -1,6 +1,7 @@
 package com.example.instachat.feature.hometab.view
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +11,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
+import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentHomeBinding
 import com.example.instachat.feature.hometab.HomeViewModelEvent
 import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
+import com.example.instachat.utils.ConstantUtils
 import com.example.instachat.utils.DialogUtils
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
@@ -56,6 +60,16 @@ class HomeFragment : Fragment() {
             viewModel.isFromSearchFragment = true
             binding.rvUsers.visibility = View.GONE
         }
+
+        listenForNewPostWorkId()
+    }
+
+    private fun listenForNewPostWorkId() {
+        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<UUID>(ConstantUtils.WorkIdKeys.NEW_POST_WORK_ID_KEY)?.observe(viewLifecycleOwner) {
+            it?.let {
+                Log.d("wjbgfwjkgbf", "WORKID : ${it}")
+            }
+        }
     }
 
     private fun observeViewModel() {
@@ -83,8 +97,17 @@ class HomeFragment : Fragment() {
                 is HomeViewModelEvent.NavigateFromHomeToCommentsFragment -> {
                     navigateToCommentsFragment(it.postId)
                 }
+                is HomeViewModelEvent.NavigateToUserDetailScreen -> {
+                    navigateToUserDetails(it.userId)
+                }
             }
         })
+    }
+
+    private fun navigateToUserDetails(userId: String?) {
+        findNavController().navigate(
+            HomeFragmentDirections.actionHomeToUserDetailsFragment(userId)
+        )
     }
 
     private fun navigateToCommentsFragment(postId: Int?) {
@@ -116,6 +139,7 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).handleNewPostPressed {
             navigateToNewPostFragment()
         }
+        (activity as MainActivity).setBottomNavVisibility(true)
     }
 
     private fun populateActionBarFromSearch() {
@@ -124,7 +148,7 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as BaseActivity).setBackLabelText("Explore")
+        (activity as MainActivity).setBottomNavVisibility(false)
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
-
     }
 }

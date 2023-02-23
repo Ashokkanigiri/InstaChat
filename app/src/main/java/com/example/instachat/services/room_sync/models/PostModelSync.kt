@@ -29,5 +29,7 @@ data class PostModelItemSync(
 
     var postImageUrl: String = "",
 
-    var likesCount: Int = 0
+    var likesCount: Int = 0,
+
+    var postCreatedDate: String? = ""
 )

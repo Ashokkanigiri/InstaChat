@@ -12,4 +12,5 @@ sealed class HomeViewModelEvent{
     data class LoadHomeDataFromSearch(val data: List<HomeDataModel>): HomeViewModelEvent()
     data class LoadHomeUsersData(val data: List<User>): HomeViewModelEvent()
     data class NavigateFromHomeToCommentsFragment(val postId: Int): HomeViewModelEvent()
+    data class NavigateToUserDetailScreen(val userId: String): HomeViewModelEvent()
 }

@@ -14,7 +14,7 @@ data class PostModel(
 @Entity("posts")
 data class PostModelItem(
     @SerializedName("body")
-    val body: String,
+    var body: String,
 
     @PrimaryKey
     @SerializedName("id")
@@ -25,15 +25,17 @@ data class PostModelItem(
 
     @SerializedName("tags")
     @TypeConverters(TagsTypeConverterSync::class)
-    val tags: List<String>,
+    var tags: List<String>,
 
     @SerializedName("title")
-    val title: String,
+    var title: String,
 
     @SerializedName("userId")
-    val userId: String,
+    var userId: String,
 
     var postImageUrl: String = "",
 
-    var likesCount: Int? = 0
+    var likesCount: Int? = 0,
+
+    var postCreatedDate: String? = ""
 )

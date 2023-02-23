@@ -6,16 +6,19 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result.*
+import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.utils.ObjectConverterUtil
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -24,7 +27,8 @@ class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
     val roomSyncRepository: RoomSyncRepository,
-    val roomRepository: RoomRepository
+    val roomRepository: RoomRepository,
+    val firebaseRepository: FirebaseRepository
 ) : CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result {
 
@@ -49,10 +53,31 @@ class SyncWorker @AssistedInject constructor(
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
                 updateUserToFirebase(user_id?:"", convertToUser)
             }
+            SyncTables.NEW_POST.name ->{
+                val updatedPost = roomSyncRepository.postsDao.getPost(item_id)
+                val convertToPostModelItem = ObjectConverterUtil.convertPostSyncToPost(updatedPost)
+                uploadPostedImagesToFirebaseAndGetUrl(convertToPostModelItem)
+            }
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
-        return failure()
+        return Result.success()
+    }
+
+    /**
+     * This method uploads postImageUrl into firebase storage
+     *
+     * Then gets the downloadable url from firebase and later sync with room & Firestore
+     */
+    private suspend fun uploadPostedImagesToFirebaseAndGetUrl(
+        convertToPostModelItem: PostModelItem
+    ) {
+        firebaseRepository.uploadPostImageToFirebase(convertToPostModelItem) {
+            convertToPostModelItem.apply {
+                this.postImageUrl = it ?: ""
+            }
+            addNewPost(convertToPostModelItem)
+        }
     }
 
     private fun addNewCommentToFirebase(comment: Comment) {
@@ -63,11 +88,30 @@ class SyncWorker @AssistedInject constructor(
             .addOnCompleteListener {
                 roomSyncRepository.commentsDao.deleteComment(comment.id)
                 roomRepository.commentsDao.insertBlocking(comment)
-                success()
+                Result.success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
-                retry()
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+            }
+    }
+
+    private fun addNewPost(newPost: PostModelItem) {
+        val db = Firebase.firestore
+        db.collection("posts")
+            .document("${newPost.id}")
+            .set(newPost)
+            .addOnCompleteListener {
+                roomSyncRepository.postsDao.deletePost(newPost.id)
+                roomRepository.postsDao.insert(newPost)
+                Log.d("jnqwljngfq", "DD: ${Gson().toJson(newPost)}")
+                Result.success()
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
             }.addOnSuccessListener {
                 Result.success()
             }
@@ -82,12 +126,11 @@ class SyncWorker @AssistedInject constructor(
                 roomRepository.postsDao.updateLikedCountForPost(updatedPost.id, updatedPost.likesCount?:0)
                 roomSyncRepository.postsDao.deletePost(item_id)
                 Log.d("wlfkqwnbgf", "update post addOnCompleteListener")
-
                 success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
-                retry()
+                Result.failure()
             }.addOnSuccessListener {
                 Result.success()
                 Log.d("wlfkqwnbgf", "update post addOnSuccessListener")
@@ -105,7 +148,7 @@ class SyncWorker @AssistedInject constructor(
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
-                Result.retry()
+                Result.failure()
             }.addOnSuccessListener {
                 Result.success()
                 Log.d("wlfkqwnbgf", "update user sucess")

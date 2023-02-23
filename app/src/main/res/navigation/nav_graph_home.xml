@@ -6,8 +6,6 @@
     app:startDestination="@id/home">
 
 
-
-
     <fragment
         android:id="@+id/home"
         android:name="com.example.instachat.feature.hometab.view.HomeFragment"
@@ -18,30 +16,66 @@
             android:id="@+id/action_home_to_nav_graph_home"
             app:destination="@id/nav_graph_home"
             app:popUpToSaveState="true"
-            app:restoreState="true"/>
+            app:restoreState="true" />
         <action
             android:id="@+id/action_home_to_commentFragment"
             app:destination="@id/commentFragment"
             app:enterAnim="@anim/enter_anim_right"
             app:exitAnim="@anim/exit_anim_left"
             app:popEnterAnim="@anim/enter_anim_left"
-            app:popExitAnim="@anim/exit_anim_right"/>
+            app:popExitAnim="@anim/exit_anim_right" />
         <action
             android:id="@+id/action_home_to_newPostFragment"
-            app:destination="@id/newPostFragment" />
+            app:destination="@id/newPostFragment"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right" />
+        <action
+            android:id="@+id/action_home_to_userDetailsFragment"
+            app:destination="@id/userDetailsFragment"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right" />
     </fragment>
 
     <fragment
         android:id="@+id/commentFragment"
         android:name="com.example.instachat.feature.comment.CommentFragment"
-        android:label="CommentFragment" >
+        android:label="CommentFragment">
         <argument
             android:name="postId"
-            app:argType="integer"
-            android:defaultValue="0" />
+            android:defaultValue="0"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/newPostFragment"
         android:name="com.example.instachat.feature.newpost.NewPostFragment"
-        android:label="NewPostFragment" />
+        android:label="NewPostFragment" >
+        <action
+            android:id="@+id/action_newPostFragment_to_newPostDetailFragment"
+            app:destination="@id/newPostDetailFragment"
+            app:enterAnim="@anim/enter_anim_right"
+            app:exitAnim="@anim/exit_anim_left"
+            app:popEnterAnim="@anim/enter_anim_left"
+            app:popExitAnim="@anim/exit_anim_right"/>
+    </fragment>
+    <fragment
+        android:id="@+id/userDetailsFragment"
+        android:name="com.example.instachat.feature.userdetails.UserDetailsFragment"
+        android:label="UserDetailsFragment" >
+        <argument
+            android:name="userId"
+            app:argType="string"
+            app:nullable="true" />
+    </fragment>
+    <fragment
+        android:id="@+id/newPostDetailFragment"
+        android:name="com.example.instachat.feature.newpostDetail.NewPostDetailFragment"
+        android:label="NewPostDetailFragment" >
+        <argument
+            android:name="selectedAndCapturedImages"
+            app:argType="string[]" />
+    </fragment>
 </navigation>

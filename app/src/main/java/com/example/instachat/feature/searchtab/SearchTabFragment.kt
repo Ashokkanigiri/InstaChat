@@ -10,6 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentSearchBinding
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,6 +72,7 @@ class SearchTabFragment : Fragment() {
         binding.rvSearchTab.layoutManager = layoutManager
         binding.rvSearchTab.adapter = viewModel.adapter
         binding.isSearchLayout = false
+        (activity as MainActivity).setBottomNavVisibility(true)
     }
 
 }
