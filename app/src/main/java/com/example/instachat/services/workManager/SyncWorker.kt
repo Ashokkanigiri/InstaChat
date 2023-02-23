@@ -6,6 +6,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
 import androidx.work.ListenableWorker.Result.*
+import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
@@ -59,7 +60,7 @@ class SyncWorker @AssistedInject constructor(
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
-        return failure()
+        return Result.success()
     }
 
     /**
@@ -87,11 +88,11 @@ class SyncWorker @AssistedInject constructor(
             .addOnCompleteListener {
                 roomSyncRepository.commentsDao.deleteComment(comment.id)
                 roomRepository.commentsDao.insertBlocking(comment)
-                success()
+                Result.success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
-                retry()
+                Result.failure()
             }.addOnSuccessListener {
                 Result.success()
             }
@@ -106,12 +107,11 @@ class SyncWorker @AssistedInject constructor(
                 roomRepository.postsDao.updateLikedCountForPost(updatedPost.id, updatedPost.likesCount?:0)
                 roomSyncRepository.postsDao.deletePost(item_id)
                 Log.d("wlfkqwnbgf", "update post addOnCompleteListener")
-
                 success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
-                retry()
+                Result.failure()
             }.addOnSuccessListener {
                 Result.success()
                 Log.d("wlfkqwnbgf", "update post addOnSuccessListener")
@@ -129,7 +129,7 @@ class SyncWorker @AssistedInject constructor(
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
-                Result.retry()
+                Result.failure()
             }.addOnSuccessListener {
                 Result.success()
                 Log.d("wlfkqwnbgf", "update user sucess")

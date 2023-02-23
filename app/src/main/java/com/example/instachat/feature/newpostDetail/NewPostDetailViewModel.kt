@@ -51,9 +51,10 @@ class NewPostDetailViewModel
         }
         if(connectivityService.hasActiveNetwork()){
             viewModelScope.launch(Dispatchers.IO) {
-                syncRepository.addNewPost(postModelItem)
+                syncRepository.addNewPost(postModelItem){
+                    event.postValue(NewPostDetailViewModelEvent.IsPostAdded(it))
+                }
             }
-            event.postValue(NewPostDetailViewModelEvent.IsPostAdded)
         }else{
             event.postValue(NewPostDetailViewModelEvent.ShouldShowNetworkConnectionDialog)
         }

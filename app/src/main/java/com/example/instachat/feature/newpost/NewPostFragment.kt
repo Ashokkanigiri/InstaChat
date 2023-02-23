@@ -24,6 +24,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentNewPostBinding
+import com.example.instachat.utils.ConstantUtils
 import com.example.instachat.utils.DialogUtils
 import com.example.instachat.utils.StorageUtils
 import com.example.instachat.utils.StorageUtils.isPermissionsGranted
@@ -31,6 +32,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
+import java.util.UUID
 
 @AndroidEntryPoint
 class NewPostFragment : Fragment() {

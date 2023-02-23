@@ -11,6 +11,7 @@ import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.services.workManager.SyncWorker
 import com.example.instachat.utils.ObjectConverterUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.UUID
 import javax.inject.Inject
 
 class SyncRepository @Inject constructor(
@@ -20,7 +21,7 @@ class SyncRepository @Inject constructor(
     @ApplicationContext val context: Context
 ) {
 
-    fun launchWorker(syncTables: SyncTables, itemId: Int =0, userId: String="", commentId: Int = 0) {
+    fun launchWorker(syncTables: SyncTables, itemId: Int =0, userId: String="", commentId: Int = 0, addNewPostWorkId: ((UUID) -> Unit)? = null) {
 
         val data = Data.Builder()
         data.putInt("ID", itemId)
@@ -46,6 +47,7 @@ class SyncRepository @Inject constructor(
                 .setInputData(data.build())
                 .addTag(tag).build()
 
+        addNewPostWorkId?.invoke(workRequest.id)
 
         WorkManager.getInstance(context).enqueue(workRequest)
     }
@@ -71,11 +73,13 @@ class SyncRepository @Inject constructor(
         launchWorker(SyncTables.COMMENTS, commentId = comment.id)
     }
 
-    suspend fun addNewPost(postModelItem: PostModelItem){
+    suspend fun addNewPost(postModelItem: PostModelItem, newPostWorkId: (UUID) -> Unit){
         roomSyncRepository.postsDao.insert(
             ObjectConverterUtil.convertPostToPostSync(postModelItem)
         )
-        launchWorker(SyncTables.NEW_POST, postModelItem.id)
+        launchWorker(SyncTables.NEW_POST, postModelItem.id){ workId ->
+            newPostWorkId.invoke(workId)
+        }
 
     }
 }

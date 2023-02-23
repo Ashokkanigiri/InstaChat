@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentNewPostDetailBinding
+import com.example.instachat.utils.ConstantUtils
 import com.example.instachat.utils.DialogUtils
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -45,6 +46,7 @@ class NewPostDetailFragment : Fragment() {
         viewModel.event.observe(viewLifecycleOwner, Observer {
             when (it) {
                 is NewPostDetailViewModelEvent.IsPostAdded -> {
+                    (activity as MainActivity).listenToNewPostWorkId(it.workId)
                     findNavController().popBackStack()
                     findNavController().popBackStack()
                 }
