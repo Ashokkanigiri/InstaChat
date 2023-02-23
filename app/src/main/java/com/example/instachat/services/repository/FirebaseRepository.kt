@@ -11,6 +11,7 @@ import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.utils.ConnectivityService
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.storageMetadata
 import com.google.gson.Gson
@@ -185,9 +186,10 @@ class FirebaseRepository @Inject constructor(
 
     }
 
-    fun uploadPostImageToFirebase(postModelItem: PostModelItem, isPostUploadedSuccessfully: ((Boolean)-> Unit)) {
+    suspend fun uploadPostImageToFirebase(postModelItem: PostModelItem, isPostUploadedSuccessfully: ((String?)-> Unit)) {
         val storage = Firebase.storage
         val storageRef = storage.reference
+        val fstorage = FirebaseStorage.getInstance()
         val imageRef =
             storageRef.child("users/${postModelItem.userId}/posts/${postModelItem.id}/${System.currentTimeMillis()}.jpg")
         val metaData = storageMetadata {
@@ -195,11 +197,18 @@ class FirebaseRepository @Inject constructor(
         }
 
         val uploadTask = imageRef.putFile(postModelItem.postImageUrl.toUri(), metaData)
-
         uploadTask.addOnSuccessListener {
-            isPostUploadedSuccessfully.invoke(true)
+            val ref = storageRef.child("users/${postModelItem.userId}/posts/${postModelItem.id}")
+            ref.listAll().addOnSuccessListener {
+                fstorage.reference.child(it.items.first().path).downloadUrl.addOnSuccessListener {
+                    isPostUploadedSuccessfully.invoke(it.toString())
+                }.addOnFailureListener {
+                    isPostUploadedSuccessfully.invoke(null)
+                }
+
+            }
         }.addOnFailureListener {
-            isPostUploadedSuccessfully.invoke(false)
+            isPostUploadedSuccessfully.invoke(null)
         }
 
     }

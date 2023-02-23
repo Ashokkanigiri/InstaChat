@@ -20,7 +20,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewPostDetailViewModel
-@Inject constructor(val firebaseRepository: FirebaseRepository, val syncRepository: SyncRepository) :
+@Inject constructor(
+    val firebaseRepository: FirebaseRepository,
+    val syncRepository: SyncRepository
+) :
     ViewModel() {
     val adapter = NewPostDetailAdapter()
 
@@ -43,17 +46,18 @@ class NewPostDetailViewModel
         postModelItem.apply {
             this.postImageUrl = selectedImagesList?.get(0) ?: ""
         }
-        viewModelScope.launch (Dispatchers.IO){
-            firebaseRepository.uploadPostImageToFirebase(postModelItem){
-               if(true){
-                   event.postValue(NewPostDetailViewModelEvent.IsPostAddedSuccessFully(postModelItem))
-               }
+        viewModelScope.launch(Dispatchers.IO) {
+            firebaseRepository.uploadPostImageToFirebase(postModelItem) {
+                postModelItem.apply {
+                    this.postImageUrl = it ?:""
+                }
+                event.postValue(NewPostDetailViewModelEvent.IsPostAddedSuccessFully(postModelItem))
             }
         }
     }
 
-    fun addNewPost(postModelItem: PostModelItem){
-        viewModelScope.launch (Dispatchers.IO){
+    fun addNewPost(postModelItem: PostModelItem) {
+        viewModelScope.launch(Dispatchers.IO) {
             syncRepository.addNewPost(postModelItem)
         }
     }
