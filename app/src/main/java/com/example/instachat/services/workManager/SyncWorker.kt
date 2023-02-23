@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.room_sync.SyncTables
@@ -24,7 +25,8 @@ class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
     val roomSyncRepository: RoomSyncRepository,
-    val roomRepository: RoomRepository
+    val roomRepository: RoomRepository,
+    val firebaseRepository: FirebaseRepository
 ) : CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result {
 
@@ -49,10 +51,32 @@ class SyncWorker @AssistedInject constructor(
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
                 updateUserToFirebase(user_id?:"", convertToUser)
             }
+            SyncTables.NEW_POST.name ->{
+                val updatedPost = roomSyncRepository.postsDao.getPost(item_id)
+                val convertToPostModelItem = ObjectConverterUtil.convertPostSyncToPost(updatedPost)
+                uploadPostedImagesToFirebaseAndGetUrl(item_id, convertToPostModelItem)
+            }
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
         return failure()
+    }
+
+    /**
+     * This method uploads postImageUrl into firebase storage
+     *
+     * Then gets the downloadable url from firebase and later sync with room & Firestore
+     */
+    private suspend fun uploadPostedImagesToFirebaseAndGetUrl(
+        item_id: Int,
+        convertToPostModelItem: PostModelItem
+    ) {
+        firebaseRepository.uploadPostImageToFirebase(convertToPostModelItem) {
+            convertToPostModelItem.apply {
+                this.postImageUrl = it ?: ""
+            }
+            updateToFirebase(item_id, convertToPostModelItem)
+        }
     }
 
     private fun addNewCommentToFirebase(comment: Comment) {

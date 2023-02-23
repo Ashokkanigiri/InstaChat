@@ -4,5 +4,6 @@ import com.example.instachat.feature.newpost.NewPostViewModelEvent
 import com.example.instachat.services.models.PostModelItem
 
 sealed class NewPostDetailViewModelEvent {
-    data class IsPostAddedSuccessFully (val postModelItem: PostModelItem): NewPostDetailViewModelEvent()
+    object IsPostAdded: NewPostDetailViewModelEvent()
+    object ShouldShowNetworkConnectionDialog: NewPostDetailViewModelEvent()
 }

@@ -11,8 +11,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentNewPostDetailBinding
+import com.example.instachat.utils.DialogUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -42,11 +44,14 @@ class NewPostDetailFragment : Fragment() {
     private fun observeViewModel() {
         viewModel.event.observe(viewLifecycleOwner, Observer {
             when (it) {
-                is NewPostDetailViewModelEvent.IsPostAddedSuccessFully -> {
-                    viewModel.addNewPost(it.postModelItem)
+                is NewPostDetailViewModelEvent.IsPostAdded -> {
                     findNavController().popBackStack()
                     findNavController().popBackStack()
                 }
+                is NewPostDetailViewModelEvent.ShouldShowNetworkConnectionDialog ->{
+                    DialogUtils.populateConnectivityErrorDialog(requireContext())
+                }
+
             }
         })
     }

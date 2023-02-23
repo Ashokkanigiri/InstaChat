@@ -1,8 +1,10 @@
 package com.example.instachat
 
 import android.app.Application
+import android.graphics.Color
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.FirebaseApp
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.ktx.initialize
@@ -26,4 +28,5 @@ class InstaChatApplication: Application() , Configuration.Provider {
             .setWorkerFactory(workerFactory)
             .build()
     }
+
 }

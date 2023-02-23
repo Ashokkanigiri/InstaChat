@@ -25,8 +25,7 @@ import javax.inject.Inject
 class FirebaseRepository @Inject constructor(
     @ApplicationContext val context: Context,
     val roomRepository: RoomRepository,
-    val roomSyncRepository: RoomSyncRepository,
-    val connectivityService: ConnectivityService
+    val roomSyncRepository: RoomSyncRepository
 ) {
 
     fun injectCommentsToFirebase(data: Comment) {
@@ -210,7 +209,5 @@ class FirebaseRepository @Inject constructor(
         }.addOnFailureListener {
             isPostUploadedSuccessfully.invoke(null)
         }
-
     }
-
 }

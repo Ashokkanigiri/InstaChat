@@ -17,7 +17,6 @@ class SyncRepository @Inject constructor(
     val roomSyncRepository: RoomSyncRepository,
     val roomRepository: RoomRepository,
     val apiRepository: RestApiRepository,
-    val firebaseRepository: FirebaseRepository,
     @ApplicationContext val context: Context
 ) {
 
@@ -76,6 +75,7 @@ class SyncRepository @Inject constructor(
         roomSyncRepository.postsDao.insert(
             ObjectConverterUtil.convertPostToPostSync(postModelItem)
         )
-        launchWorker(SyncTables.POSTS, postModelItem.id)
+        launchWorker(SyncTables.NEW_POST, postModelItem.id)
+
     }
 }

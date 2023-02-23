@@ -8,12 +8,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.SyncRepository
+import com.example.instachat.utils.ConnectivityService
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.Random
 import javax.inject.Inject
@@ -22,7 +24,8 @@ import javax.inject.Inject
 class NewPostDetailViewModel
 @Inject constructor(
     val firebaseRepository: FirebaseRepository,
-    val syncRepository: SyncRepository
+    val syncRepository: SyncRepository,
+    val connectivityService: ConnectivityService
 ) :
     ViewModel() {
     val adapter = NewPostDetailAdapter()
@@ -46,19 +49,13 @@ class NewPostDetailViewModel
         postModelItem.apply {
             this.postImageUrl = selectedImagesList?.get(0) ?: ""
         }
-        viewModelScope.launch(Dispatchers.IO) {
-            firebaseRepository.uploadPostImageToFirebase(postModelItem) {
-                postModelItem.apply {
-                    this.postImageUrl = it ?:""
-                }
-                event.postValue(NewPostDetailViewModelEvent.IsPostAddedSuccessFully(postModelItem))
+        if(connectivityService.hasActiveNetwork()){
+            viewModelScope.launch(Dispatchers.IO) {
+                syncRepository.addNewPost(postModelItem)
             }
-        }
-    }
-
-    fun addNewPost(postModelItem: PostModelItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            syncRepository.addNewPost(postModelItem)
+            event.postValue(NewPostDetailViewModelEvent.IsPostAdded)
+        }else{
+            event.postValue(NewPostDetailViewModelEvent.ShouldShowNetworkConnectionDialog)
         }
     }
 }
