@@ -1,5 +1,6 @@
 package com.example.instachat.feature.register
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,8 +12,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentRegistrationBinding
+import com.example.instachat.utils.DialogUtils
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -52,8 +55,19 @@ class RegistrationFragment : Fragment() {
     }
 
     private fun observeViewModel() {
-        viewModel.navigateBackToLoginScreenEvent.observe(viewLifecycleOwner, Observer {
-            findNavController().popBackStack()
+        viewModel.event.observe(viewLifecycleOwner, Observer {
+            when(it){
+                is RegistrationViewModelEvent.PopulateUserAlreadyExistsDialog ->{
+                    DialogUtils.populateUserExistsDialog(requireContext())
+                }
+                is RegistrationViewModelEvent.HandleRegistrationSuccess ->{
+                    startActivity(Intent(this.activity, MainActivity::class.java))
+                    this.activity?.finish()
+                }
+                is RegistrationViewModelEvent.PopulateConnectivityErrorDialog ->{
+                    DialogUtils.populateConnectivityErrorDialog(requireContext())
+                }
+            }
         })
     }
 

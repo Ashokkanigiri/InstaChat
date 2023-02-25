@@ -8,6 +8,7 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import com.example.instachat.databinding.LayoutNetworkDialogBinding
 import com.example.instachat.databinding.LayoutPermissionDialogBinding
+import com.example.instachat.databinding.LayoutUserExistsBinding
 
 
 object DialogUtils {
@@ -39,6 +40,19 @@ object DialogUtils {
             dialog.dismiss()
         }
         binding.tvDes.text = descriptionText
+        dialog.setCancelable(false)
+        dialog.show()
+    }
+
+    fun populateUserExistsDialog(
+        context: Context
+    ) {
+        val binding = LayoutUserExistsBinding.inflate(LayoutInflater.from(context))
+        val dialog = Dialog(context)
+        dialog.setContentView(binding.root)
+        binding.btnOkay.setOnClickListener {
+            dialog.dismiss()
+        }
         dialog.setCancelable(false)
         dialog.show()
     }

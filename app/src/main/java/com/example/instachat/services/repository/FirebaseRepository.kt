@@ -185,6 +185,20 @@ class FirebaseRepository @Inject constructor(
 
     }
 
+    fun isUserAlreadyExists(userEmail: String, isUserExists: ((Boolean)->Unit)){
+        val db = Firebase.firestore
+
+        db.collection("users").whereEqualTo("email", userEmail).get().addOnSuccessListener {
+           if(it.documents.size == 0){
+               isUserExists.invoke(false)
+           }else{
+               isUserExists.invoke(true)
+           }
+        }.addOnFailureListener {
+            Log.d("kjfbw", "errro: ${it}")
+        }
+    }
+
     suspend fun uploadPostImageToFirebase(postModelItem: PostModelItem, isPostUploadedSuccessfully: ((String?)-> Unit)) {
         val storage = Firebase.storage
         val storageRef = storage.reference
