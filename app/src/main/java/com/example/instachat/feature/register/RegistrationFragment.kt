@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
+import androidx.core.view.get
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -32,7 +34,19 @@ class RegistrationFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
+        initFragment()
         observeViewModel()
+    }
+
+    private fun initFragment() {
+        handleGenderRadioGroup()
+    }
+
+    private fun handleGenderRadioGroup() {
+        binding.radioGroup.setOnCheckedChangeListener { radioGroup, i ->
+            val radioButton: RadioButton? = radioGroup?.findViewById<RadioButton>(i)
+            viewModel.user.gender = radioButton?.text?.trim()?.toString()?:""
+        }
     }
 
     private fun observeViewModel() {

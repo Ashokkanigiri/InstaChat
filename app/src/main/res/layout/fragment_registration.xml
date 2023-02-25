@@ -12,7 +12,7 @@
 
         <import type="com.example.instachat.utils.ValidationUtils" />
 
-        <import type="android.view.View"/>
+        <import type="android.view.View" />
     </data>
 
     <LinearLayout
@@ -91,15 +91,15 @@
                 android:id="@+id/tv_error"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textColor="@android:color/holo_red_dark"
                 android:layout_marginTop="10dp"
+                android:gravity="center"
                 android:text="@{viewModel.errorText}"
-                android:visibility="@{viewModel.errorText.empty ? View.GONE: View.VISIBLE }"
+                android:textColor="@android:color/holo_red_dark"
                 android:textSize="11sp"
-                app:layout_constraintTop_toTopOf="parent"
+                android:visibility="@{viewModel.errorText.empty ? View.GONE: View.VISIBLE }"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:layout_editor_absoluteY="5dp" />
 
             <com.google.android.material.textfield.TextInputLayout
@@ -168,18 +168,18 @@
                     android:id="@+id/password"
                     style="@style/text_style_12sp_black"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:text="@={viewModel.user.password}"
-                    android:layout_height="wrap_content" />
+                    android:text="@={viewModel.user.password}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_reEnterPassword"
                 style="@style/style_registration_text_field"
-                android:hint="Re Enter Password"
                 displayErrorWhen="@{viewModel.passwordDoestMatchError}"
                 errorText="@{`Password Doesnt Match`}"
+                android:hint="Re Enter Password"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/til_password"
@@ -191,7 +191,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="text"
-                    android:text="@={viewModel.reEnterPassword}"/>
+                    android:text="@={viewModel.reEnterPassword}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -219,31 +219,35 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/tv_male"
-                    style="@style/text_style_12sp_black"
+                <RadioGroup
+                    android:id="@+id/radioGroup"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="15dp"
-                    android:drawableEnd="@drawable/baseline_boy_24"
-                    android:gravity="center"
-                    android:text="Male"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/tv_female"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tv_female"
-                    style="@style/text_style_12sp_black"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:drawableEnd="@drawable/baseline_girl_24"
-                    android:gravity="center"
-                    android:text="Female"
+                    android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <RadioButton
+                        android:id="@+id/radioMale"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/black"
+                        android:drawableStart="@drawable/baseline_boy_24"
+                        android:text=" Male"
+                        android:textSize="12sp" />
+
+                    <RadioButton
+                        android:id="@+id/radioFemale"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:buttonTint="@color/black"
+                        android:checked="false"
+                        android:drawableStart="@drawable/baseline_girl_24"
+                        android:text=" Female"
+                        android:textSize="12sp" />
+                </RadioGroup>
 
 
             </androidx.constraintlayout.widget.ConstraintLayout>

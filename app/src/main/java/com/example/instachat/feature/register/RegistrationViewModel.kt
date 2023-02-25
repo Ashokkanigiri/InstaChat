@@ -1,5 +1,6 @@
 package com.example.instachat.feature.register
 
+import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import com.example.instachat.services.models.dummyjson.User
@@ -7,6 +8,7 @@ import com.example.instachat.utils.SingleLiveEvent
 import com.example.instachat.utils.ValidationUtils
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -33,7 +35,7 @@ class RegistrationViewModel @Inject constructor() : ViewModel() {
             if (it) {
                 passwordDoestMatchError.set(false)
                 errorText.set("")
-                createAndSyncNewUser(user)
+//                createAndSyncNewUser(user)
             } else {
                 handleErrors()
             }
