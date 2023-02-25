@@ -58,6 +58,11 @@ class SyncWorker @AssistedInject constructor(
                 val convertToPostModelItem = ObjectConverterUtil.convertPostSyncToPost(updatedPost)
                 uploadPostedImagesToFirebaseAndGetUrl(convertToPostModelItem)
             }
+            SyncTables.NEW_USER.name ->{
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id?:"")
+                val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
+                addNewUserToFirebase( convertToUser)
+            }
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
@@ -152,6 +157,25 @@ class SyncWorker @AssistedInject constructor(
             }.addOnSuccessListener {
                 Result.success()
                 Log.d("wlfkqwnbgf", "update user sucess")
+
+            }
+    }
+
+    private fun addNewUserToFirebase(user: User) {
+        val db = Firebase.firestore
+        db.collection("users")
+            .document(user.id)
+            .set(user)
+            .addOnCompleteListener {
+                roomRepository.usersDao.insert(user)
+                roomSyncRepository.usersDao.deleteUser(user.id)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+                Log.d("wlfkqwnbgf", "added user sucess")
 
             }
     }

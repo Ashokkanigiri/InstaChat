@@ -1,19 +1,25 @@
 package com.example.instachat.feature.register
 
-import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.repository.SyncRepository
+import com.example.instachat.utils.ConnectivityService
 import com.example.instachat.utils.SingleLiveEvent
 import com.example.instachat.utils.ValidationUtils
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegistrationViewModel @Inject constructor() : ViewModel() {
+class RegistrationViewModel @Inject constructor(
+    val syncRepository: SyncRepository,
+    val connectivityService: ConnectivityService
+) : ViewModel() {
 
     val errorText = ObservableField<String>()
     val reEnterPassword = ObservableField<String>()
@@ -31,20 +37,30 @@ class RegistrationViewModel @Inject constructor() : ViewModel() {
     }
 
     fun onRegisterClicked() {
-        ValidationUtils.shouldRegisterUser(user, reEnterPassword.get()?:"").let {
-            if (it) {
-                passwordDoestMatchError.set(false)
-                errorText.set("")
-//                createAndSyncNewUser(user)
-            } else {
-                handleErrors()
+        if (connectivityService.hasActiveNetwork()) {
+            ValidationUtils.shouldRegisterUser(user, reEnterPassword.get() ?: "").let {
+                if (it) {
+                    passwordDoestMatchError.set(false)
+                    errorText.set("")
+                    createAndSyncNewUser(user)
+                } else {
+                    handleErrors()
+                }
             }
+        } else {
+
         }
     }
 
     fun createAndSyncNewUser(user: User) {
         auth.createUserWithEmailAndPassword(user.email, user.password)
             .addOnSuccessListener {
+                viewModelScope.launch(Dispatchers.IO) {
+                    if (connectivityService.hasActiveNetwork()) syncRepository.addNewUser(user.apply {
+                        id = it?.user?.uid ?: ""
+                        password = ""
+                    })
+                }
                 navigateBackToLoginScreenEvent.postValue(true)
             }
     }
@@ -62,10 +78,10 @@ class RegistrationViewModel @Inject constructor() : ViewModel() {
                 errorText.set(
                     errorText.get() + "\n** Password should contain a small case, a capital case, a digit & a special character"
                 )
-            }else{
-                if((reEnterPassword.get()?:"").equals(user.password)){
+            } else {
+                if ((reEnterPassword.get() ?: "").equals(user.password)) {
                     passwordDoestMatchError.set(false)
-                }else{
+                } else {
                     passwordDoestMatchError.set(true)
                 }
             }

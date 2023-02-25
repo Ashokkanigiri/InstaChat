@@ -66,6 +66,13 @@ class SyncRepository @Inject constructor(
         launchWorker(SyncTables.USERS, userId = user.id)
     }
 
+    suspend fun addNewUser(user: User) {
+        roomSyncRepository.usersDao.insert(
+            ObjectConverterUtil.convertUserToUserSync(user)
+        )
+        launchWorker(SyncTables.USERS, userId = user.id)
+    }
+
     suspend fun addNewComment(comment: Comment){
         roomSyncRepository.commentsDao.insert(
             ObjectConverterUtil.convertCommentToCommentSync(comment)
@@ -80,6 +87,5 @@ class SyncRepository @Inject constructor(
         launchWorker(SyncTables.NEW_POST, postModelItem.id){ workId ->
             newPostWorkId.invoke(workId)
         }
-
     }
 }

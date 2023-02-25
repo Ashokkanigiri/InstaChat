@@ -33,7 +33,7 @@ data class User(
     val hair: Hair = Hair(),
     val height: Int = 0,
     @PrimaryKey
-    val id: String = "",
+    var id: String = "",
     val image: String = "",
     val ip: String = "",
     var lastName: String = "",
