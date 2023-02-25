@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.InstaChat" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimary">@color/app_color</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
@@ -14,5 +14,20 @@
         <item name="android:windowLightStatusBar">true</item>
 
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="style_registration_text_field" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="helperTextTextColor">@color/black</item>
+        <item name="boxStrokeWidth">0.13dp</item>
+        <item name="boxStrokeWidthFocused">0.15dp</item>
+        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_marginTop">25dp</item>
+    </style>
+
+    <style name="text_style_12sp_black">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 </resources>
