@@ -16,6 +16,8 @@ import com.example.instachat.R
 import com.example.instachat.feature.hometab.models.HomeDataModel
 import com.example.instachat.services.GlideApp
 import com.example.instachat.services.models.dummyjson.Comment
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
@@ -118,5 +120,14 @@ fun EditText.shouldClearAndHideFocus(shouldClearAndHideFocus: Boolean){
         this.clearFocus()
         this.text.clear()
 
+    }
+}
+
+@BindingAdapter("displayErrorWhen", "errorText", requireAll = true)
+fun TextInputLayout.displayErrorWhen(displayErrorWhen: Boolean, errorText: String){
+    if(displayErrorWhen){
+        this.error = errorText
+    }else{
+        this.error = null
     }
 }

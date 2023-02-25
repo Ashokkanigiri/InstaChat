@@ -9,13 +9,17 @@
         <variable
             name="viewModel"
             type="com.example.instachat.feature.register.RegistrationViewModel" />
+
+        <import type="com.example.instachat.utils.ValidationUtils" />
+
+        <import type="android.view.View"/>
     </data>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:background="@drawable/bg_gradient"
+        android:orientation="vertical"
         android:weightSum="5">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -77,12 +81,26 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="2"
             android:layout_margin="10dp"
-            android:padding="5dp"
+            android:layout_weight="2"
             android:background="@drawable/bg_registration_rounded_layout"
+            android:padding="5dp"
             tools:context=".feature.register.RegistrationFragment">
 
+            <TextView
+                android:id="@+id/tv_error"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textColor="@android:color/holo_red_dark"
+                android:layout_marginTop="10dp"
+                android:text="@{viewModel.errorText}"
+                android:visibility="@{viewModel.errorText.empty ? View.GONE: View.VISIBLE }"
+                android:textSize="11sp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:layout_editor_absoluteY="5dp" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/til_firstname"
@@ -91,13 +109,14 @@
                 app:layout_constraintEnd_toStartOf="@+id/til_lastname"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/tv_error">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_firstname"
+                    style="@style/text_style_12sp_black"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/text_style_12sp_black"/>
+                    android:text="@={viewModel.user.firstName}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -108,13 +127,14 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/til_firstname"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/tv_error">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_lastname"
+                    style="@style/text_style_12sp_black"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/text_style_12sp_black"/>
+                    android:text="@={viewModel.user.lastName}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -129,9 +149,10 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_email"
+                    style="@style/text_style_12sp_black"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/text_style_12sp_black"/>
+                    android:text="@={viewModel.user.email}" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -145,9 +166,11 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/password"
+                    style="@style/text_style_12sp_black"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    style="@style/text_style_12sp_black"/>
+                    android:inputType="textPassword"
+                    android:text="@={viewModel.user.password}"
+                    android:layout_height="wrap_content" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -155,6 +178,8 @@
                 android:id="@+id/til_reEnterPassword"
                 style="@style/style_registration_text_field"
                 android:hint="Re Enter Password"
+                displayErrorWhen="@{viewModel.passwordDoestMatchError}"
+                errorText="@{`Password Doesnt Match`}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toEndOf="@+id/til_password"
@@ -162,9 +187,11 @@
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/et_reEnterPassword"
+                    style="@style/text_style_12sp_black"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    style="@style/text_style_12sp_black"/>
+                    android:inputType="text"
+                    android:text="@={viewModel.reEnterPassword}"/>
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -172,11 +199,11 @@
                 android:id="@+id/cl_gender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="20dp"
-                android:padding="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="5dp"
                 android:background="@drawable/bg_rounded_edittext"
+                android:padding="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/til_reEnterPassword">
@@ -210,10 +237,10 @@
                     style="@style/text_style_12sp_black"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
                     android:drawableEnd="@drawable/baseline_girl_24"
                     android:gravity="center"
                     android:text="Female"
-                    android:layout_marginEnd="10dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
@@ -229,10 +256,10 @@
                 android:layout_marginStart="186dp"
                 android:layout_marginEnd="167dp"
                 android:layout_marginBottom="23dp"
-                android:textStyle="italic"
                 android:onClick="@{()-> viewModel.navigateBackToLoginScreen()}"
                 android:text="Return to Login screen"
                 android:textColor="@color/black"
+                android:textStyle="italic"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -241,12 +268,14 @@
                 android:id="@+id/btn_register"
                 android:layout_width="0dp"
                 android:layout_height="40dp"
-                android:text="Register"
                 android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
                 android:layout_marginTop="20dp"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/bg_button_gradient"
+                android:onClick="@{()->viewModel.onRegisterClicked()}"
+                android:text="Register"
                 app:backgroundTint="@null"
-                android:background="@drawable/bg_button_gradient"                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/cl_gender" />
 

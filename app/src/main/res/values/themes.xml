@@ -20,7 +20,7 @@
         <item name="helperTextTextColor">@color/black</item>
         <item name="boxStrokeWidth">0.13dp</item>
         <item name="boxStrokeWidthFocused">0.15dp</item>
-        <item name="android:layout_margin">10dp</item>
+        <item name="android:layout_margin">5dp</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_marginTop">25dp</item>
