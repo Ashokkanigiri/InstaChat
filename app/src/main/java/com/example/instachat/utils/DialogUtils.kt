@@ -4,11 +4,15 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.database.Cursor
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.provider.MediaStore
 import android.view.LayoutInflater
+import com.example.instachat.R
 import com.example.instachat.databinding.LayoutLogoutDialogBinding
 import com.example.instachat.databinding.LayoutNetworkDialogBinding
 import com.example.instachat.databinding.LayoutPermissionDialogBinding
+import com.example.instachat.databinding.LayoutProgressDialogBinding
 import com.example.instachat.databinding.LayoutUserExistsBinding
 
 
@@ -74,5 +78,22 @@ object DialogUtils {
         }
         dialog.setCancelable(false)
         dialog.show()
+    }
+
+    fun populateProgressDialog(
+        context: Context,
+        shouldShowProgress: Boolean
+    ) {
+        val binding = LayoutProgressDialogBinding.inflate(LayoutInflater.from(context))
+        val dialog = Dialog(context)
+        dialog.setContentView(binding.root)
+        dialog.setCancelable(false)
+        dialog.getWindow()?.setBackgroundDrawable(ColorDrawable(context.resources.getColor(R.color.transparent)));
+
+        if(shouldShowProgress){
+            dialog.show()
+        }else{
+            dialog.dismiss()
+        }
     }
 }

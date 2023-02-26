@@ -20,4 +20,5 @@
     <color name="light_yellow">#ffb8bd</color>
     <color name="light_green">#b2ffb2</color>
     <color name="light_red">#FF6666</color>
+    <color name="transparent">#00000000</color>
 </resources>
