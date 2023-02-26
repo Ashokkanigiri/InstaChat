@@ -96,7 +96,7 @@ fun ImageView.loadNoInternetConnectionGif(boolean: Boolean){
 
 @BindingAdapter("displayTag1ForPost")
 fun TextView.displayTag1ForPost(tags: List<String>?){
-    tags?.let {
+    if(!tags.isNullOrEmpty()) {
         this.text = "#"+tags.get(0)
     }
 }
