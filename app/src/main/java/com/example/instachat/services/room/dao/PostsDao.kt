@@ -21,6 +21,9 @@ interface PostsDao : BaseDao<PostModelItem> {
     @Query("SELECT * FROM posts WHERE id =:postId")
     suspend fun getPost(postId: Int): PostModelItem
 
+    @Query("DELETE FROM posts")
+    suspend fun deletePostsTable()
+
     @Query("SELECT * FROM posts where userId =:userId")
     fun getPostsForUser(userId: String): LiveData<List<PostModelItem>>
 

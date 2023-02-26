@@ -39,9 +39,26 @@ fun ImageView.loadImageUriWithGlide(uri: Uri){
 @BindingAdapter("loadCircularImageWithGlide")
 fun ImageView.loadCircularImageWithGlide( imageUrl: String?){
 
+
     Glide.with(this).load(imageUrl)
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .apply(RequestOptions.circleCropTransform())
+        .into(this)
+}
+
+@BindingAdapter("loadCircularImageWithGlideWithDefault")
+fun ImageView.loadCircularImageWithGlideWithDefault( imageUrl: String?){
+    if(imageUrl == null){
+        Glide.with(this).load(R.drawable.user_add)
+            .diskCacheStrategy(DiskCacheStrategy.DATA)
+            .apply(RequestOptions.circleCropTransform())
+            .into(this)
+    }
+
+    Glide.with(this).load(imageUrl)
+        .diskCacheStrategy(DiskCacheStrategy.DATA)
+        .apply(RequestOptions.circleCropTransform())
+        .placeholder(R.drawable.user_add)
         .into(this)
 }
 

@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.Cursor
 import android.provider.MediaStore
 import android.view.LayoutInflater
+import com.example.instachat.databinding.LayoutLogoutDialogBinding
 import com.example.instachat.databinding.LayoutNetworkDialogBinding
 import com.example.instachat.databinding.LayoutPermissionDialogBinding
 import com.example.instachat.databinding.LayoutUserExistsBinding
@@ -51,6 +52,24 @@ object DialogUtils {
         val dialog = Dialog(context)
         dialog.setContentView(binding.root)
         binding.btnOkay.setOnClickListener {
+            dialog.dismiss()
+        }
+        dialog.setCancelable(false)
+        dialog.show()
+    }
+
+    fun populateLogoutDialog(
+        context: Context,
+        handleLogoutClicked: (() -> Unit)
+    ) {
+        val binding = LayoutLogoutDialogBinding.inflate(LayoutInflater.from(context))
+        val dialog = Dialog(context)
+        dialog.setContentView(binding.root)
+        binding.btnLogout.setOnClickListener {
+            dialog.dismiss()
+            handleLogoutClicked.invoke()
+        }
+        binding.btnCancel.setOnClickListener {
             dialog.dismiss()
         }
         dialog.setCancelable(false)

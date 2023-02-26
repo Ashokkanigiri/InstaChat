@@ -20,6 +20,9 @@ interface UsersDao: BaseDao<User> {
     @Update
     fun updateUser(user: User)
 
+    @Query("DELETE FROM users")
+    suspend fun deleteUserTable()
+
     @Query("UPDATE users SET likedPosts =:likedPosts WHERE id =:userId")
     fun updateUserLikedPosts(likedPosts: List<LikedPosts>, userId: String)
 

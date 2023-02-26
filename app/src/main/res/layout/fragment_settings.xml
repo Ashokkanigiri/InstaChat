@@ -1,16 +1,131 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".feature.hometab.view.HomeFragment">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.instachat.feature.settingstab.SettingsViewModel" />
+    </data>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="settings fragment" />
+   <ScrollView
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:fillViewport="true">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+       <androidx.constraintlayout.widget.ConstraintLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:background="@color/offWhite">
+
+
+           <LinearLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:orientation="vertical"
+               app:layout_constraintStart_toStartOf="parent"
+               app:layout_constraintEnd_toEndOf="parent"
+               app:layout_constraintTop_toTopOf="parent"
+              >
+
+               <androidx.constraintlayout.widget.ConstraintLayout
+                   android:id="@+id/top_layout"
+                   android:layout_width="match_parent"
+                   android:layout_height="200dp"
+                   android:layout_margin="10dp"
+                   android:background="@drawable/bg_rounded_button"
+                   app:layout_constraintEnd_toEndOf="parent"
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintTop_toTopOf="parent">
+
+
+                   <TextView
+                       android:id="@+id/textView14"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:fontFamily="@font/instachat_curve_regular"
+                       android:letterSpacing="0.05"
+                       android:text="Settings"
+                       android:textColor="@color/black"
+                       android:textSize="24sp"
+                       app:layout_constraintEnd_toEndOf="parent"
+                       app:layout_constraintStart_toStartOf="parent"
+                       app:layout_constraintTop_toTopOf="@+id/guideline3" />
+
+                   <androidx.constraintlayout.widget.ConstraintLayout
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       app:layout_constraintBottom_toBottomOf="parent"
+                       app:layout_constraintEnd_toEndOf="@+id/textView14"
+                       app:layout_constraintStart_toStartOf="@+id/textView14"
+                       app:layout_constraintTop_toBottomOf="@+id/textView14">
+
+                       <ImageView
+                           android:id="@+id/imageView9"
+                           loadCircularImageWithGlideWithDefault="@{null}"
+                           android:layout_width="50dp"
+                           android:layout_height="50dp"
+                           app:layout_constraintBottom_toBottomOf="parent"
+                           app:layout_constraintStart_toStartOf="parent"
+                           app:layout_constraintTop_toTopOf="parent"
+                           tools:srcCompat="@tools:sample/avatars" />
+
+                       <TextView
+                           android:id="@+id/textView16"
+                           android:layout_width="wrap_content"
+                           android:layout_height="wrap_content"
+                           android:text="TextView"
+                           android:layout_marginStart="10dp"
+                           app:layout_constraintBottom_toBottomOf="@+id/imageView9"
+                           app:layout_constraintStart_toEndOf="@+id/imageView9"
+                           app:layout_constraintTop_toTopOf="@+id/imageView9" />
+
+
+                   </androidx.constraintlayout.widget.ConstraintLayout>
+
+                   <androidx.constraintlayout.widget.Guideline
+                       android:id="@+id/guideline3"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:orientation="horizontal"
+                       app:layout_constraintGuide_begin="49dp" />
+               </androidx.constraintlayout.widget.ConstraintLayout>
+
+               <androidx.constraintlayout.widget.ConstraintLayout
+                   android:id="@+id/bottom_layout"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:layout_margin="10dp"
+                   android:background="@drawable/bg_rounded_button"
+                   app:layout_constraintStart_toStartOf="parent"
+                   app:layout_constraintEnd_toEndOf="parent"
+                   app:layout_constraintTop_toBottomOf="@id/top_layout">
+
+                   <TextView
+                       android:id="@+id/tv_logout"
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:text="Logout"
+                       android:textSize="16sp"
+                       android:onClick="@{()->viewModel.onLogoutClicked()}"
+                       android:paddingStart="15dp"
+                       android:paddingEnd="15dp"
+                       android:paddingTop="10dp"
+                       android:paddingBottom="10dp"
+                       android:background="@drawable/bg_rounded_button"
+                       android:textColor="@android:color/holo_red_light"
+                       app:layout_constraintStart_toStartOf="parent"
+                       app:layout_constraintTop_toTopOf="parent"/>
+
+
+               </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+           </LinearLayout>
+
+       </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+   </ScrollView>
 </layout>

@@ -16,6 +16,9 @@ interface CommentsDao : BaseDao<Comment> {
     @Query("SELECT * FROM comments WHERE id =:commentId")
     suspend fun getComment(commentId: Int): Comment
 
+    @Query("DELETE FROM comments")
+    fun deleteCommentsTable()
+
     @Query("SELECT * FROM comments WHERE postId =:postId")
     fun getAllCommentsForPost(postId: Int): LiveData<List<Comment>>
 

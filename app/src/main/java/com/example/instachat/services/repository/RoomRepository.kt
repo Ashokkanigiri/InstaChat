@@ -10,5 +10,10 @@ class RoomRepository @Inject constructor(
     val commentsDao: CommentsDao
 ) {
 
+    suspend fun clearAllDatabases(){
+        usersDao.deleteUserTable()
+        postsDao.deletePostsTable()
+        commentsDao.deleteCommentsTable()
+    }
 
 }
