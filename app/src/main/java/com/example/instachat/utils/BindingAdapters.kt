@@ -39,11 +39,19 @@ fun ImageView.loadImageUriWithGlide(uri: Uri){
 @BindingAdapter("loadCircularImageWithGlide")
 fun ImageView.loadCircularImageWithGlide( imageUrl: String?){
 
+    if(imageUrl.isNullOrEmpty()){
+        Glide.with(this).load("https://robohash.org/delenitipraesentiumvoluptatum.png")
+            .diskCacheStrategy(DiskCacheStrategy.DATA)
+            .apply(RequestOptions.circleCropTransform())
+            .into(this)
+    }else{
+        Glide.with(this).load(imageUrl)
+            .diskCacheStrategy(DiskCacheStrategy.DATA)
+            .apply(RequestOptions.circleCropTransform())
+            .into(this)
+    }
 
-    Glide.with(this).load(imageUrl)
-        .diskCacheStrategy(DiskCacheStrategy.DATA)
-        .apply(RequestOptions.circleCropTransform())
-        .into(this)
+
 }
 
 @BindingAdapter("loadCircularImageWithGlideWithDefault")

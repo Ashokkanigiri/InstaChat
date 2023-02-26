@@ -3,6 +3,7 @@ package com.example.instachat.feature.register
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.instachat.R
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.SyncRepository
@@ -80,6 +81,7 @@ class RegistrationViewModel @Inject constructor(
                     if (connectivityService.hasActiveNetwork()) syncRepository.addNewUser(user.apply {
                         id = it?.user?.uid ?: ""
                         password = ""
+                        username = user.email
                     })
                     withContext(Dispatchers.Main){
                         event.postValue(RegistrationViewModelEvent.HandleRegistrationSuccess)
