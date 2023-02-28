@@ -14,6 +14,7 @@ import com.example.instachat.databinding.LayoutNetworkDialogBinding
 import com.example.instachat.databinding.LayoutPermissionDialogBinding
 import com.example.instachat.databinding.LayoutProgressDialogBinding
 import com.example.instachat.databinding.LayoutUserExistsBinding
+import javax.inject.Singleton
 
 
 object DialogUtils {
@@ -80,20 +81,14 @@ object DialogUtils {
         dialog.show()
     }
 
-    fun populateProgressDialog(
+    fun getProgressDialog(
         context: Context,
-        shouldShowProgress: Boolean
-    ) {
+        dialog: Dialog
+    ): Dialog {
         val binding = LayoutProgressDialogBinding.inflate(LayoutInflater.from(context))
-        val dialog = Dialog(context)
         dialog.setContentView(binding.root)
         dialog.setCancelable(false)
         dialog.getWindow()?.setBackgroundDrawable(ColorDrawable(context.resources.getColor(R.color.transparent)));
-
-        if(shouldShowProgress){
-            dialog.show()
-        }else{
-            dialog.dismiss()
-        }
+        return dialog
     }
 }

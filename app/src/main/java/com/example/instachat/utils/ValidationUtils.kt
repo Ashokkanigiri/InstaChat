@@ -14,11 +14,19 @@ object ValidationUtils {
         isValidEmail(user.email) && isValidPassword(user.password) && isValidFirstName(user.firstName) && user.password.equals(reEnteredPassword)
 
     fun isValidEmail(email: String): Boolean {
-        return Pattern.matches(emailPattern, email)
+        return isValidLoginEmail(email) && Pattern.matches(emailPattern, email)
     }
 
     fun isValidPassword(password: String) :Boolean{
         return Pattern.matches(passwordPattern, password)
+    }
+
+    fun isValidLoginEmail(email: String?): Boolean{
+        return !email.isNullOrEmpty()
+    }
+
+    fun isValidLoginPassword(password: String?): Boolean{
+        return !password.isNullOrEmpty()
     }
 
     fun isValidFirstName(firstName: String) = firstName.isNotEmpty()
