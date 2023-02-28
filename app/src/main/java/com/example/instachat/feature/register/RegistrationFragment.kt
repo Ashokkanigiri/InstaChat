@@ -1,5 +1,6 @@
 package com.example.instachat.feature.register
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -25,6 +26,8 @@ class RegistrationFragment : Fragment() {
 
     val viewModel: RegistrationViewModel by viewModels()
 
+    lateinit var progressDialog: Dialog
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -44,6 +47,7 @@ class RegistrationFragment : Fragment() {
     }
 
     private fun initFragment() {
+        progressDialog = DialogUtils.getProgressDialog(requireContext(), Dialog(requireContext()))
         handleGenderRadioGroup()
     }
 
@@ -67,6 +71,14 @@ class RegistrationFragment : Fragment() {
                 is RegistrationViewModelEvent.PopulateConnectivityErrorDialog ->{
                     DialogUtils.populateConnectivityErrorDialog(requireContext())
                 }
+            }
+        })
+
+        viewModel.progressBarEvent.observe(viewLifecycleOwner, Observer {
+            if(it){
+                progressDialog.show()
+            }else{
+                progressDialog.dismiss()
             }
         })
     }

@@ -30,6 +30,7 @@ class RegistrationViewModel @Inject constructor(
     val navigateBackToLoginScreenEvent = SingleLiveEvent<Boolean>()
     val passwordDoestMatchError = ObservableField<Boolean>()
     val event = SingleLiveEvent<RegistrationViewModelEvent>()
+    val progressBarEvent = SingleLiveEvent<Boolean>()
     var user = User()
     val auth = Firebase.auth
 
@@ -39,9 +40,6 @@ class RegistrationViewModel @Inject constructor(
 
     init {
         errorText.set("")
-        firebaseRepository.isUserAlreadyExists("ashokkanigiri98@gmail.com"){
-
-        }
     }
 
     fun onRegisterClicked() {
@@ -65,8 +63,10 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun checkIsUserAlreadyPresentInFirebase() {
+        showProgressBar()
         firebaseRepository.isUserAlreadyExists(user.email){ isUserAlreadyPresent ->
             if(isUserAlreadyPresent){
+                hideProgressBar()
                 event.postValue(RegistrationViewModelEvent.PopulateUserAlreadyExistsDialog)
             }else{
                 createAndSyncNewUser(user)
@@ -85,9 +85,13 @@ class RegistrationViewModel @Inject constructor(
                     })
                     withContext(Dispatchers.Main){
                         event.postValue(RegistrationViewModelEvent.HandleRegistrationSuccess)
+                        hideProgressBar()
                     }
                 }
 
+            }.addOnFailureListener {
+                hideProgressBar()
+                errorText.set(it.localizedMessage)
             }
     }
 
@@ -117,6 +121,14 @@ class RegistrationViewModel @Inject constructor(
                 errorText.set(errorText.get() + "\n** First Name should not be Empty")
             }
         }
+    }
+
+    private fun showProgressBar(){
+        progressBarEvent.postValue(true)
+    }
+
+    private fun hideProgressBar(){
+        progressBarEvent.postValue(false)
     }
 
 }
