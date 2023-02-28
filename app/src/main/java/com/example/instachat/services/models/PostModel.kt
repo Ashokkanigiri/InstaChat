@@ -33,7 +33,8 @@ data class PostModelItem(
     @SerializedName("userId")
     var userId: String,
 
-    var postImageUrl: String = "",
+    @TypeConverters(TagsTypeConverterSync::class)
+    var postImageUrls: List<String> = emptyList(),
 
     var likesCount: Int? = 0,
 

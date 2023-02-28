@@ -1,14 +1,12 @@
 package com.example.instachat.services.repository
 
 import android.content.Context
-import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.core.net.toUri
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.utils.ConnectivityService
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
@@ -16,10 +14,7 @@ import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.storageMetadata
 import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import java.io.File
 import javax.inject.Inject
 
 class FirebaseRepository @Inject constructor(
@@ -199,29 +194,38 @@ class FirebaseRepository @Inject constructor(
         }
     }
 
-    suspend fun uploadPostImageToFirebase(postModelItem: PostModelItem, isPostUploadedSuccessfully: ((String?)-> Unit)) {
+    suspend fun uploadPostImageToFirebase(postModelItem: PostModelItem, isPostUploadedSuccessfully: ((List<String>?)-> Unit)) {
         val storage = Firebase.storage
         val storageRef = storage.reference
         val fstorage = FirebaseStorage.getInstance()
         val imageRef =
             storageRef.child("users/${postModelItem.userId}/posts/${postModelItem.id}/${System.currentTimeMillis()}.jpg")
+       val imagesList: ArrayList<String> = ArrayList<String>()
         val metaData = storageMetadata {
             contentType = "image/jpeg"
         }
 
-        val uploadTask = imageRef.putFile(postModelItem.postImageUrl.toUri(), metaData)
-        uploadTask.addOnSuccessListener {
-            val ref = storageRef.child("users/${postModelItem.userId}/posts/${postModelItem.id}")
-            ref.listAll().addOnSuccessListener {
-                fstorage.reference.child(it.items.first().path).downloadUrl.addOnSuccessListener {
-                    isPostUploadedSuccessfully.invoke(it.toString())
-                }.addOnFailureListener {
-                    isPostUploadedSuccessfully.invoke(null)
-                }
+        postModelItem.postImageUrls?.forEach {
+            val uploadTask = imageRef.putFile(it.toUri(), metaData)
+            uploadTask.addOnSuccessListener {
+                val ref = storageRef.child("users/${postModelItem.userId}/posts/${postModelItem.id}")
+                ref.listAll().addOnSuccessListener {
+                    it?.items?.forEach {
+                        fstorage.reference.child(it.path).downloadUrl.addOnSuccessListener {
+                            imagesList.add(it.toString())
+                        }.addOnFailureListener {
+                            isPostUploadedSuccessfully.invoke(null)
+                        }.addOnCompleteListener {
+                            isPostUploadedSuccessfully.invoke(imagesList)
+                        }
+                    }
 
+                }
+            }.addOnFailureListener {
+                isPostUploadedSuccessfully.invoke(null)
             }
-        }.addOnFailureListener {
-            isPostUploadedSuccessfully.invoke(null)
         }
+
+
     }
 }

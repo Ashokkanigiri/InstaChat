@@ -6,7 +6,7 @@ data class HomeDataModel(
     var postId: Int=0,
     val postTitle: String?="",
     val postBody: String?="",
-    val postImageUrl: String="",
+    val postImageUrls: List<String>? = emptyList(),
     val postLikesCount: Int=0,
 
     val userId: String?="",
