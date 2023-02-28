@@ -1,6 +1,7 @@
 package com.example.instachat.utils
 
 import android.content.Context
+import android.graphics.Color
 import android.net.Uri
 import android.util.Log
 import android.view.View
@@ -9,6 +10,7 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -24,30 +26,50 @@ import com.google.firebase.storage.ktx.storage
 
 @BindingAdapter("loadImageWithGlide")
 fun ImageView.loadImageWithGlide(imageUrl: String){
+    val circularProgressDrawable = CircularProgressDrawable(this.context)
+    circularProgressDrawable.strokeWidth = 5f
+    circularProgressDrawable.centerRadius = 30f
+    circularProgressDrawable.start()
+
     GlideApp.with(this).load(imageUrl)
         .diskCacheStrategy(DiskCacheStrategy.DATA)
+        .placeholder(circularProgressDrawable)
         .into(this)
 }
 
 @BindingAdapter("loadImageUriWithGlide")
 fun ImageView.loadImageUriWithGlide(uri: Uri){
-    Glide.with(this).load(uri)
+    val circularProgressDrawable = CircularProgressDrawable(this.context)
+    circularProgressDrawable.strokeWidth = 5f
+    circularProgressDrawable.centerRadius = 30f
+    circularProgressDrawable.start()
+
+    GlideApp.with(this).load(uri)
         .diskCacheStrategy(DiskCacheStrategy.DATA)
+        .placeholder(circularProgressDrawable)
         .into(this)
 }
 
 @BindingAdapter("loadCircularImageWithGlide")
 fun ImageView.loadCircularImageWithGlide( imageUrl: String?){
 
+    val circularProgressDrawable = CircularProgressDrawable(this.context)
+    circularProgressDrawable.strokeWidth = 5f
+    circularProgressDrawable.centerRadius = 30f
+    circularProgressDrawable.start()
+
+
     if(imageUrl.isNullOrEmpty()){
-        Glide.with(this).load("https://robohash.org/delenitipraesentiumvoluptatum.png")
+        GlideApp.with(this).load("https://robohash.org/delenitipraesentiumvoluptatum.png")
             .diskCacheStrategy(DiskCacheStrategy.DATA)
             .apply(RequestOptions.circleCropTransform())
+            .placeholder(circularProgressDrawable)
             .into(this)
     }else{
-        Glide.with(this).load(imageUrl)
+        GlideApp.with(this).load(imageUrl)
             .diskCacheStrategy(DiskCacheStrategy.DATA)
             .apply(RequestOptions.circleCropTransform())
+            .placeholder(circularProgressDrawable)
             .into(this)
     }
 
@@ -56,17 +78,25 @@ fun ImageView.loadCircularImageWithGlide( imageUrl: String?){
 
 @BindingAdapter("loadCircularImageWithGlideWithDefault")
 fun ImageView.loadCircularImageWithGlideWithDefault( imageUrl: String?){
+
+    val circularProgressDrawable = CircularProgressDrawable(this.context)
+    circularProgressDrawable.strokeWidth = 5f
+    circularProgressDrawable.centerRadius = 30f
+    circularProgressDrawable.start()
+
     if(imageUrl == null){
-        Glide.with(this).load(R.drawable.user_add)
+        GlideApp.with(this).load(R.drawable.user_add)
             .diskCacheStrategy(DiskCacheStrategy.DATA)
             .apply(RequestOptions.circleCropTransform())
+            .placeholder(circularProgressDrawable)
             .into(this)
     }
 
-    Glide.with(this).load(imageUrl)
+    GlideApp.with(this).load(imageUrl)
         .diskCacheStrategy(DiskCacheStrategy.DATA)
         .apply(RequestOptions.circleCropTransform())
         .placeholder(R.drawable.user_add)
+        .placeholder(circularProgressDrawable)
         .into(this)
 }
 
