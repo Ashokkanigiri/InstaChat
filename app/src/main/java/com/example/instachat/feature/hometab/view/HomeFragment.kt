@@ -123,6 +123,7 @@ class HomeFragment : Fragment() {
         binding.swipeLayout.setOnRefreshListener {
             viewModel.injectDataFromFirebase()
             binding.swipeLayout.isRefreshing = false
+            viewModel.adapter.notifyDataSetChanged()
         }
     }
 

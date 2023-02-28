@@ -1,5 +1,6 @@
 package com.example.instachat.feature.hometab
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
@@ -10,6 +11,7 @@ import com.example.instachat.R
 import com.example.instachat.databinding.ItemHomeFragmentBinding
 import com.example.instachat.feature.hometab.models.HomeDataModel
 import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
+import com.google.gson.Gson
 
 class HomeDataAdapter constructor(val viewModel: HomeViewModel) :
     ListAdapter<HomeDataModel, HomeDataViewHolder>(DiffUtilCallBack()) {
@@ -43,7 +45,7 @@ class HomeDataViewHolder(val binding: ItemHomeFragmentBinding, val viewModel: Ho
         binding.homeDataModel = homeData
 
         viewModel.getFirstCommentForPost(homeData.postId){
-
+            Log.d("fkbnqlfb", "FIRSTPOST : ${Gson().toJson(it)}")
             binding.commentSection.homeDataCommentsModel = it
         }
     }
