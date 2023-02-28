@@ -112,7 +112,6 @@ class SyncWorker @AssistedInject constructor(
                 roomSyncRepository.postsDao.deletePost(newPost.id)
                 roomRepository.postsDao.insert(newPost)
                 Log.d("jnqwljngfq", "DD: ${Gson().toJson(newPost)}")
-                Result.success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -131,7 +130,6 @@ class SyncWorker @AssistedInject constructor(
                 roomRepository.postsDao.updateLikedCountForPost(updatedPost.id, updatedPost.likesCount?:0)
                 roomSyncRepository.postsDao.deletePost(item_id)
                 Log.d("wlfkqwnbgf", "update post addOnCompleteListener")
-                success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
