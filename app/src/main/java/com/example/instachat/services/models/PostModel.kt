@@ -34,7 +34,7 @@ data class PostModelItem(
     var userId: String,
 
     @TypeConverters(TagsTypeConverterSync::class)
-    var postImageUrls: List<String> = emptyList(),
+    var postImageUrls: List<String>? = emptyList(),
 
     var likesCount: Int? = 0,
 
