@@ -44,6 +44,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun loadViewModel() {
+        viewModel.injectDataFromFirebase()
         viewModel.loadHomeData()
         viewModel.loadUsersData()
         viewModel.setUpActionBar()
