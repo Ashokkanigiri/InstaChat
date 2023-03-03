@@ -30,8 +30,6 @@ class LoginActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.layout_login_activity)
         binding.lifecycleOwner = this
 
-        viewModel.injectDataFromFirebase()
-
         observeViewModel()
 
     }

@@ -3,11 +3,11 @@ package com.example.instachat.feature.register
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.instachat.R
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.ConnectivityService
+import com.example.instachat.utils.Response
 import com.example.instachat.utils.SingleLiveEvent
 import com.example.instachat.utils.ValidationUtils
 import com.google.firebase.auth.ktx.auth
@@ -27,7 +27,6 @@ class RegistrationViewModel @Inject constructor(
 
     val errorText = ObservableField<String>()
     val reEnterPassword = ObservableField<String>()
-    val navigateBackToLoginScreenEvent = SingleLiveEvent<Boolean>()
     val passwordDoestMatchError = ObservableField<Boolean>()
     val event = SingleLiveEvent<RegistrationViewModelEvent>()
     val progressBarEvent = SingleLiveEvent<Boolean>()
@@ -35,7 +34,7 @@ class RegistrationViewModel @Inject constructor(
     val auth = Firebase.auth
 
     fun navigateBackToLoginScreen() {
-        navigateBackToLoginScreenEvent.postValue(true)
+        event.postValue(RegistrationViewModelEvent.NavigateBackToLoginScreen)
     }
 
     init {
@@ -53,23 +52,29 @@ class RegistrationViewModel @Inject constructor(
     }
 
     private fun validateUserDetails() {
-        ValidationUtils.shouldRegisterUser(user, reEnterPassword.get() ?: "").let {detailsValidated->
-            if (detailsValidated) {
-                checkIsUserAlreadyPresentInFirebase()
-            } else {
-                handleValidationErrors()
+        ValidationUtils.shouldRegisterUser(user, reEnterPassword.get() ?: "")
+            .let { detailsValidated ->
+                if (detailsValidated) {
+                    checkIsUserAlreadyPresentInFirebase()
+                } else {
+                    handleValidationErrors()
+                }
             }
-        }
     }
 
     private fun checkIsUserAlreadyPresentInFirebase() {
         showProgressBar()
-        firebaseRepository.isUserAlreadyExists(user.email){ isUserAlreadyPresent ->
-            if(isUserAlreadyPresent){
-                hideProgressBar()
-                event.postValue(RegistrationViewModelEvent.PopulateUserAlreadyExistsDialog)
-            }else{
-                createAndSyncNewUser(user)
+        viewModelScope.launch {
+            when (val isUserExists = firebaseRepository.isUserAlreadyExists(user.email)) {
+                is Response.Success<Boolean> -> {
+                    if (isUserExists.data == true) {
+                        hideProgressBar()
+                        event.postValue(RegistrationViewModelEvent.PopulateUserAlreadyExistsDialog)
+                    } else {
+                        createAndSyncNewUser(user)
+                    }
+                }
+                else -> {}
             }
         }
     }
@@ -83,7 +88,7 @@ class RegistrationViewModel @Inject constructor(
                         password = ""
                         username = user.email
                     })
-                    withContext(Dispatchers.Main){
+                    withContext(Dispatchers.Main) {
                         event.postValue(RegistrationViewModelEvent.HandleRegistrationSuccess)
                         hideProgressBar()
                     }
@@ -123,11 +128,11 @@ class RegistrationViewModel @Inject constructor(
         }
     }
 
-    private fun showProgressBar(){
+    private fun showProgressBar() {
         progressBarEvent.postValue(true)
     }
 
-    private fun hideProgressBar(){
+    private fun hideProgressBar() {
         progressBarEvent.postValue(false)
     }
 

@@ -14,29 +14,31 @@ data class PostModel(
 @Entity("posts")
 data class PostModelItem(
     @SerializedName("body")
-    var body: String,
+    var body: String ="",
 
     @PrimaryKey
     @SerializedName("id")
-    val id: Int,
+    val id: Int = 0,
 
     @SerializedName("reactions")
-    val reactions: Int,
+    val reactions: Int = 0,
 
     @SerializedName("tags")
     @TypeConverters(TagsTypeConverterSync::class)
-    var tags: List<String>,
+    var tags: List<String> = emptyList(),
 
     @SerializedName("title")
-    var title: String,
+    var title: String ="",
 
     @SerializedName("userId")
-    var userId: String,
+    var userId: String = "",
 
     @TypeConverters(TagsTypeConverterSync::class)
     var postImageUrls: List<String>? = emptyList(),
 
+    @SerializedName("likesCount")
     var likesCount: Int? = 0,
 
+    @SerializedName("postCreatedDate")
     var postCreatedDate: String? = ""
 )

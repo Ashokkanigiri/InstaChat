@@ -20,7 +20,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -110,9 +109,9 @@ class HomeViewModel @Inject constructor(
     fun injectDataFromFirebase() {
         if(connectivityService.hasActiveNetwork()){
             viewModelScope.launch(Dispatchers.IO) {
-                firebaseRepository.getAllPostsFromFirebase()
-                firebaseRepository.getAllUsersFromFirebase()
-                firebaseRepository.getAllCommentsFromFirebase()
+                firebaseRepository.injectAllPostsFromFirebase()
+                firebaseRepository.injectAllUsersFromFirebase()
+                firebaseRepository.injectAllCommentsFromFirebase()
             }
         }else{
             event.postValue(HomeViewModelEvent.ShowConnectivityErrorDialog)

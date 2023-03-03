@@ -4,4 +4,5 @@ sealed class RegistrationViewModelEvent{
     object PopulateConnectivityErrorDialog: RegistrationViewModelEvent()
     object PopulateUserAlreadyExistsDialog: RegistrationViewModelEvent()
     object HandleRegistrationSuccess: RegistrationViewModelEvent()
+    object NavigateBackToLoginScreen: RegistrationViewModelEvent()
 }

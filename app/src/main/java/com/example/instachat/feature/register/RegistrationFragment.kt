@@ -71,6 +71,9 @@ class RegistrationFragment : Fragment() {
                 is RegistrationViewModelEvent.PopulateConnectivityErrorDialog ->{
                     DialogUtils.populateConnectivityErrorDialog(requireContext())
                 }
+                is RegistrationViewModelEvent.NavigateBackToLoginScreen ->{
+                    findNavController().popBackStack()
+                }
             }
         })
 

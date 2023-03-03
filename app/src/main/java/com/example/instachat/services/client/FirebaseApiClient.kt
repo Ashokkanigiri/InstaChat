@@ -12,7 +12,6 @@ import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.utils.Response
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.storageMetadata
 import com.google.gson.Gson
@@ -40,168 +39,84 @@ class FirebaseApiClient @Inject constructor(
     }
 
 
-    fun injectUsersToFirebase(data: User) {
-        val db = Firebase.firestore
-        db.collection("users")
-            .document(data.id.toString())
-            .set(data)
-            .addOnCompleteListener {
-                Log.d("wkjbfqa", "OnComplete")
-            }.addOnCanceledListener {
-                Log.d("wkjbfqa", "addOnCanceledListener")
-            }
-
+    suspend fun injectUsersToFirebase(data: User): Response<Boolean> {
+        return try {
+            val db = Firebase.firestore
+            db.collection("users")
+                .document(data.id.toString())
+                .set(data)
+                .await()
+            Response.Success(true)
+        } catch (e: Exception) {
+            Response.Failure(e)
+        }
     }
 
-    fun injectPostsToFirebase(data: PostModelItem) {
-        val db = Firebase.firestore
-        db.collection("posts")
-            .document(data.id.toString())
-            .set(data)
-            .addOnCompleteListener {
-                Log.d("wkjbfqa", "OnComplete")
-            }.addOnCanceledListener {
-                Log.d("wkjbfqa", "addOnCanceledListener")
-            }
-
-    }
-
-    suspend fun getAllPostsFromFirebase() {
-        val db = Firebase.firestore
-        db.collection("posts").get().await().documents.let { it ->
-            val data = it?.map { it.data }?.map { data ->
-                Gson().fromJson(Gson().toJson(data), PostModelItem::class.java)
-            }
-            data?.let {
-                roomRepository.postsDao.insert(it)
-            }
+    suspend fun injectPostsToFirebase(data: PostModelItem): Response<Boolean> {
+        return try {
+            val db = Firebase.firestore
+            db.collection("posts")
+                .document(data.id.toString())
+                .set(data)
+                .await()
+            Response.Success(true)
+        } catch (e: java.lang.Exception) {
+            Response.Failure(e)
         }
 
     }
 
-    suspend fun getAllCommentsFromFirebase() {
-        val db = Firebase.firestore
-        db.collection("comments").get().await().documents.let { it ->
-            val data = it?.map { it.data }?.map { data ->
-                Gson().fromJson(Gson().toJson(data), Comment::class.java)
-            }
-            data?.let {
-                roomRepository.commentsDao.insert(it)
-            }
+    suspend fun getAllPostsFromFirebase(): Response<List<PostModelItem>> {
+        return try {
+            val db = Firebase.firestore
+            val posts = db.collection("posts").get().await().toObjects(PostModelItem::class.java)
+            Response.Success(posts)
+        } catch (e: java.lang.Exception) {
+            Response.Failure(e)
+        }
+    }
+
+    suspend fun getAllCommentsFromFirebase(): Response<List<Comment>> {
+        return try {
+            val db = Firebase.firestore
+            val comments = db.collection("comments").get().await().toObjects(Comment::class.java)
+            Response.Success(comments)
+        } catch (e: java.lang.Exception) {
+            Response.Failure(e)
         }
 
     }
 
-    suspend fun getAllUsersFromFirebase() {
-        val db = Firebase.firestore
-        db.collection("users").get().await().documents.let { it ->
-            val data = it?.map { it.data }?.map { data ->
-                Gson().fromJson(Gson().toJson(data), User::class.java)
-            }
-            data?.let {
-                roomRepository.usersDao.insert(it)
-            }
+    suspend fun getAllUsersFromFirebase(): Response<List<User>> {
+        return try {
+            val db = Firebase.firestore
+            val users = db.collection("users").get().await().toObjects(User::class.java)
+            Response.Success(users)
+        } catch (e: java.lang.Exception) {
+            Response.Failure(e)
         }
 
     }
 
-    fun getUserPosts(userId: Int) {
-        val db = Firebase.firestore
 
-        db.collection("posts").whereLessThanOrEqualTo("userId", userId)
-            .addSnapshotListener { value, error ->
-
-                val dd = value?.documents?.map { it.data }?.map { it ->
-                    Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
-                }
-                dd?.let {
-                }
-
+    suspend fun isUserAlreadyExists(userEmail: String): Response<Boolean> {
+        return try {
+            val db = Firebase.firestore
+            val data = db.collection("users").whereEqualTo("email", userEmail).get().await()
+            if(data?.documents?.size == 0){
+                Response.Success(false)
+            }else{
+                Response.Success(true)
             }
-
-    }
-
-    fun getAllCommentsForPost(postId: Int) {
-        val db = Firebase.firestore
-
-        db.collection("comments").whereEqualTo("postId", postId)
-            .addSnapshotListener { value, error ->
-
-                val commentsList = value?.documents?.map { it.data }?.map {
-                    Gson().fromJson(Gson().toJson(it), Comment::class.java)
-                }
-
-                commentsList?.let {
-                }
-            }
-
-    }
-
-    fun getPost(postId: Int) {
-        val db = Firebase.firestore
-
-        db.collection("posts").whereEqualTo("id", postId).addSnapshotListener { value, error ->
-
-            val post = value?.documents?.map { it.data }?.map {
-                Gson().fromJson(Gson().toJson(it), PostModelItem::class.java)
-            }
-
-            post?.let { post ->
-                post.isNotEmpty()?.let {
-                }
-            }
-        }
-
-    }
-
-    fun getUser(userId: Int, getLoggedInUser: Boolean) {
-        val db = Firebase.firestore
-
-        db.collection("users").whereEqualTo("id", userId).addSnapshotListener { value, error ->
-
-            val user = value?.documents?.map { it.data }?.map {
-                Gson().fromJson(Gson().toJson(it), User::class.java)
-            }
-
-            user?.let { user ->
-                user.isNotEmpty()?.let {
-                }
-            }
-
-        }
-    }
-
-    fun postComment(comment: Comment) {
-        val db = Firebase.firestore
-
-        db.collection("comments").add(comment)
-            .addOnFailureListener {
-                Toast.makeText(context, "Error While adding comment", Toast.LENGTH_SHORT).show()
-            }.addOnSuccessListener {
-                Toast.makeText(context, "Comment sucessfully added", Toast.LENGTH_SHORT).show()
-
-            }
-
-    }
-
-    fun isUserAlreadyExists(userEmail: String, isUserExists: ((Boolean) -> Unit)) {
-        val db = Firebase.firestore
-
-        db.collection("users").whereEqualTo("email", userEmail).get().addOnSuccessListener {
-            if (it.documents.size == 0) {
-                isUserExists.invoke(false)
-            } else {
-                isUserExists.invoke(true)
-            }
-        }.addOnFailureListener {
-            Log.d("kjfbw", "errro: ${it}")
+        }catch (e: Exception){
+            Response.Failure(e)
         }
     }
 
     suspend fun uploadPostImageToFirebase(
         postModelItem: PostModelItem,
         postImageUrl: String
-    ) : String {
+    ): String {
         return try {
             val storage = Firebase.storage
             val storageRef = storage.reference
