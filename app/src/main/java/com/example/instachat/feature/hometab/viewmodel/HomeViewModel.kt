@@ -54,6 +54,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun asyncTest(){
+        viewModelScope.launch {
+
+        }
+    }
+
     fun navigateToUserDetails(userId: String){
         event.postValue(HomeViewModelEvent.NavigateToUserDetailScreen(userId))
     }

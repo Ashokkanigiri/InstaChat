@@ -14,6 +14,7 @@ import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.utils.ObjectConverterUtil
+import com.example.instachat.utils.Response
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
@@ -33,7 +34,7 @@ class SyncWorker @AssistedInject constructor(
         val item_id = inputData.getInt("ID", 0)
         val sync_table = inputData.getString("SYNC_TABLE")
         val user_id = inputData.getString("USER_ID")
-        val commentId = inputData.getInt("COMMENT_ID",0)
+        val commentId = inputData.getInt("COMMENT_ID", 0)
 
         when (sync_table) {
             SyncTables.POSTS.name -> {
@@ -47,19 +48,19 @@ class SyncWorker @AssistedInject constructor(
                 addNewCommentToFirebase(convertToComment)
             }
             SyncTables.USERS.name -> {
-                val updatedUser = roomSyncRepository.usersDao.getUser(user_id?:"")
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
-                updateUserToFirebase(user_id?:"", convertToUser)
+                updateUserToFirebase(user_id ?: "", convertToUser)
             }
-            SyncTables.NEW_POST.name ->{
+            SyncTables.NEW_POST.name -> {
                 val updatedPost = roomSyncRepository.postsDao.getPost(item_id)
                 val convertToPostModelItem = ObjectConverterUtil.convertPostSyncToPost(updatedPost)
                 uploadPostedImagesToFirebaseAndGetUrl(convertToPostModelItem)
             }
-            SyncTables.NEW_USER.name ->{
-                val updatedUser = roomSyncRepository.usersDao.getUser(user_id?:"")
+            SyncTables.NEW_USER.name -> {
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
-                addNewUserToFirebase( convertToUser)
+                addNewUserToFirebase(convertToUser)
             }
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
@@ -75,12 +76,21 @@ class SyncWorker @AssistedInject constructor(
     private suspend fun uploadPostedImagesToFirebaseAndGetUrl(
         convertToPostModelItem: PostModelItem
     ) {
-        firebaseRepository.uploadPostImageToFirebase(convertToPostModelItem) {
-            convertToPostModelItem.apply {
-                this.postImageUrls = it?: emptyList()
+
+        when (val uploadedImageUrls = firebaseRepository.uploadPostImageToFirebase(convertToPostModelItem)) {
+            is Response.Success<List<String>> -> {
+                convertToPostModelItem.apply {
+                    this.postImageUrls = uploadedImageUrls.data
+                }
+                addNewPost(convertToPostModelItem)
             }
-            addNewPost(convertToPostModelItem)
+            is Response.Failure -> {
+                Result.failure()
+            }
+            Response.Loading -> {
+            }
         }
+
     }
 
     private fun addNewCommentToFirebase(comment: Comment) {
@@ -125,7 +135,10 @@ class SyncWorker @AssistedInject constructor(
             .document("${item_id}")
             .set(updatedPost)
             .addOnCompleteListener {
-                roomRepository.postsDao.updateLikedCountForPost(updatedPost.id, updatedPost.likesCount?:0)
+                roomRepository.postsDao.updateLikedCountForPost(
+                    updatedPost.id,
+                    updatedPost.likesCount ?: 0
+                )
                 roomSyncRepository.postsDao.deletePost(item_id)
                 Log.d("wlfkqwnbgf", "update post addOnCompleteListener")
             }.addOnCanceledListener {
@@ -144,7 +157,10 @@ class SyncWorker @AssistedInject constructor(
             .document("1")
             .set(user)
             .addOnCompleteListener {
-                roomRepository.usersDao.updateUserLikedPosts(user.likedPosts?: emptyList(), user.id)
+                roomRepository.usersDao.updateUserLikedPosts(
+                    user.likedPosts ?: emptyList(),
+                    user.id
+                )
                 roomSyncRepository.usersDao.deleteUser(user_id)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
