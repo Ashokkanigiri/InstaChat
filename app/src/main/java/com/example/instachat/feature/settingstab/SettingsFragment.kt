@@ -9,15 +9,12 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
-import com.example.instachat.BaseActivity
+import androidx.navigation.fragment.findNavController
 import com.example.instachat.LoginActivity
-import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentSettingsBinding
 import com.example.instachat.utils.DialogUtils
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.ktx.app
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -50,8 +47,17 @@ class SettingsFragment : Fragment() {
                 is SettingsViewModelEvent.HandleLogoutButtonClicked ->{
                     onLogoutClicked()
                 }
+                is SettingsViewModelEvent.NavigateToUserDetailFragment -> {
+                    navigateToUserDetail(it.userId)
+                }
             }
         })
+    }
+
+    private fun navigateToUserDetail(userId: String) {
+        findNavController().navigate(
+            SettingsFragmentDirections.actionSettingsFragmentToUserDetailsFragment3(userId)
+        )
     }
 
     private fun onLogoutClicked(){

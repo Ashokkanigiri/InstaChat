@@ -60,6 +60,7 @@
                    android:layout_width="match_parent"
                    android:layout_height="50dp"
                    android:layout_margin="10dp"
+                   android:onClick="@{()->viewModel.navigateToUserDetail()}"
                    android:background="@drawable/bg_settings_items"
                    app:layout_constraintBottom_toBottomOf="parent"
                    app:layout_constraintEnd_toEndOf="@+id/textView14"
