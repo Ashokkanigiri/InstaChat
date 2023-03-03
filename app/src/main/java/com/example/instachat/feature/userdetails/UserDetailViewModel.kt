@@ -30,5 +30,13 @@ class UserDetailViewModel @Inject constructor(val roomRepository: RoomRepository
         }
     }
 
+    fun onFollowButtonClicked(){
+        event.postValue(UserDetailViewModelEvent.OnFollowButtonClicked)
+    }
+
+    fun onMessageButtonClicked(){
+        event.postValue(UserDetailViewModelEvent.OnMessageButtonClicked)
+    }
+
 
 }

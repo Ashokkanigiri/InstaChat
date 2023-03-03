@@ -76,6 +76,12 @@ class UserDetailsFragment : Fragment() {
                 is UserDetailViewModelEvent.LoadPosts -> {
                     viewModel.adapter.submitList(it.posts)
                 }
+                UserDetailViewModelEvent.OnFollowButtonClicked -> {
+
+                }
+                UserDetailViewModelEvent.OnMessageButtonClicked -> {
+
+                }
             }
         })
     }
