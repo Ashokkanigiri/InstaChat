@@ -12,6 +12,8 @@
         <variable
             name="user"
             type="com.example.instachat.services.models.dummyjson.User" />
+
+        <import type="android.view.View"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -203,7 +205,9 @@
                 android:layout_width="0dp"
                 android:layout_height="30dp"
                 android:background="@drawable/bg_rounded_button"
-                android:text="Follow"
+                tools:text="Follow"
+                android:text="@{viewModel.followingStatusUpdate}"
+                android:visibility="@{viewModel.currentUserProfile ? View.GONE: View.VISIBLE}"
                 android:onClick="@{()->viewModel.onFollowButtonClicked()}"
                 android:backgroundTint="@color/offWhite"
                 android:layout_marginTop="15dp"
@@ -220,6 +224,7 @@
                 android:layout_width="0dp"
                 android:layout_height="30dp"
                 android:text="Message"
+                android:visibility="@{viewModel.currentUserProfile ? View.GONE: View.VISIBLE}"
                 android:onClick="@{()->viewModel.onMessageButtonClicked()}"
                 android:textAllCaps="false"
                 android:layout_marginRight="15dp"

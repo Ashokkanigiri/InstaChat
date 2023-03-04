@@ -7,11 +7,16 @@
         <variable
             name="user"
             type="com.example.instachat.services.models.dummyjson.User" />
+
+        <variable
+            name="viewModel"
+            type="com.example.instachat.feature.hometab.viewmodel.HomeViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="80dp"
-        android:layout_height="100dp">
+        android:layout_height="100dp"
+        android:onClick="@{()-> viewModel.navigateToUserDetails(user.id)}">
 
         <ImageView
             android:id="@+id/imageView3"

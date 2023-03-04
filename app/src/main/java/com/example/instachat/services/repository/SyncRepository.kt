@@ -66,6 +66,13 @@ class SyncRepository @Inject constructor(
         launchWorker(SyncTables.USERS, userId = user.id)
     }
 
+    suspend fun updateFollowingStatus(user: User) {
+        roomSyncRepository.usersDao.insert(
+            ObjectConverterUtil.convertUserToUserSync(user)
+        )
+        launchWorker(SyncTables.USERS_UPDATE_FOLLOWING, userId = user.id)
+    }
+
     suspend fun addNewUser(user: User) {
         roomSyncRepository.usersDao.insert(
             ObjectConverterUtil.convertUserToUserSync(user)
@@ -88,4 +95,5 @@ class SyncRepository @Inject constructor(
             newPostWorkId.invoke(workId)
         }
     }
+
 }

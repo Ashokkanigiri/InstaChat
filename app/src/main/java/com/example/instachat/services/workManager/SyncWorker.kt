@@ -62,6 +62,11 @@ class SyncWorker @AssistedInject constructor(
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
                 addNewUserToFirebase(convertToUser)
             }
+            SyncTables.USERS_UPDATE_FOLLOWING.name ->{
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
+                val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
+                updateFollowingStatusUser(user_id ?: "", convertToUser)
+            }
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
@@ -151,10 +156,33 @@ class SyncWorker @AssistedInject constructor(
             }
     }
 
+    private fun updateFollowingStatusUser(user_id: String, user: User) {
+        val db = Firebase.firestore
+        db.collection("users")
+            .document(user.id)
+            .set(user)
+            .addOnCompleteListener {
+                roomRepository.usersDao.updateFollowing(
+                    user.followedUserIds ?: emptyList(),
+                    user.id
+                )
+                roomSyncRepository.usersDao.deleteUser(user_id)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+                Log.d("wlfkqwnbgf", "update user sucess")
+
+            }
+    }
+
+
     private fun updateUserToFirebase(user_id: String, user: User) {
         val db = Firebase.firestore
         db.collection("users")
-            .document("1")
+            .document(user.id)
             .set(user)
             .addOnCompleteListener {
                 roomRepository.usersDao.updateUserLikedPosts(

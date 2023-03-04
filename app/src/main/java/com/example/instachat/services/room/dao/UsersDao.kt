@@ -17,6 +17,9 @@ interface UsersDao: BaseDao<User> {
     @Query("SELECT * FROM users WHERE id =:userId ")
     suspend fun getUser(userId: String): User
 
+    @Query("SELECT * FROM users WHERE id =:userId ")
+    fun getUserFlow(userId: String): Flow<User>
+
     @Update
     fun updateUser(user: User)
 
@@ -25,6 +28,9 @@ interface UsersDao: BaseDao<User> {
 
     @Query("UPDATE users SET likedPosts =:likedPosts WHERE id =:userId")
     fun updateUserLikedPosts(likedPosts: List<LikedPosts>, userId: String)
+
+    @Query("UPDATE users SET followedUserIds =:followingUserIds WHERE id =:userId")
+    fun updateFollowing(followingUserIds: List<String>, userId: String)
 
     @Query("SELECT * FROM users")
     fun getallUsersFlow(): Flow<List<User>>

@@ -6,6 +6,8 @@ import com.example.instachat.services.room.typeconverters.CompanyTypeConverter
 import com.example.instachat.services.room.typeconverters.UserAddressTypeConverter
 import com.example.instachat.services.room_sync.typeconverters.HairSyncTypeConverterSync
 import com.example.instachat.services.room_sync.typeconverters.LikesTypeConverterSync
+import com.example.instachat.services.room_sync.typeconverters.TagsTypeConverterSync
+import com.google.gson.annotations.SerializedName
 
 
 @Entity("users_sync")
@@ -46,7 +48,11 @@ data class UserSync(
     val weight: Double,
 
     @TypeConverters(LikesTypeConverterSync::class)
-    var likedPosts: List<LikedPosts>? = emptyList()
+    var likedPosts: List<LikedPosts>? = emptyList(),
+
+    @SerializedName("followedUserIds")
+    @TypeConverters(TagsTypeConverterSync::class)
+    var followedUserIds: List<String>? = emptyList(),
 )
 
 data class LikedPosts(val postId: Int)

@@ -1,4 +1,4 @@
-package com.example.instachat.feature.hometab
+package com.example.instachat.feature.hometab.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,13 +8,14 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instachat.R
 import com.example.instachat.databinding.ItemHomeUserAdapterBinding
+import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
 import com.example.instachat.services.models.dummyjson.User
 
-class HomeUsersAdapter: ListAdapter<User, HomeUsersViewHolder>(HomeUserDiffUtil()) {
+class HomeUsersAdapter constructor(val viewModel: HomeViewModel): ListAdapter<User, HomeUsersViewHolder>(HomeUserDiffUtil()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HomeUsersViewHolder {
         val inflator = LayoutInflater.from(parent.context)
         val binding = DataBindingUtil.inflate<ItemHomeUserAdapterBinding>(inflator, R.layout.item_home_user_adapter, parent, false)
-        return HomeUsersViewHolder(binding)
+        return HomeUsersViewHolder(binding, viewModel)
     }
 
     override fun onBindViewHolder(holder: HomeUsersViewHolder, position: Int) {
@@ -22,9 +23,10 @@ class HomeUsersAdapter: ListAdapter<User, HomeUsersViewHolder>(HomeUserDiffUtil(
     }
 }
 
-class HomeUsersViewHolder(val binding: ItemHomeUserAdapterBinding): RecyclerView.ViewHolder(binding.root){
+class HomeUsersViewHolder(val binding: ItemHomeUserAdapterBinding, val viewModel: HomeViewModel): RecyclerView.ViewHolder(binding.root){
     fun bind(homeDataModel: User){
         binding.user = homeDataModel
+        binding.viewModel = viewModel
     }
 }
 

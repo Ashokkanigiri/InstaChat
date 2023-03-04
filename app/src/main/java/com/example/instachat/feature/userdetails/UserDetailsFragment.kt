@@ -37,6 +37,32 @@ class UserDetailsFragment : Fragment() {
         setUpToolBar()
         initFragment()
         loadViewModel()
+        observeViewModel()
+    }
+
+    private fun loadViewModel() {
+    }
+
+    private fun observeViewModel() {
+        viewModel.event.observe(viewLifecycleOwner, Observer {
+            when (it) {
+                is UserDetailViewModelEvent.LoadUser -> {
+                    binding.user = it.user
+                    (activity as BaseActivity).setBackLabelText(it.user.username)
+                    viewModel.loadAllPostsForUser(it.user.id)
+                    viewModel.loadFollowingText()
+                }
+                is UserDetailViewModelEvent.LoadPosts -> {
+                    viewModel.adapter.submitList(it.posts)
+                }
+                UserDetailViewModelEvent.OnFollowButtonClicked -> {
+
+                }
+                UserDetailViewModelEvent.OnMessageButtonClicked -> {
+
+                }
+            }
+        })
     }
 
     private fun setUpToolBar() {
@@ -61,28 +87,8 @@ class UserDetailsFragment : Fragment() {
         binding.rvPosts.adapter = viewModel.adapter
 
         arguments?.getString("userId")?.let {
+            viewModel.userId = it
             viewModel.loadUser(it)
         }
-    }
-
-    private fun loadViewModel() {
-        viewModel.event.observe(viewLifecycleOwner, Observer {
-            when (it) {
-                is UserDetailViewModelEvent.LoadUser -> {
-                    binding.user = it.user
-                    (activity as BaseActivity).setBackLabelText(it.user.username)
-                    viewModel.loadAllPostsForUser(it.user.id)
-                }
-                is UserDetailViewModelEvent.LoadPosts -> {
-                    viewModel.adapter.submitList(it.posts)
-                }
-                UserDetailViewModelEvent.OnFollowButtonClicked -> {
-
-                }
-                UserDetailViewModelEvent.OnMessageButtonClicked -> {
-
-                }
-            }
-        })
     }
 }

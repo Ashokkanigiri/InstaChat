@@ -6,4 +6,5 @@ enum class SyncTables(tableName: String) {
     COMMENTS("COMMENTS"),
     NEW_POST("NEW_POST"),
     NEW_USER("NEW_USER"),
+    USERS_UPDATE_FOLLOWING("USERS_UPDATE_FOLLOWING")
 }

@@ -2,6 +2,8 @@ package com.example.instachat.services.models.dummyjson
 
 import androidx.room.*
 import com.example.instachat.services.room.typeconverters.*
+import com.example.instachat.services.room_sync.typeconverters.TagsTypeConverterSync
+import com.google.gson.annotations.SerializedName
 
 data class UsersModel(
     val limit: Int,
@@ -48,7 +50,11 @@ data class User(
     val weight: Double = 0.0,
 
     @TypeConverters(LikesTypeConverter::class)
-    var likedPosts: List<LikedPosts>? = emptyList()
+    var likedPosts: List<LikedPosts>? = emptyList(),
+
+    @SerializedName("followedUserIds")
+    @TypeConverters(TagsTypeConverterSync::class)
+    var followedUserIds: List<String>? = emptyList(),
 )
 
 data class LikedPosts(val postId: Int)
