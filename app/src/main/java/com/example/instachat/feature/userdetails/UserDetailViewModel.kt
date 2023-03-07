@@ -91,7 +91,9 @@ class UserDetailViewModel @Inject constructor(
     }
 
     fun onFollowButtonClicked() {
-        updateUser(userId ?: "")
+        if(followingStatusUpdate.get() == "follow"){
+            updateUser(userId ?: "")
+        }
     }
 
     fun onMessageButtonClicked() {
