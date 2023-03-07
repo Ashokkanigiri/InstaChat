@@ -1,5 +1,6 @@
 package com.example.instachat.feature.userdetails
 
+import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,7 @@ import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -35,7 +37,7 @@ class UserDetailViewModel @Inject constructor(
 
     fun loadUser(userId: String) {
         viewModelScope.launch {
-            roomRepository.usersDao.getUserFlow(userId).collect(){
+            roomRepository.usersDao.getUserFlow(userId).collect {
                 event.postValue(UserDetailViewModelEvent.LoadUser(it))
             }
         }
@@ -82,7 +84,9 @@ class UserDetailViewModel @Inject constructor(
             loggedUser.apply {
                 this.followedUserIds = this.followedUserIds?.plus(followedUserId)
             }
-            syncRepository.updateFollowingStatus(loggedUser)
+            syncRepository.updateFollowingStatus(loggedUser){
+                event.postValue(UserDetailViewModelEvent.OnFollowStatusRequested(it))
+            }
         }
     }
 

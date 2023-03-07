@@ -1,6 +1,7 @@
 package com.example.instachat.feature.userdetails
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,11 +11,14 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentUserDetailsBinding
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.UUID
 
 @AndroidEntryPoint
 class UserDetailsFragment : Fragment() {
@@ -49,7 +53,7 @@ class UserDetailsFragment : Fragment() {
                 is UserDetailViewModelEvent.LoadUser -> {
                     binding.user = it.user
                     (activity as BaseActivity).setBackLabelText(it.user.username)
-                    viewModel.loadAllPostsForUser(it.user.id)
+                    viewModel.loadAllPostsForUser(viewModel.userId?:"")
                     viewModel.loadFollowingText()
                 }
                 is UserDetailViewModelEvent.LoadPosts -> {
@@ -61,6 +65,25 @@ class UserDetailsFragment : Fragment() {
                 UserDetailViewModelEvent.OnMessageButtonClicked -> {
 
                 }
+                is UserDetailViewModelEvent.OnFollowStatusRequested ->{
+                    listenToFollowStatusRequested(it.workId)
+                }
+            }
+        })
+    }
+
+    private fun listenToFollowStatusRequested(workId: UUID){
+        WorkManager.getInstance(requireContext()).getWorkInfoByIdLiveData(workId).observe(viewLifecycleOwner, Observer {
+            when(it.state){
+                WorkInfo.State.SUCCEEDED -> {
+                    viewModel.loadAllPostsForUser(viewModel.userId?:"")
+                }
+                WorkInfo.State.FAILED -> {
+
+                }
+               else ->{
+
+               }
             }
         })
     }

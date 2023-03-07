@@ -11,7 +11,7 @@ import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.services.workManager.SyncWorker
 import com.example.instachat.utils.ObjectConverterUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.util.UUID
+import java.util.*
 import javax.inject.Inject
 
 class SyncRepository @Inject constructor(
@@ -21,7 +21,14 @@ class SyncRepository @Inject constructor(
     @ApplicationContext val context: Context
 ) {
 
-    fun launchWorker(syncTables: SyncTables, itemId: Int =0, userId: String="", commentId: Int = 0, addNewPostWorkId: ((UUID) -> Unit)? = null) {
+    fun launchWorker(
+        syncTables: SyncTables,
+        itemId: Int = 0,
+        userId: String = "",
+        commentId: Int = 0,
+        addNewPostWorkId: ((UUID) -> Unit)? = null,
+        followingStatusWorkId: ((UUID) -> Unit)? = null
+    ) {
 
         val data = Data.Builder()
         data.putInt("ID", itemId)
@@ -29,17 +36,17 @@ class SyncRepository @Inject constructor(
         data.putString("USER_ID", userId)
         data.putInt("COMMENT_ID", commentId)
 
-        val tag : String = when {
-            syncTables.name.equals(SyncTables.POSTS.name) ->{
+        val tag: String = when {
+            syncTables.name.equals(SyncTables.POSTS.name) -> {
                 "itemId"
             }
-            syncTables.name.equals(SyncTables.COMMENTS.name) ->{
+            syncTables.name.equals(SyncTables.COMMENTS.name) -> {
                 userId
             }
-            syncTables.name.equals(SyncTables.USERS.name) ->{
+            syncTables.name.equals(SyncTables.USERS.name) -> {
                 "commentId"
             }
-            else->""
+            else -> ""
         }
 
         val workRequest =
@@ -47,7 +54,21 @@ class SyncRepository @Inject constructor(
                 .setInputData(data.build())
                 .addTag(tag).build()
 
-        addNewPostWorkId?.invoke(workRequest.id)
+        when {
+            syncTables.name.equals(SyncTables.POSTS.name) -> {
+                addNewPostWorkId?.invoke(workRequest.id)
+            }
+            syncTables.name.equals(SyncTables.COMMENTS.name) -> {
+
+            }
+            syncTables.name.equals(SyncTables.USERS.name) -> {
+
+            }
+            syncTables.name.equals(SyncTables.USERS_UPDATE_FOLLOWING.name) -> {
+                followingStatusWorkId?.invoke(workRequest.id)
+            }
+            else -> ""
+        }
 
         WorkManager.getInstance(context).enqueue(workRequest)
     }
@@ -66,11 +87,15 @@ class SyncRepository @Inject constructor(
         launchWorker(SyncTables.USERS, userId = user.id)
     }
 
-    suspend fun updateFollowingStatus(user: User) {
+    suspend fun updateFollowingStatus(user: User, onFollowingStatusUpdated: ((UUID) -> Unit)) {
         roomSyncRepository.usersDao.insert(
             ObjectConverterUtil.convertUserToUserSync(user)
         )
-        launchWorker(SyncTables.USERS_UPDATE_FOLLOWING, userId = user.id)
+        launchWorker(
+            SyncTables.USERS_UPDATE_FOLLOWING,
+            userId = user.id,
+            followingStatusWorkId = onFollowingStatusUpdated
+        )
     }
 
     suspend fun addNewUser(user: User) {
@@ -80,18 +105,18 @@ class SyncRepository @Inject constructor(
         launchWorker(SyncTables.USERS, userId = user.id)
     }
 
-    suspend fun addNewComment(comment: Comment){
+    suspend fun addNewComment(comment: Comment) {
         roomSyncRepository.commentsDao.insert(
             ObjectConverterUtil.convertCommentToCommentSync(comment)
         )
         launchWorker(SyncTables.COMMENTS, commentId = comment.id)
     }
 
-    suspend fun addNewPost(postModelItem: PostModelItem, newPostWorkId: (UUID) -> Unit){
+    suspend fun addNewPost(postModelItem: PostModelItem, newPostWorkId: (UUID) -> Unit) {
         roomSyncRepository.postsDao.insert(
             ObjectConverterUtil.convertPostToPostSync(postModelItem)
         )
-        launchWorker(SyncTables.NEW_POST, postModelItem.id){ workId ->
+        launchWorker(SyncTables.NEW_POST, postModelItem.id) { workId ->
             newPostWorkId.invoke(workId)
         }
     }
