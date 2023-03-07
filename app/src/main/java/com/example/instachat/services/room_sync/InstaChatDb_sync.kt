@@ -6,9 +6,7 @@ import androidx.room.TypeConverters
 import com.example.instachat.services.room_sync.dao.CommentsDaoSync
 import com.example.instachat.services.room_sync.dao.PostsDaoSync
 import com.example.instachat.services.room_sync.dao.UsersDaoSync
-import com.example.instachat.services.room_sync.models.CommentSync
-import com.example.instachat.services.room_sync.models.PostModelItemSync
-import com.example.instachat.services.room_sync.models.UserSync
+import com.example.instachat.services.room_sync.models.*
 import com.example.instachat.services.room_sync.typeconverters.*
 
 
@@ -21,7 +19,7 @@ import com.example.instachat.services.room_sync.typeconverters.*
         LikesTypeConverterSync::class]
 )
 @Database(
-    entities = [UserSync::class, PostModelItemSync::class, CommentSync::class],
+    entities = [UserSync::class, PostModelItemSync::class, CommentSync::class, InterestedUsersModelSync::class, RequestedForInterestModelSync::class],
     version = 1,
     exportSchema = false
 )

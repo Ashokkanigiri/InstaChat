@@ -53,8 +53,14 @@ data class User(
     var likedPosts: List<LikedPosts>? = emptyList(),
 
     @SerializedName("followedUserIds")
-    @TypeConverters(TagsTypeConverterSync::class)
+    @TypeConverters(TagsTypeConverter::class)
     var followedUserIds: List<String>? = emptyList(),
+
+    @TypeConverters(TagsTypeConverter::class)
+    var interestedUsersList: List<String>? = emptyList(),
+
+    @TypeConverters(TagsTypeConverter::class)
+    var requestedForInterestsList: List<String>? = emptyList()
 )
 
 data class LikedPosts(val postId: Int)
@@ -92,3 +98,4 @@ data class Coordinates(
     val lat: Double = 0.0,
     val lng: Double = 0.0
 )
+
