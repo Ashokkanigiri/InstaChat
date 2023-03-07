@@ -17,6 +17,8 @@ import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentUserDetailsBinding
+import com.example.instachat.services.models.dummyjson.InterestedUsersModel
+import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
 
@@ -66,19 +68,25 @@ class UserDetailsFragment : Fragment() {
 
                 }
                 is UserDetailViewModelEvent.OnFollowStatusRequested ->{
-                    listenToFollowStatusRequested(it.workId)
+                    listenToFollowStatusRequested(it.workId, it.interestedUsersModel, it.requestedForInterestModel)
                 }
             }
         })
     }
 
-    private fun listenToFollowStatusRequested(workId: UUID){
+    private fun listenToFollowStatusRequested(
+        workId: UUID,
+        interestedUsersModel: InterestedUsersModel,
+        requestedForInterestModel: RequestedForInterestModel
+    ){
         WorkManager.getInstance(requireContext()).getWorkInfoByIdLiveData(workId).observe(viewLifecycleOwner, Observer {
             when(it.state){
                 WorkInfo.State.SUCCEEDED -> {
-                    viewModel.loadAllPostsForUser(viewModel.userId?:"")
+                    viewModel.addInterestedUserToLoggedUser(interestedUsersModel)
+                    viewModel.addRequestForInterestTOCurrentUser(requestedForInterestModel)
                 }
                 WorkInfo.State.FAILED -> {
+                    Log.d("kwjwkjgb", "FAILED")
 
                 }
                else ->{

@@ -1,22 +1,21 @@
 package com.example.instachat.feature.userdetails
 
-import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.models.dummyjson.InterestedUsersModel
+import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
@@ -43,15 +42,15 @@ class UserDetailViewModel @Inject constructor(
         }
     }
 
-    fun loadFollowingText(){
+    fun loadFollowingText() {
         viewModelScope.launch {
             val loggedUser = roomRepository.usersDao.getUser(currentLoggedInUser?.uid ?: "")
-            if(loggedUser.followedUserIds?.contains(userId) == true){
-               withContext(Dispatchers.Main){
-                   followingStatusUpdate.set("Following")
-               }
-            }else{
-                withContext(Dispatchers.Main){
+            if (loggedUser.followedUserIds?.contains(userId) == true) {
+                withContext(Dispatchers.Main) {
+                    followingStatusUpdate.set("Following")
+                }
+            } else {
+                withContext(Dispatchers.Main) {
                     followingStatusUpdate.set("Follow")
                 }
             }
@@ -68,8 +67,8 @@ class UserDetailViewModel @Inject constructor(
     }
 
     fun onFollowButtonClicked() {
-        updateUser(userId?:"")
-        loadUser(userId?:"")
+        updateUser(userId ?: "")
+        loadUser(userId ?: "")
     }
 
     fun onMessageButtonClicked() {
@@ -78,15 +77,55 @@ class UserDetailViewModel @Inject constructor(
 
     fun isCurrentUserProfile() = ((userId ?: "").equals((currentLoggedInUser?.uid ?: "")))
 
-    private fun updateUser(followedUserId: String){
+    private fun updateUser(followedUserId: String) {
+
+        val interestedUser = InterestedUsersModel(
+            id = UUID.randomUUID()?.toString() ?: "",
+            userId = currentLoggedInUser?.uid ?: "",
+            isFollowAccepted = false,
+            isFollowRejected = false,
+            isFollowRequested = false,
+            interestedUserId = followedUserId,
+            timeStamp = System.currentTimeMillis().toString()
+        )
+
+        val requestedForInterestModel = RequestedForInterestModel(
+            id = UUID.randomUUID().toString(),
+            requestedUserId = currentLoggedInUser?.uid ?: "",
+            interestId = interestedUser.id
+        )
+
         viewModelScope.launch {
-            val loggedUser = roomRepository.usersDao.getUser(currentLoggedInUser?.uid ?: "")
-            loggedUser.apply {
-                this.followedUserIds = this.followedUserIds?.plus(followedUserId)
+            syncRepository.addAndSyncUserInterestedList(interestedUser)
+            syncRepository.addAndSyncRequestedInterestsList(requestedForInterestModel) {
+                event.postValue(
+                    UserDetailViewModelEvent.OnFollowStatusRequested(
+                        it,
+                        interestedUser,
+                        requestedForInterestModel
+                    )
+                )
             }
-            syncRepository.updateFollowingStatus(loggedUser){
-                event.postValue(UserDetailViewModelEvent.OnFollowStatusRequested(it))
+        }
+    }
+
+    fun addInterestedUserToLoggedUser(interestedUsersModel: InterestedUsersModel) {
+        viewModelScope.launch {
+            val loggedUser =roomRepository.usersDao.getUser(currentLoggedInUser?.uid?:"")
+            val uUser = loggedUser.apply {
+                this.interestedUsersList = (this.interestedUsersList?: emptyList()) + listOf(interestedUsersModel.id)
             }
+            syncRepository.updateUsersInterestedUsers(uUser)
+        }
+    }
+
+    fun addRequestForInterestTOCurrentUser(requestedForInterestModel: RequestedForInterestModel) {
+        viewModelScope.launch {
+            val loggedUser =roomRepository.usersDao.getUser(currentLoggedInUser?.uid?:"")
+            val uUser = loggedUser.apply {
+                this.requestedForInterestsList = (this.requestedForInterestsList?: emptyList()) + listOf(requestedForInterestModel.id)
+            }
+            syncRepository.updateRequestedInterestedUsers(uUser)
         }
     }
 

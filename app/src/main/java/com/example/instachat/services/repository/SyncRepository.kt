@@ -6,6 +6,8 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
+import com.example.instachat.services.models.dummyjson.InterestedUsersModel
+import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.services.workManager.SyncWorker
@@ -26,6 +28,7 @@ class SyncRepository @Inject constructor(
         itemId: Int = 0,
         userId: String = "",
         commentId: Int = 0,
+        itemIdString: String = "",
         addNewPostWorkId: ((UUID) -> Unit)? = null,
         followingStatusWorkId: ((UUID) -> Unit)? = null
     ) {
@@ -34,6 +37,7 @@ class SyncRepository @Inject constructor(
         data.putInt("ID", itemId)
         data.putString("SYNC_TABLE", syncTables.name)
         data.putString("USER_ID", userId)
+        data.putString("ITEM_ID_STRING", itemIdString)
         data.putInt("COMMENT_ID", commentId)
 
         val tag: String = when {
@@ -46,7 +50,13 @@ class SyncRepository @Inject constructor(
             syncTables.name.equals(SyncTables.USERS.name) -> {
                 "commentId"
             }
-            else -> ""
+            syncTables.name.equals(SyncTables.ADD_INTERESTED_LIST.name) ->{
+                "ADD_INTERESTED_LIST"
+            }
+            syncTables.name.equals(SyncTables.ADD_REQUEST_INTERESTED_LIST.name) ->{
+                "ADD_REQUEST_INTERESTED_LIST"
+            }
+            else ->""
         }
 
         val workRequest =
@@ -67,6 +77,11 @@ class SyncRepository @Inject constructor(
             syncTables.name.equals(SyncTables.USERS_UPDATE_FOLLOWING.name) -> {
                 followingStatusWorkId?.invoke(workRequest.id)
             }
+
+            syncTables.name.equals(SyncTables.ADD_REQUEST_INTERESTED_LIST.name) -> {
+                followingStatusWorkId?.invoke(workRequest.id)
+            }
+
             else -> ""
         }
 
@@ -85,6 +100,27 @@ class SyncRepository @Inject constructor(
             ObjectConverterUtil.convertUserToUserSync(user)
         )
         launchWorker(SyncTables.USERS, userId = user.id)
+    }
+
+    suspend fun addAndSyncUserInterestedList(interestedUsersModel: InterestedUsersModel) {
+        roomSyncRepository.interestedUsersDaoSync.insert(
+            ObjectConverterUtil.convertInterestedUsersToInterestedUsersSync(
+                interestedUsersModel
+            )
+        )
+        launchWorker(SyncTables.ADD_INTERESTED_LIST, itemIdString = interestedUsersModel.id)
+    }
+
+    suspend fun addAndSyncRequestedInterestsList(
+        requestedForInterestModel: RequestedForInterestModel,
+        onFollowRequested: ((UUID) -> Unit)
+    ) {
+        roomSyncRepository.requestedInterestedUsersDaoSync.insert(
+            ObjectConverterUtil.convertRequestedInterestedModelToRequestedInterestedModelSync(
+                requestedForInterestModel
+            )
+        )
+        launchWorker(SyncTables.ADD_REQUEST_INTERESTED_LIST, itemIdString = requestedForInterestModel.id, followingStatusWorkId = onFollowRequested)
     }
 
     suspend fun updateFollowingStatus(user: User, onFollowingStatusUpdated: ((UUID) -> Unit)) {
@@ -119,6 +155,26 @@ class SyncRepository @Inject constructor(
         launchWorker(SyncTables.NEW_POST, postModelItem.id) { workId ->
             newPostWorkId.invoke(workId)
         }
+    }
+
+    suspend fun updateUsersInterestedUsers(user: User){
+        roomSyncRepository.usersDao.insert(
+            ObjectConverterUtil.convertUserToUserSync(user)
+        )
+        launchWorker(
+            SyncTables.USERS_UPDATE_INTERESTED_USERS,
+            userId = user.id,
+        )
+    }
+
+    suspend fun updateRequestedInterestedUsers(user: User){
+        roomSyncRepository.usersDao.insert(
+            ObjectConverterUtil.convertUserToUserSync(user)
+        )
+        launchWorker(
+            SyncTables.USERS_UPDATE_REQUESTED_INTERESTED_USERS,
+            userId = user.id,
+        )
     }
 
 }

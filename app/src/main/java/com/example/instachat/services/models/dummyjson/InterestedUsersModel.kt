@@ -3,7 +3,7 @@ package com.example.instachat.services.models.dummyjson
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity("interested-users")
+@Entity("interested_users")
 data class InterestedUsersModel(
     @PrimaryKey
     val id: String,

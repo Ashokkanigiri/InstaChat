@@ -8,6 +8,8 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
+import com.example.instachat.services.models.dummyjson.InterestedUsersModel
+import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
@@ -33,6 +35,7 @@ class SyncWorker @AssistedInject constructor(
 
         val item_id = inputData.getInt("ID", 0)
         val sync_table = inputData.getString("SYNC_TABLE")
+        val itemIdString = inputData.getString("ITEM_ID_STRING")
         val user_id = inputData.getString("USER_ID")
         val commentId = inputData.getInt("COMMENT_ID", 0)
 
@@ -67,11 +70,67 @@ class SyncWorker @AssistedInject constructor(
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
                 updateFollowingStatusUser(user_id ?: "", convertToUser)
             }
+            SyncTables.ADD_INTERESTED_LIST.name ->{
+                val interestedUserSync = roomSyncRepository.interestedUsersDaoSync.getInterestedUserSync(itemIdString?:"")
+                val interestedUser = ObjectConverterUtil.convertInterestedUsersSyncToInterestedUsers(interestedUserSync)
+                addNewInterestedUser(interestedUser)
+            }
+            SyncTables.ADD_REQUEST_INTERESTED_LIST.name->{
+                val reqInterestedUserSync = roomSyncRepository.requestedInterestedUsersDaoSync.getRequestedInterestedUserSync(itemIdString?:"")
+                val reqInterestedUser = ObjectConverterUtil.convertRequestedInterestedModelSyncToRequestedInterestedModel(reqInterestedUserSync)
+                addNewRequestedInterestedUser(reqInterestedUser)
+            }
+            SyncTables.USERS_UPDATE_INTERESTED_USERS.name ->{
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
+                val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
+                updateInterestedUser(user_id ?: "", convertToUser)
+            }
+            SyncTables.USERS_UPDATE_REQUESTED_INTERESTED_USERS.name ->{
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
+                val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
+                updateRequestedInterestedUser(user_id ?: "", convertToUser)
+            }
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
         return Result.success()
     }
+
+    private fun addNewInterestedUser(interestedUsersModel: InterestedUsersModel){
+        val db = Firebase.firestore
+        db.collection("interestedUserRequests")
+            .document("${interestedUsersModel.id}")
+            .set(interestedUsersModel)
+            .addOnCompleteListener {
+                roomSyncRepository.interestedUsersDaoSync.deleteRow(interestedUsersModel.id)
+                roomRepository.interestedUsersDao.insert(interestedUsersModel)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+            }
+    }
+
+    private fun addNewRequestedInterestedUser(requestedForInterestModel: RequestedForInterestModel){
+        val db = Firebase.firestore
+        db.collection("RequestedForInterestRequests")
+            .document("${requestedForInterestModel.id}")
+            .set(requestedForInterestModel)
+            .addOnCompleteListener {
+                roomSyncRepository.requestedInterestedUsersDaoSync.deleteRow(requestedForInterestModel.id)
+                roomRepository.requestedInterestedUsersDao.insert(requestedForInterestModel)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+            }
+    }
+
+
 
     /**
      * This method uploads postImageUrl into firebase storage
@@ -155,6 +214,52 @@ class SyncWorker @AssistedInject constructor(
                 Log.d("wlfkqwnbgf", "update post addOnSuccessListener")
             }
     }
+    private fun updateInterestedUser(user_id: String, user: User) {
+        val db = Firebase.firestore
+        db.collection("users")
+            .document(user.id)
+            .set(user)
+            .addOnCompleteListener {
+                roomRepository.usersDao.updateInterestedUsersList(
+                    user.interestedUsersList ?: emptyList(),
+                    user.id
+                )
+                roomSyncRepository.usersDao.deleteUser(user_id)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+                Log.d("wlfkqwnbgf", "update user sucess")
+
+            }
+    }
+
+
+    private fun updateRequestedInterestedUser(user_id: String, user: User) {
+        val db = Firebase.firestore
+        db.collection("users")
+            .document(user.id)
+            .set(user)
+            .addOnCompleteListener {
+                roomRepository.usersDao.updateRequestedInterestedUsersList(
+                    user.requestedForInterestsList ?: emptyList(),
+                    user.id
+                )
+                roomSyncRepository.usersDao.deleteUser(user_id)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+                Log.d("wlfkqwnbgf", "update user sucess")
+
+            }
+    }
+
+
 
     private fun updateFollowingStatusUser(user_id: String, user: User) {
         val db = Firebase.firestore

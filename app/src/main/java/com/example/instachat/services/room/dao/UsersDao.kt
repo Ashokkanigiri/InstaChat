@@ -38,5 +38,10 @@ interface UsersDao: BaseDao<User> {
     @Query("SELECT * FROM users WHERE users.username LIKE '%' || :match || '%'")
     fun getAllUsersWithMatchingUserNameFlow(match: String): Flow<List<User>>
 
+    @Query("UPDATE users SET interestedUsersList =:list WHERE id =:userId")
+    fun updateInterestedUsersList(list: List<String>, userId: String)
+
+    @Query("UPDATE users SET requestedForInterestsList =:list WHERE id =:userId")
+    fun updateRequestedInterestedUsersList(list: List<String>, userId: String)
 
 }

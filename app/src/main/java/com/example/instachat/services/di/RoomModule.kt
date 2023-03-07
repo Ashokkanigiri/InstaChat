@@ -4,9 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.room.InstaChatDb
-import com.example.instachat.services.room.dao.CommentsDao
-import com.example.instachat.services.room.dao.PostsDao
-import com.example.instachat.services.room.dao.UsersDao
+import com.example.instachat.services.room.dao.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,11 +43,25 @@ object RoomModule {
 
     @Singleton
     @Provides
+    fun providesInterestedUsersDao(instaChatDb: InstaChatDb): InterestedUsersDao {
+        return instaChatDb.interestedUsersDao()
+    }
+
+    @Singleton
+    @Provides
+    fun providesRequestedInterestedUsersDao(instaChatDb: InstaChatDb): RequestedInterestedUsersDao {
+        return instaChatDb.requestedInterestedUsersDao()
+    }
+
+    @Singleton
+    @Provides
     fun providesRoomRepository(
         usersDao: UsersDao,
         commentsDao: CommentsDao,
-        postsDao: PostsDao
+        postsDao: PostsDao,
+        interestedUsersDao: InterestedUsersDao,
+        requestedInterestedUsersDao: RequestedInterestedUsersDao
     ): RoomRepository {
-        return RoomRepository(usersDao, postsDao, commentsDao)
+        return RoomRepository(usersDao, postsDao, commentsDao, interestedUsersDao, requestedInterestedUsersDao)
     }
 }

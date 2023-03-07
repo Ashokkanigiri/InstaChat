@@ -3,7 +3,7 @@ package com.example.instachat.services.room_sync.models
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity("requested-for-interest")
+@Entity("requested_for_interest_sync")
 data class RequestedForInterestModelSync(
     @PrimaryKey
     val id: String,
