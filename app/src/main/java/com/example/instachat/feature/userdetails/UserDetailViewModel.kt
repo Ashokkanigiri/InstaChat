@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
+import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.SyncRepository
@@ -13,6 +14,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.*
@@ -42,20 +44,42 @@ class UserDetailViewModel @Inject constructor(
         }
     }
 
-    fun loadFollowingText() {
+    fun loadLoggedUser(){
         viewModelScope.launch {
-            val loggedUser = roomRepository.usersDao.getUser(currentLoggedInUser?.uid ?: "")
-            if (loggedUser.followedUserIds?.contains(userId) == true) {
-                withContext(Dispatchers.Main) {
-                    followingStatusUpdate.set("Following")
-                }
-            } else {
-                withContext(Dispatchers.Main) {
-                    followingStatusUpdate.set("Follow")
-                }
+            roomRepository.usersDao.getUserFlow(currentLoggedInUser?.uid?:"").collect(){
+                event.postValue(UserDetailViewModelEvent.LoadLoggedUser(it))
             }
         }
+    }
 
+    fun loadFollowingText(user: User) {
+        viewModelScope.launch {
+            val iList = roomRepository.interestedUsersDao.getAllInterestedUsers(user.id)
+            val interestedUser = iList?.firstOrNull { it.interestedUserId == userId }
+
+
+            if (interestedUser != null) {
+                when {
+                    interestedUser.isFollowAccepted && interestedUser.isFollowRequested -> {
+                        withContext(Dispatchers.Main) {
+                            followingStatusUpdate.set("Following")
+                        }
+                    }
+                    interestedUser.isFollowRequested -> {
+                        followingStatusUpdate.set("Requested")
+                    }
+                    else -> {
+                        withContext(Dispatchers.Main) {
+                            followingStatusUpdate.set("Follow")
+                        }
+                    }
+                }
+
+
+            } else {
+                followingStatusUpdate.set("Follow")
+            }
+        }
     }
 
     fun loadAllPostsForUser(userId: String) {
@@ -68,7 +92,6 @@ class UserDetailViewModel @Inject constructor(
 
     fun onFollowButtonClicked() {
         updateUser(userId ?: "")
-        loadUser(userId ?: "")
     }
 
     fun onMessageButtonClicked() {
@@ -84,7 +107,7 @@ class UserDetailViewModel @Inject constructor(
             userId = currentLoggedInUser?.uid ?: "",
             isFollowAccepted = false,
             isFollowRejected = false,
-            isFollowRequested = false,
+            isFollowRequested = true,
             interestedUserId = followedUserId,
             timeStamp = System.currentTimeMillis().toString()
         )

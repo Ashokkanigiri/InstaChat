@@ -56,7 +56,6 @@ class UserDetailsFragment : Fragment() {
                     binding.user = it.user
                     (activity as BaseActivity).setBackLabelText(it.user.username)
                     viewModel.loadAllPostsForUser(viewModel.userId?:"")
-                    viewModel.loadFollowingText()
                 }
                 is UserDetailViewModelEvent.LoadPosts -> {
                     viewModel.adapter.submitList(it.posts)
@@ -69,6 +68,9 @@ class UserDetailsFragment : Fragment() {
                 }
                 is UserDetailViewModelEvent.OnFollowStatusRequested ->{
                     listenToFollowStatusRequested(it.workId, it.interestedUsersModel, it.requestedForInterestModel)
+                }
+                is UserDetailViewModelEvent.LoadLoggedUser ->{
+                    viewModel.loadFollowingText(it.user)
                 }
             }
         })
@@ -118,8 +120,11 @@ class UserDetailsFragment : Fragment() {
         binding.rvPosts.adapter = viewModel.adapter
 
         arguments?.getString("userId")?.let {
-            viewModel.userId = it
-            viewModel.loadUser(it)
+            viewModel.apply {
+                userId = it
+                loadUser(it)
+                loadLoggedUser()
+            }
         }
     }
 }

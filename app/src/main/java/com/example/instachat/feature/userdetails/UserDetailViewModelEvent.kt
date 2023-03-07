@@ -7,6 +7,7 @@ import java.util.*
 
 sealed class UserDetailViewModelEvent {
     data class LoadUser(val user: User) : UserDetailViewModelEvent()
+    data class LoadLoggedUser(val user: User) : UserDetailViewModelEvent()
     data class LoadPosts(val posts: List<UserDetailPostsModel>) : UserDetailViewModelEvent()
     object OnFollowButtonClicked : UserDetailViewModelEvent()
     object OnMessageButtonClicked : UserDetailViewModelEvent()
