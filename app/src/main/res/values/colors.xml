@@ -34,4 +34,5 @@
     <color name="vpi__bright_foreground_inverse_holo_light">
         @color/vpi__bright_foreground_holo_dark
     </color>
+
 </resources>

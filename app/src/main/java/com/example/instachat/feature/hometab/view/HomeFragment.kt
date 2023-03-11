@@ -18,6 +18,9 @@ import com.example.instachat.feature.hometab.HomeViewModelEvent
 import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
 import com.example.instachat.utils.ConstantUtils
 import com.example.instachat.utils.DialogUtils
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.RemoteMessage
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -42,6 +45,19 @@ class HomeFragment : Fragment() {
         handleSwipeLayout()
         loadViewModel()
         observeViewModel()
+    }
+
+    private fun listenToFCMToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@OnCompleteListener
+            }
+
+            // Get new FCM registration token
+            val token = task.result
+            Log.d("jfqljnfqlkfn", "${token}")
+        })
+
     }
 
     private fun loadViewModel() {
