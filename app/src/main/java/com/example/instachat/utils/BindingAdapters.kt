@@ -25,17 +25,19 @@ import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
 
 @BindingAdapter("loadImageWithGlide")
-fun ImageView.loadImageWithGlide(imageUrl: String?){
+fun ImageView.loadImageWithGlide(imageUrls: List<String>?){
     val circularProgressDrawable = CircularProgressDrawable(this.context)
     circularProgressDrawable.strokeWidth = 5f
     circularProgressDrawable.centerRadius = 30f
     circularProgressDrawable.start()
 
-   imageUrl?.let {
-       GlideApp.with(this).load(imageUrl)
-           .diskCacheStrategy(DiskCacheStrategy.DATA)
-           .placeholder(circularProgressDrawable)
-           .into(this)
+   imageUrls?.let {it ->
+       it.firstOrNull()?.let {
+           GlideApp.with(this).load(it)
+               .diskCacheStrategy(DiskCacheStrategy.DATA)
+               .placeholder(circularProgressDrawable)
+               .into(this)
+       }
    }
 }
 
