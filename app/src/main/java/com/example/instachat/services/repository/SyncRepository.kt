@@ -56,6 +56,9 @@ class SyncRepository @Inject constructor(
             syncTables.name.equals(SyncTables.ADD_REQUEST_INTERESTED_LIST.name) ->{
                 "ADD_REQUEST_INTERESTED_LIST"
             }
+            syncTables.name.equals(SyncTables.NEW_POST.name) ->{
+                "NEW_POST"
+            }
             else ->""
         }
 
@@ -66,6 +69,9 @@ class SyncRepository @Inject constructor(
 
         when {
             syncTables.name.equals(SyncTables.POSTS.name) -> {
+                addNewPostWorkId?.invoke(workRequest.id)
+            }
+            syncTables.name.equals(SyncTables.NEW_POST.name) -> {
                 addNewPostWorkId?.invoke(workRequest.id)
             }
             syncTables.name.equals(SyncTables.COMMENTS.name) -> {
@@ -152,9 +158,7 @@ class SyncRepository @Inject constructor(
         roomSyncRepository.postsDao.insert(
             ObjectConverterUtil.convertPostToPostSync(postModelItem)
         )
-        launchWorker(SyncTables.NEW_POST, postModelItem.id) { workId ->
-            newPostWorkId.invoke(workId)
-        }
+        launchWorker(SyncTables.NEW_POST, postModelItem.id, addNewPostWorkId = newPostWorkId)
     }
 
     suspend fun updateUsersInterestedUsers(user: User){
