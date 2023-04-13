@@ -63,7 +63,7 @@ data class User(
     var requestedForInterestsList: List<String>? = emptyList()
 )
 
-data class LikedPosts(val postId: Int)
+data class LikedPosts(val postId: Int = 0)
 
 data class Address(
     val address: String = "",
