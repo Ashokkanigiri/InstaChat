@@ -14,15 +14,5 @@ import javax.inject.Inject
 class LoginViewModel @Inject constructor(val firebaseRepository: FirebaseRepository, val connectivityService: ConnectivityService): ViewModel() {
 
     val showConnectivityErrorDialog = SingleLiveEvent<Boolean>()
-    fun injectDataFromFirebase() {
-        viewModelScope.launch(Dispatchers.IO) {
-           if(connectivityService.hasActiveNetwork()){
-               firebaseRepository.getAllPostsFromFirebase()
-               firebaseRepository.getAllUsersFromFirebase()
-               firebaseRepository.getAllCommentsFromFirebase()
-           }else{
-               showConnectivityErrorDialog.postValue(true)
-           }
-        }
-    }
+
 }

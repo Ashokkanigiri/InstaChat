@@ -5,17 +5,18 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ListenableWorker
-import androidx.work.ListenableWorker.Result.*
-import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
+import com.example.instachat.services.models.dummyjson.InterestedUsersModel
+import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.utils.ObjectConverterUtil
+import com.example.instachat.utils.Response
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
@@ -34,8 +35,9 @@ class SyncWorker @AssistedInject constructor(
 
         val item_id = inputData.getInt("ID", 0)
         val sync_table = inputData.getString("SYNC_TABLE")
+        val itemIdString = inputData.getString("ITEM_ID_STRING")
         val user_id = inputData.getString("USER_ID")
-        val commentId = inputData.getInt("COMMENT_ID",0)
+        val commentId = inputData.getInt("COMMENT_ID", 0)
 
         when (sync_table) {
             SyncTables.POSTS.name -> {
@@ -49,20 +51,86 @@ class SyncWorker @AssistedInject constructor(
                 addNewCommentToFirebase(convertToComment)
             }
             SyncTables.USERS.name -> {
-                val updatedUser = roomSyncRepository.usersDao.getUser(user_id?:"")
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
-                updateUserToFirebase(user_id?:"", convertToUser)
+                updateUserToFirebase(user_id ?: "", convertToUser)
             }
-            SyncTables.NEW_POST.name ->{
+            SyncTables.NEW_POST.name -> {
                 val updatedPost = roomSyncRepository.postsDao.getPost(item_id)
                 val convertToPostModelItem = ObjectConverterUtil.convertPostSyncToPost(updatedPost)
                 uploadPostedImagesToFirebaseAndGetUrl(convertToPostModelItem)
+            }
+            SyncTables.NEW_USER.name -> {
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
+                val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
+                addNewUserToFirebase(convertToUser)
+            }
+            SyncTables.USERS_UPDATE_FOLLOWING.name ->{
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
+                val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
+                updateFollowingStatusUser(user_id ?: "", convertToUser)
+            }
+            SyncTables.ADD_INTERESTED_LIST.name ->{
+                val interestedUserSync = roomSyncRepository.interestedUsersDaoSync.getInterestedUserSync(itemIdString?:"")
+                val interestedUser = ObjectConverterUtil.convertInterestedUsersSyncToInterestedUsers(interestedUserSync)
+                addNewInterestedUser(interestedUser)
+            }
+            SyncTables.ADD_REQUEST_INTERESTED_LIST.name->{
+                val reqInterestedUserSync = roomSyncRepository.requestedInterestedUsersDaoSync.getRequestedInterestedUserSync(itemIdString?:"")
+                val reqInterestedUser = ObjectConverterUtil.convertRequestedInterestedModelSyncToRequestedInterestedModel(reqInterestedUserSync)
+                addNewRequestedInterestedUser(reqInterestedUser)
+            }
+            SyncTables.USERS_UPDATE_INTERESTED_USERS.name ->{
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
+                val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
+                updateInterestedUser(user_id ?: "", convertToUser)
+            }
+            SyncTables.USERS_UPDATE_REQUESTED_INTERESTED_USERS.name ->{
+                val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
+                val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
+                updateRequestedInterestedUser(user_id ?: "", convertToUser)
             }
         }
         Log.d("wlfkqwnbgf", "MAIN CLASS sucess")
 
         return Result.success()
     }
+
+    private fun addNewInterestedUser(interestedUsersModel: InterestedUsersModel){
+        val db = Firebase.firestore
+        db.collection("interestedUserRequests")
+            .document("${interestedUsersModel.id}")
+            .set(interestedUsersModel)
+            .addOnCompleteListener {
+                roomSyncRepository.interestedUsersDaoSync.deleteRow(interestedUsersModel.id)
+                roomRepository.interestedUsersDao.insert(interestedUsersModel)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+            }
+    }
+
+    private fun addNewRequestedInterestedUser(requestedForInterestModel: RequestedForInterestModel){
+        val db = Firebase.firestore
+        db.collection("RequestedForInterestRequests")
+            .document("${requestedForInterestModel.id}")
+            .set(requestedForInterestModel)
+            .addOnCompleteListener {
+                roomSyncRepository.requestedInterestedUsersDaoSync.deleteRow(requestedForInterestModel.id)
+                roomRepository.requestedInterestedUsersDao.insert(requestedForInterestModel)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+            }
+    }
+
+
 
     /**
      * This method uploads postImageUrl into firebase storage
@@ -72,12 +140,21 @@ class SyncWorker @AssistedInject constructor(
     private suspend fun uploadPostedImagesToFirebaseAndGetUrl(
         convertToPostModelItem: PostModelItem
     ) {
-        firebaseRepository.uploadPostImageToFirebase(convertToPostModelItem) {
-            convertToPostModelItem.apply {
-                this.postImageUrl = it ?: ""
+
+        when (val uploadedImageUrls = firebaseRepository.uploadPostImageToFirebase(convertToPostModelItem)) {
+            is Response.Success<List<String>> -> {
+                convertToPostModelItem.apply {
+                    this.postImageUrls = uploadedImageUrls.data
+                }
+                addNewPost(convertToPostModelItem)
             }
-            addNewPost(convertToPostModelItem)
+            is Response.Failure -> {
+                Result.failure()
+            }
+            Response.Loading -> {
+            }
         }
+
     }
 
     private fun addNewCommentToFirebase(comment: Comment) {
@@ -107,7 +184,6 @@ class SyncWorker @AssistedInject constructor(
                 roomSyncRepository.postsDao.deletePost(newPost.id)
                 roomRepository.postsDao.insert(newPost)
                 Log.d("jnqwljngfq", "DD: ${Gson().toJson(newPost)}")
-                Result.success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -123,10 +199,12 @@ class SyncWorker @AssistedInject constructor(
             .document("${item_id}")
             .set(updatedPost)
             .addOnCompleteListener {
-                roomRepository.postsDao.updateLikedCountForPost(updatedPost.id, updatedPost.likesCount?:0)
+                roomRepository.postsDao.updateLikedCountForPost(
+                    updatedPost.id,
+                    updatedPost.likesCount ?: 0
+                )
                 roomSyncRepository.postsDao.deletePost(item_id)
                 Log.d("wlfkqwnbgf", "update post addOnCompleteListener")
-                success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -136,14 +214,16 @@ class SyncWorker @AssistedInject constructor(
                 Log.d("wlfkqwnbgf", "update post addOnSuccessListener")
             }
     }
-
-    private fun updateUserToFirebase(user_id: String, user: User) {
+    private fun updateInterestedUser(user_id: String, user: User) {
         val db = Firebase.firestore
         db.collection("users")
-            .document("1")
+            .document(user.id)
             .set(user)
             .addOnCompleteListener {
-                roomRepository.usersDao.updateUserLikedPosts(user.likedPosts?: emptyList(), user.id)
+                roomRepository.usersDao.updateInterestedUsersList(
+                    user.interestedUsersList ?: emptyList(),
+                    user.id
+                )
                 roomSyncRepository.usersDao.deleteUser(user_id)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
@@ -152,6 +232,95 @@ class SyncWorker @AssistedInject constructor(
             }.addOnSuccessListener {
                 Result.success()
                 Log.d("wlfkqwnbgf", "update user sucess")
+
+            }
+    }
+
+
+    private fun updateRequestedInterestedUser(user_id: String, user: User) {
+        val db = Firebase.firestore
+        db.collection("users")
+            .document(user.id)
+            .set(user)
+            .addOnCompleteListener {
+                roomRepository.usersDao.updateRequestedInterestedUsersList(
+                    user.requestedForInterestsList ?: emptyList(),
+                    user.id
+                )
+                roomSyncRepository.usersDao.deleteUser(user_id)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+                Log.d("wlfkqwnbgf", "update user sucess")
+
+            }
+    }
+
+
+
+    private fun updateFollowingStatusUser(user_id: String, user: User) {
+        val db = Firebase.firestore
+        db.collection("users")
+            .document(user.id)
+            .set(user)
+            .addOnCompleteListener {
+                roomRepository.usersDao.updateFollowing(
+                    user.followedUserIds ?: emptyList(),
+                    user.id
+                )
+                roomSyncRepository.usersDao.deleteUser(user_id)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+                Log.d("wlfkqwnbgf", "update user sucess")
+
+            }
+    }
+
+
+    private fun updateUserToFirebase(user_id: String, user: User) {
+        val db = Firebase.firestore
+        db.collection("users")
+            .document(user.id)
+            .set(user)
+            .addOnCompleteListener {
+                roomRepository.usersDao.updateUserLikedPosts(
+                    user.likedPosts ?: emptyList(),
+                    user.id
+                )
+                roomSyncRepository.usersDao.deleteUser(user_id)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+                Log.d("wlfkqwnbgf", "update user sucess")
+
+            }
+    }
+
+    private fun addNewUserToFirebase(user: User) {
+        val db = Firebase.firestore
+        db.collection("users")
+            .document(user.id)
+            .set(user)
+            .addOnCompleteListener {
+                roomRepository.usersDao.insert(user)
+                roomSyncRepository.usersDao.deleteUser(user.id)
+            }.addOnCanceledListener {
+                ListenableWorker.Result.Retry.retry()
+            }.addOnFailureListener {
+                Result.failure()
+            }.addOnSuccessListener {
+                Result.success()
+                Log.d("wlfkqwnbgf", "added user sucess")
 
             }
     }

@@ -41,7 +41,7 @@ class RestApiRepository @Inject constructor(
         val postModelItems: List<PostModelItem> = (Gson().fromJson(json, listType))
 
         postModelItems.forEach { post ->
-            post.postImageUrl = imageListResponse.get(post.id - 1).download_url
+            post.postImageUrls = listOf(imageListResponse.get(post.id - 1).download_url)
             firebaseRepository.injectPostsToFirebase(post)
             roomRepository.postsDao.insert(post)
         }

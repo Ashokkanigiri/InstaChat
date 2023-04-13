@@ -5,14 +5,13 @@ import androidx.room.Room
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.room.dao.*
 import com.example.instachat.services.room_sync.InstaChatDb_sync
-import com.example.instachat.services.room_sync.dao.CommentsDaoSync
-import com.example.instachat.services.room_sync.dao.PostsDaoSync
-import com.example.instachat.services.room_sync.dao.UsersDaoSync
+import com.example.instachat.services.room_sync.dao.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -39,12 +38,33 @@ object RoomModule_Sync {
         return instaChatDb.commentsDaoSync()
     }
 
+    @Singleton
+    @Provides
+    fun providesInterestedUsersDao(instaChatDb: InstaChatDb_sync): InterestedUsersDaoSync {
+        return instaChatDb.interestedUsersDaoSync()
+    }
+
+    @Singleton
+    @Provides
+    fun providesRequestedInterestedUsersDao(instaChatDb: InstaChatDb_sync): RequestedInterestedUsersDaoSync {
+        return instaChatDb.requestedInterestedUsersDaoSync()
+    }
+
+
     @Provides
     fun providesRoomRepository(
         usersDao: UsersDaoSync,
         commentsDao: CommentsDaoSync,
-        postsDao: PostsDaoSync
+        postsDao: PostsDaoSync,
+        interestedUsersDaoSync: InterestedUsersDaoSync,
+        requestedInterestedUsersDaoSync: RequestedInterestedUsersDaoSync
     ): RoomSyncRepository {
-        return RoomSyncRepository(usersDao, postsDao, commentsDao)
+        return RoomSyncRepository(
+            usersDao,
+            postsDao,
+            commentsDao,
+            interestedUsersDaoSync,
+            requestedInterestedUsersDaoSync
+        )
     }
 }

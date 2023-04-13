@@ -1,6 +1,7 @@
 package com.example.instachat.feature.userdetails
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,11 +11,16 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentUserDetailsBinding
+import com.example.instachat.services.models.dummyjson.InterestedUsersModel
+import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.UUID
 
 @AndroidEntryPoint
 class UserDetailsFragment : Fragment() {
@@ -37,6 +43,59 @@ class UserDetailsFragment : Fragment() {
         setUpToolBar()
         initFragment()
         loadViewModel()
+        observeViewModel()
+    }
+
+    private fun loadViewModel() {
+    }
+
+    private fun observeViewModel() {
+        viewModel.event.observe(viewLifecycleOwner, Observer {
+            when (it) {
+                is UserDetailViewModelEvent.LoadUser -> {
+                    binding.user = it.user
+                    (activity as BaseActivity).setBackLabelText(it.user.username)
+                    viewModel.loadAllPostsForUser(viewModel.userId?:"")
+                }
+                is UserDetailViewModelEvent.LoadPosts -> {
+                    viewModel.adapter.submitList(it.posts)
+                }
+                UserDetailViewModelEvent.OnFollowButtonClicked -> {
+
+                }
+                UserDetailViewModelEvent.OnMessageButtonClicked -> {
+
+                }
+                is UserDetailViewModelEvent.OnFollowStatusRequested ->{
+                    listenToFollowStatusRequested(it.workId, it.interestedUsersModel, it.requestedForInterestModel)
+                }
+                is UserDetailViewModelEvent.LoadLoggedUser ->{
+                    viewModel.loadFollowingText(it.user)
+                }
+            }
+        })
+    }
+
+    private fun listenToFollowStatusRequested(
+        workId: UUID,
+        interestedUsersModel: InterestedUsersModel,
+        requestedForInterestModel: RequestedForInterestModel
+    ){
+        WorkManager.getInstance(requireContext()).getWorkInfoByIdLiveData(workId).observe(viewLifecycleOwner, Observer {
+            when(it.state){
+                WorkInfo.State.SUCCEEDED -> {
+                    viewModel.addInterestedUserToLoggedUser(interestedUsersModel)
+                    viewModel.addRequestForInterestTOCurrentUser(requestedForInterestModel)
+                }
+                WorkInfo.State.FAILED -> {
+                    Log.d("kwjwkjgb", "FAILED")
+
+                }
+               else ->{
+
+               }
+            }
+        })
     }
 
     private fun setUpToolBar() {
@@ -61,22 +120,11 @@ class UserDetailsFragment : Fragment() {
         binding.rvPosts.adapter = viewModel.adapter
 
         arguments?.getString("userId")?.let {
-            viewModel.loadUser(it)
-        }
-    }
-
-    private fun loadViewModel() {
-        viewModel.event.observe(viewLifecycleOwner, Observer {
-            when (it) {
-                is UserDetailViewModelEvent.LoadUser -> {
-                    binding.user = it.user
-                    (activity as BaseActivity).setBackLabelText(it.user.username)
-                    viewModel.loadAllPostsForUser(it.user.id)
-                }
-                is UserDetailViewModelEvent.LoadPosts -> {
-                    viewModel.adapter.submitList(it.posts)
-                }
+            viewModel.apply {
+                userId = it
+                loadUser(it)
+                loadLoggedUser()
             }
-        })
+        }
     }
 }

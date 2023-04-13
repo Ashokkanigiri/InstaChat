@@ -18,7 +18,7 @@ class TagsTypeConverter {
     }
 
     @TypeConverter
-    fun fromList(list: List<String>): String {
+    fun fromList(list: List<String>?): String {
         return Gson().toJson(list)
     }
 }

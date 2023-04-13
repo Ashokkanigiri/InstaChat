@@ -27,7 +27,8 @@ data class PostModelItemSync(
     @SerializedName("userId")
     val userId: String,
 
-    var postImageUrl: String = "",
+    @TypeConverters(TagsTypeConverterSync::class)
+    var postImageUrls: List<String> = emptyList(),
 
     var likesCount: Int = 0,
 

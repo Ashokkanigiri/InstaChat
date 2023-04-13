@@ -67,12 +67,17 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-        <ImageView
-            android:id="@+id/imageView"
-            loadImageWithGlide="@{homeDataModel.postImageUrl}"
+        <com.example.instachat.feature.carouselview.CarouselView
+            android:id="@+id/iv_carousal"
             android:layout_width="0dp"
             android:layout_height="400dp"
             android:layout_marginTop="5dp"
+            app:fillColor="#FFFFFFFF"
+            app:pageColor="#00000000"
+            app:radius="6dp"
+            app:slideInterval="3000"
+            app:strokeColor="#FF777777"
+            app:strokeWidth="1dp"
             android:scaleType="centerCrop"
             app:layout_constraintBottom_toTopOf="@+id/cl_item_bottom_view"
             app:layout_constraintEnd_toEndOf="parent"
@@ -87,7 +92,7 @@
             android:layout_marginTop="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imageView">
+            app:layout_constraintTop_toBottomOf="@id/iv_carousal">
 
             <include
                 android:id="@+id/bottom_tools"

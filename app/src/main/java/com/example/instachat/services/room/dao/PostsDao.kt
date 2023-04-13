@@ -21,30 +21,33 @@ interface PostsDao : BaseDao<PostModelItem> {
     @Query("SELECT * FROM posts WHERE id =:postId")
     suspend fun getPost(postId: Int): PostModelItem
 
+    @Query("DELETE FROM posts")
+    suspend fun deletePostsTable()
+
     @Query("SELECT * FROM posts where userId =:userId")
     fun getPostsForUser(userId: String): LiveData<List<PostModelItem>>
 
     @Update
     fun updatePost(postModelItem: PostModelItem)
 
-    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrl as postImageUrl, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts INNER JOIN users ON posts.userId  = users.id  WHERE users.id =:userId")
+    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrls as postImageUrls, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts INNER JOIN users ON posts.userId  = users.id  WHERE users.id =:userId")
     fun getPostsHomeData(userId: String): Flow<List<HomeDataModel>>
 
-    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrl as postImageUrl, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts INNER JOIN users ON posts.userId  = users.id  WHERE users.id =:userId")
+    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrls as postImageUrls, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts INNER JOIN users ON posts.userId  = users.id  WHERE users.id =:userId")
     fun getPostsHomeDataLive(userId: String): LiveData<List<HomeDataModel>>
 
     @Query("UPDATE posts SET likesCount =:likesCount WHERE id =:postId")
     fun updateLikedCountForPost(postId: Int, likesCount: Int)
 
-    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrl as postImageUrl, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts LEFT JOIN users ON posts.userId  = users.id")
+    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrls as postImageUrls, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts LEFT JOIN users ON posts.userId  = users.id")
     fun getAllPostsHomeData(): LiveData<List<HomeDataModel>>
 
-    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrl as postImageUrl, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts LEFT JOIN users ON posts.userId  = users.id")
+    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrls as postImageUrls, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts LEFT JOIN users ON posts.userId  = users.id")
     fun getAllPostsHomeDataFlow(): Flow<List<HomeDataModel>>
 
-    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrl as postImageUrl, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts INNER JOIN users ON posts.userId  = users.id  WHERE users.id =:userId ORDER BY postCreatedDate DESC")
+    @Query("SELECT posts.id AS postId, posts.title AS postTitle, posts.body AS postBody, posts.postImageUrls as postImageUrls, posts.likesCount as postLikesCount, users.id AS userId, users.username AS userName, users.image as userImageUrl, users.firstName as firstName, users.lastName as lastName, users.likedPosts as likedPosts  FROM posts INNER JOIN users ON posts.userId  = users.id  WHERE users.id =:userId ORDER BY postCreatedDate DESC")
     fun getPostsHomeDataFlow(userId: String): Flow<List<HomeDataModel>>
 
-    @Query("SELECT posts.id as postId, posts.postImageUrl as postImageUrl from posts INNER JOIN users ON posts.userId == users.id WHERE users.id =:userId")
+    @Query("SELECT posts.id as postId, posts.postImageUrls as postImageUrls from posts INNER JOIN users ON posts.userId == users.id WHERE users.id =:userId")
     fun getPostsForUserDetails(userId: String): Flow<List<UserDetailPostsModel>>
 }

@@ -1,8 +1,5 @@
 package com.example.instachat.feature.newpostDetail
 
-import android.net.Uri
-import android.util.Log
-import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.PostModelItem
@@ -12,10 +9,8 @@ import com.example.instachat.utils.ConnectivityService
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.Random
 import javax.inject.Inject
@@ -40,14 +35,14 @@ class NewPostDetailViewModel
         tags = emptyList(),
         title = "",
         body = "",
-        postImageUrl = "",
+        postImageUrls = emptyList(),
         likesCount = 0,
         reactions = 0
     )
 
     fun onPostButtonClicked(postModelItem: PostModelItem) {
         postModelItem.apply {
-            this.postImageUrl = selectedImagesList?.get(0) ?: ""
+            this.postImageUrls = selectedImagesList ?: emptyList()
             this.postCreatedDate = System.currentTimeMillis().toString()
         }
         if(connectivityService.hasActiveNetwork()){

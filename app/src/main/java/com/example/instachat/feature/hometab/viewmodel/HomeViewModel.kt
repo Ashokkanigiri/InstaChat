@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.instachat.feature.hometab.HomeDataAdapter
 import com.example.instachat.feature.hometab.models.HomeDataCommentsModel
 import com.example.instachat.feature.hometab.models.HomeDataModel
-import com.example.instachat.feature.hometab.HomeUsersAdapter
 import com.example.instachat.feature.hometab.HomeViewModelEvent
+import com.example.instachat.feature.hometab.adapter.HomeUsersAdapter
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.LikedPosts
@@ -20,7 +20,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -34,7 +33,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     val adapter = HomeDataAdapter(this)
-    val usersAdapter = HomeUsersAdapter()
+    val usersAdapter = HomeUsersAdapter(this)
     val auth = Firebase.auth
     val event = SingleLiveEvent<HomeViewModelEvent>()
     var selectedPostId = 0
@@ -51,6 +50,12 @@ class HomeViewModel @Inject constructor(
                     event.postValue(HomeViewModelEvent.LoadHomeData(it))
                 }
             }
+        }
+    }
+
+    fun asyncTest(){
+        viewModelScope.launch {
+
         }
     }
 
@@ -104,9 +109,9 @@ class HomeViewModel @Inject constructor(
     fun injectDataFromFirebase() {
         if(connectivityService.hasActiveNetwork()){
             viewModelScope.launch(Dispatchers.IO) {
-                firebaseRepository.getAllPostsFromFirebase()
-                firebaseRepository.getAllUsersFromFirebase()
-                firebaseRepository.getAllCommentsFromFirebase()
+                firebaseRepository.injectAllPostsFromFirebase()
+                firebaseRepository.injectAllUsersFromFirebase()
+                firebaseRepository.injectAllCommentsFromFirebase()
             }
         }else{
             event.postValue(HomeViewModelEvent.ShowConnectivityErrorDialog)

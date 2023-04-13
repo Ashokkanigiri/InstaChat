@@ -14,16 +14,16 @@ data class CommentsModel(
 
 @Entity("comments")
 data class Comment(
-    val body: String,
+    val body: String = "",
     @PrimaryKey
-    val id: Int,
-    val postId: Int,
+    val id: Int = 0,
+    val postId: Int = 0,
     @Embedded
-    val user: CommentUser
+    val user: CommentUser = CommentUser()
 )
 
 data class CommentUser(
     @ColumnInfo("commentedUsersId")
-    val id: String,
-    val username: String
+    val id: String = "",
+    val username: String = ""
 )
