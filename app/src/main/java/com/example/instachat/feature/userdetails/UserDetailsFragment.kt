@@ -56,6 +56,7 @@ class UserDetailsFragment : Fragment() {
                     binding.user = it.user
                     (activity as BaseActivity).setBackLabelText(it.user.username)
                     viewModel.loadAllPostsForUser(viewModel.userId?:"")
+                    viewModel.loadFollowingText(it.user)
                 }
                 is UserDetailViewModelEvent.LoadPosts -> {
                     viewModel.adapter.submitList(it.posts)
@@ -70,7 +71,7 @@ class UserDetailsFragment : Fragment() {
                     listenToFollowStatusRequested(it.workId, it.interestedUsersModel, it.requestedForInterestModel)
                 }
                 is UserDetailViewModelEvent.LoadLoggedUser ->{
-                    viewModel.loadFollowingText(it.user)
+
                 }
             }
         })
@@ -108,6 +109,11 @@ class UserDetailsFragment : Fragment() {
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        (activity as MainActivity).setBottomNavVisibility(true)
+    }
+
     private fun initFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
@@ -123,7 +129,6 @@ class UserDetailsFragment : Fragment() {
             viewModel.apply {
                 userId = it
                 loadUser(it)
-                loadLoggedUser()
             }
         }
     }
