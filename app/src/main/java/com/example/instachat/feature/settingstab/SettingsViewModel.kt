@@ -8,6 +8,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,6 +18,14 @@ class SettingsViewModel @Inject constructor(val roomRepository: RoomRepository):
     val event = SingleLiveEvent<SettingsViewModelEvent>()
 
     val currentUser = Firebase.auth.currentUser
+
+    fun loadUserDetails(){
+        viewModelScope.launch {
+            roomRepository.usersDao.getUserFlow(currentUser?.uid?:"").collect(){
+                event.postValue(SettingsViewModelEvent.LoadUserDetails(it))
+            }
+        }
+    }
 
     fun onLogoutClicked(){
         event.postValue(SettingsViewModelEvent.HandleLogoutButtonClicked)

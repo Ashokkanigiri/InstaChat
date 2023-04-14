@@ -50,6 +50,9 @@ class SettingsFragment : Fragment() {
                 is SettingsViewModelEvent.NavigateToUserDetailFragment -> {
                     navigateToUserDetail(it.userId)
                 }
+                is SettingsViewModelEvent.LoadUserDetails -> {
+                    binding.user = it.user
+                }
             }
         })
     }
@@ -72,6 +75,7 @@ class SettingsFragment : Fragment() {
     private fun initFragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
+        viewModel.loadUserDetails()
     }
 
 
