@@ -8,6 +8,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,9 +22,9 @@ class SettingsViewModel @Inject constructor(val roomRepository: RoomRepository):
 
     fun loadUserDetails(){
         viewModelScope.launch {
-            roomRepository.usersDao.getUserFlow(currentUser?.uid?:"").collect(){
-                event.postValue(SettingsViewModelEvent.LoadUserDetails(it))
-            }
+            val user = async { roomRepository.usersDao.getUser(currentUser?.uid?:"") }
+                event.postValue(SettingsViewModelEvent.LoadUserDetails(user.await()))
+
         }
     }
 

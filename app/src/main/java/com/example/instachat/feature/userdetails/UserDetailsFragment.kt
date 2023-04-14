@@ -56,7 +56,7 @@ class UserDetailsFragment : Fragment() {
                     binding.user = it.user
                     (activity as BaseActivity).setBackLabelText(it.user.username)
                     viewModel.loadAllPostsForUser(viewModel.userId?:"")
-                    viewModel.loadFollowingText(it.user)
+                    viewModel.loadFollowingText()
                 }
                 is UserDetailViewModelEvent.LoadPosts -> {
                     viewModel.adapter.submitList(it.posts)

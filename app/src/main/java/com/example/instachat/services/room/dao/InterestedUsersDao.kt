@@ -15,6 +15,6 @@ interface InterestedUsersDao: BaseDao<InterestedUsersModel> {
     fun deleteRow(id: String)
 
     @Query("SELECT * FROM interested_users WHERE userId =:userId")
-    suspend fun getAllInterestedUsers(userId: String): List<InterestedUsersModel>?
+    suspend fun getAllInterestedUsersForUserId(userId: String): List<InterestedUsersModel>?
 
 }
