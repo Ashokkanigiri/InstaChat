@@ -135,34 +135,43 @@ class UserDetailViewModel @Inject constructor(
         )
 
         if (isFollowRequested) {
-            viewModelScope.async {
-                syncRepository.addAndSyncUserInterestedList(interestedUser)
-                syncRepository.addAndSyncRequestedInterestsList(requestedForInterestModel)
-                shouldAddInterestedUserToLoggedUser(interestedUser, true)
-                shouldAddRequestForInterestTOCurrentUser(requestedForInterestModel, true)
-            }.await()
-            notifyAllUserSession(userId ?: "")
+            addToDatabaseAndNotifyUser(interestedUser, requestedForInterestModel)
         } else {
-
-            val iu = roomRepository.interestedUsersDao.getAllInterestedUsersForUserId(
-                currentLoggedInUser?.uid ?: ""
-            )?.firstOrNull { it.interestedUserId == userId }
-
-            val ru = roomRepository.requestedInterestedUsersDao.getIntestedUsersInRequestedList(
-                currentLoggedInUser?.uid ?: ""
-            )?.firstOrNull { it.userId == userId }
-
-            iu?.let {
-                syncRepository.removeAndSyncUserInterestedList(iu)
-                shouldAddInterestedUserToLoggedUser(iu, false)
-
-            }
-
-            ru?.let {
-                syncRepository.removeAndSyncRequestedInterestsList(ru)
-                shouldAddRequestForInterestTOCurrentUser(ru, false)
-            }
+            removeFollowRequest()
         }
+    }
+
+    private suspend fun removeFollowRequest() {
+        val iu = roomRepository.interestedUsersDao.getAllInterestedUsersForUserId(
+            currentLoggedInUser?.uid ?: ""
+        )?.firstOrNull { it.interestedUserId == userId }
+
+        val ru = roomRepository.requestedInterestedUsersDao.getIntestedUsersInRequestedList(
+            currentLoggedInUser?.uid ?: ""
+        )?.firstOrNull { it.userId == userId }
+
+        iu?.let {
+            syncRepository.removeAndSyncUserInterestedList(iu)
+            shouldAddInterestedUserToLoggedUser(iu, false)
+        }
+
+        ru?.let {
+            syncRepository.removeAndSyncRequestedInterestsList(ru)
+            shouldAddRequestForInterestTOCurrentUser(ru, false)
+        }
+    }
+
+    private suspend fun addToDatabaseAndNotifyUser(
+        interestedUser: InterestedUsersModel,
+        requestedForInterestModel: RequestedForInterestModel
+    ) {
+        viewModelScope.async {
+            syncRepository.addAndSyncUserInterestedList(interestedUser)
+            syncRepository.addAndSyncRequestedInterestsList(requestedForInterestModel)
+            shouldAddInterestedUserToLoggedUser(interestedUser, true)
+            shouldAddRequestForInterestTOCurrentUser(requestedForInterestModel, true)
+        }.await()
+        notifyAllUserSession(userId ?: "")
     }
 
     suspend fun shouldAddInterestedUserToLoggedUser(
