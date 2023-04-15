@@ -1,26 +1,39 @@
 package com.example.instachat.feature.userdetails
 
+import android.util.Log
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.instachat.services.client.FirebaseApiClient
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
+import com.example.instachat.services.models.fcm.FCMSendNotificationBody
+import com.example.instachat.services.models.fcm.FCMSendNotificationData
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.SyncRepository
+import com.example.instachat.services.rest.FCMRestClient
+import com.example.instachat.utils.ConnectivityService
+import com.example.instachat.utils.Response
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
+import kotlin.collections.HashMap
 
 @HiltViewModel
 class UserDetailViewModel @Inject constructor(
     val roomRepository: RoomRepository,
     val firebaseRepository: FirebaseRepository,
-    val syncRepository: SyncRepository
+    val syncRepository: SyncRepository,
+    val fcmRestClient: FCMRestClient,
+    val firebaseApiClient: FirebaseApiClient,
+    val connectivityService: ConnectivityService
 ) : ViewModel() {
 
     val followingStatusUpdate = ObservableField<String>()
@@ -137,6 +150,36 @@ class UserDetailViewModel @Inject constructor(
                     )
             }
             syncRepository.updateRequestedInterestedUsers(uUser)
+        }
+    }
+
+    fun notifyAllUserSession(userId: String) {
+        if (connectivityService.hasActiveNetwork()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val userResponse = firebaseApiClient.getSpecificUser(userId)
+                val loggedU = roomRepository.usersDao.getUser(currentLoggedInUser?.uid?:"")
+
+                when (userResponse) {
+                    is Response.Failure -> {
+
+                    }
+                    is Response.Loading -> {
+
+                    }
+                    is Response.Success -> {
+                        val user = userResponse.data?.firstOrNull()
+
+                        user?.userSessions?.forEach {
+                            viewModelScope.launch {
+                                val data = FCMSendNotificationData(title = "${loggedU.email} just requested to follow you", body = "${loggedU.email} requested to follow")
+                                val body = FCMSendNotificationBody(to = it.registrationToken, data)
+                                fcmRestClient.sendFCMNotification( body)
+                            }
+                        }
+
+                    }
+                }
+            }
         }
     }
 

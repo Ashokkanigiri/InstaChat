@@ -26,10 +26,10 @@ interface FCMRestClient {
         @HeaderMap headers: Map<String, String>
     ): FCMGroupRegistrationTokensModel
 
-    @POST("/send")
+
+    @POST("send")
     suspend fun sendFCMNotification(
-        @Body fcmSendNotificationBody: FCMSendNotificationBody,
-        @HeaderMap headers: Map<String, String>
+        @Body fcmSendNotificationBody: FCMSendNotificationBody
     ): FCMSendNotificationsResponse
 
 }

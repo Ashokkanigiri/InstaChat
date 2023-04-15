@@ -87,6 +87,8 @@ class UserDetailsFragment : Fragment() {
                 WorkInfo.State.SUCCEEDED -> {
                     viewModel.addInterestedUserToLoggedUser(interestedUsersModel)
                     viewModel.addRequestForInterestTOCurrentUser(requestedForInterestModel)
+                    viewModel.notifyAllUserSession(viewModel.userId?:"")
+
                 }
                 WorkInfo.State.FAILED -> {
                     Log.d("kwjwkjgb", "FAILED")
