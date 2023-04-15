@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -36,7 +37,7 @@ object RestModule {
                 .addHeader("Authorization", "key=AAAAheSEFdw:APA91bEC1ZSJlMk8G4qxZap4-wVx6FSnBL0lan1i4RyZjepo8xitzKMc_SkeKXBMh5P_jQXRCX46KzpoFSz4tuTWfJHWdNF3Xvlgn0YEyeOIy9DpkfsltwDOEix1wYXzJ2XNEP227Bw_")
                 .build()
             chain.proceed(newRequest)
-        }.build()
+        }.readTimeout(60, TimeUnit.SECONDS).writeTimeout(60, TimeUnit.SECONDS).build()
     }
 
     @Named("dummy_json")

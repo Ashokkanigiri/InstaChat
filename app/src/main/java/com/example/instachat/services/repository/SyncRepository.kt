@@ -120,7 +120,7 @@ class SyncRepository @Inject constructor(
 
     suspend fun addAndSyncRequestedInterestsList(
         requestedForInterestModel: RequestedForInterestModel,
-        onFollowRequested: ((UUID) -> Unit)
+        onFollowRequested: ((UUID) -> Unit)? = null
     ) {
         roomSyncRepository.requestedInterestedUsersDaoSync.insert(
             ObjectConverterUtil.convertRequestedInterestedModelToRequestedInterestedModelSync(
@@ -128,6 +128,27 @@ class SyncRepository @Inject constructor(
             )
         )
         launchWorker(SyncTables.ADD_REQUEST_INTERESTED_LIST, itemIdString = requestedForInterestModel.id, followingStatusWorkId = onFollowRequested)
+    }
+
+    suspend fun removeAndSyncUserInterestedList(interestedUsersModel: InterestedUsersModel) {
+        roomSyncRepository.interestedUsersDaoSync.insert(
+            ObjectConverterUtil.convertInterestedUsersToInterestedUsersSync(
+                interestedUsersModel
+            )
+        )
+        launchWorker(SyncTables.REMOVE_INTERESTED_LIST_ITEM, itemIdString = interestedUsersModel.id)
+    }
+
+    suspend fun removeAndSyncRequestedInterestsList(
+        requestedForInterestModel: RequestedForInterestModel,
+        onFollowRequested: ((UUID) -> Unit)? = null
+    ) {
+        roomSyncRepository.requestedInterestedUsersDaoSync.insert(
+            ObjectConverterUtil.convertRequestedInterestedModelToRequestedInterestedModelSync(
+                requestedForInterestModel
+            )
+        )
+        launchWorker(SyncTables.REMOVE_REQUEST_INTERESTED_LIST_ITEM, itemIdString = requestedForInterestModel.id, followingStatusWorkId = onFollowRequested)
     }
 
     suspend fun updateFollowingStatus(user: User, onFollowingStatusUpdated: ((UUID) -> Unit)) {

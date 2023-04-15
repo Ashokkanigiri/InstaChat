@@ -40,13 +40,8 @@ class UserDetailsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpToolBar()
         initFragment()
-        loadViewModel()
         observeViewModel()
-    }
-
-    private fun loadViewModel() {
     }
 
     private fun observeViewModel() {
@@ -54,21 +49,20 @@ class UserDetailsFragment : Fragment() {
             when (it) {
                 is UserDetailViewModelEvent.LoadUser -> {
                     binding.user = it.user
-                    (activity as BaseActivity).setBackLabelText(it.user.username)
+                    setUpToolBar(it.user.username)
                     viewModel.loadAllPostsForUser(viewModel.userId?:"")
-                    viewModel.loadFollowingText()
                 }
                 is UserDetailViewModelEvent.LoadPosts -> {
                     viewModel.adapter.submitList(it.posts)
                 }
                 UserDetailViewModelEvent.OnFollowButtonClicked -> {
-
+                    viewModel.handleFollowButtonClicked()
                 }
                 UserDetailViewModelEvent.OnMessageButtonClicked -> {
 
                 }
                 is UserDetailViewModelEvent.OnFollowStatusRequested ->{
-                    listenToFollowStatusRequested(it.workId, it.interestedUsersModel, it.requestedForInterestModel)
+
                 }
                 is UserDetailViewModelEvent.LoadLoggedUser ->{
 
@@ -77,37 +71,14 @@ class UserDetailsFragment : Fragment() {
         })
     }
 
-    private fun listenToFollowStatusRequested(
-        workId: UUID,
-        interestedUsersModel: InterestedUsersModel,
-        requestedForInterestModel: RequestedForInterestModel
-    ){
-        WorkManager.getInstance(requireContext()).getWorkInfoByIdLiveData(workId).observe(viewLifecycleOwner, Observer {
-            when(it.state){
-                WorkInfo.State.SUCCEEDED -> {
-                    viewModel.addInterestedUserToLoggedUser(interestedUsersModel)
-                    viewModel.addRequestForInterestTOCurrentUser(requestedForInterestModel)
-                    viewModel.notifyAllUserSession(viewModel.userId?:"")
-
-                }
-                WorkInfo.State.FAILED -> {
-                    Log.d("kwjwkjgb", "FAILED")
-
-                }
-               else ->{
-
-               }
-            }
-        })
-    }
-
-    private fun setUpToolBar() {
+    private fun setUpToolBar(username: String) {
         (activity as BaseActivity).setupActionBar(binding.toolBar)
         (activity as MainActivity).setBottomNavVisibility(false)
         (activity as BaseActivity).setBackButtonVisibility(true)
         (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as MainActivity).setBottomNavVisibility(false)
+        (activity as BaseActivity).setBackLabelText(username)
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
     }
 
