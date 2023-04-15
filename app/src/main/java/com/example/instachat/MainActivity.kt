@@ -2,6 +2,7 @@ package com.example.instachat
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
@@ -28,6 +29,7 @@ class MainActivity : BaseActivity() {
         initNetworkSnackBar()
         setupBottomNavigation()
         observeViewModel()
+        Log.d("jflqnflqn", "kfnqfnql: MAin")
     }
 
     private fun observeViewModel() {

@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.instachat.LoginActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentLoginBinding
@@ -65,8 +66,7 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToHomeScreen() {
-        startActivity(Intent(this.activity, MainActivity::class.java))
-        this.activity?.finish()
+        (activity as LoginActivity).listenToFCMToken()
     }
 
     private fun navigateToRegistrationScreen() {

@@ -30,7 +30,8 @@ class SyncRepository @Inject constructor(
         commentId: Int = 0,
         itemIdString: String = "",
         addNewPostWorkId: ((UUID) -> Unit)? = null,
-        followingStatusWorkId: ((UUID) -> Unit)? = null
+        followingStatusWorkId: ((UUID) -> Unit)? = null,
+        updateUserWorkId: ((UUID) -> Unit)? = null
     ) {
 
         val data = Data.Builder()
@@ -78,7 +79,7 @@ class SyncRepository @Inject constructor(
 
             }
             syncTables.name.equals(SyncTables.USERS.name) -> {
-
+                updateUserWorkId?.invoke(workRequest.id)
             }
             syncTables.name.equals(SyncTables.USERS_UPDATE_FOLLOWING.name) -> {
                 followingStatusWorkId?.invoke(workRequest.id)
@@ -101,11 +102,11 @@ class SyncRepository @Inject constructor(
         launchWorker(SyncTables.POSTS, post.id)
     }
 
-    suspend fun updateUser(user: User) {
+    suspend fun updateUser(user: User, workId: ((UUID)-> Unit)? = null) {
         roomSyncRepository.usersDao.insert(
             ObjectConverterUtil.convertUserToUserSync(user)
         )
-        launchWorker(SyncTables.USERS, userId = user.id)
+        launchWorker(SyncTables.USERS, userId = user.id, updateUserWorkId = workId)
     }
 
     suspend fun addAndSyncUserInterestedList(interestedUsersModel: InterestedUsersModel) {

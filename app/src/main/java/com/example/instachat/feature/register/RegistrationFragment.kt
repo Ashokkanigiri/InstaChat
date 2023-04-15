@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.instachat.LoginActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentRegistrationBinding
@@ -65,8 +66,7 @@ class RegistrationFragment : Fragment() {
                     DialogUtils.populateUserExistsDialog(requireContext())
                 }
                 is RegistrationViewModelEvent.HandleRegistrationSuccess ->{
-                    startActivity(Intent(this.activity, MainActivity::class.java))
-                    this.activity?.finish()
+                    (activity as LoginActivity).listenToFCMToken()
                 }
                 is RegistrationViewModelEvent.PopulateConnectivityErrorDialog ->{
                     DialogUtils.populateConnectivityErrorDialog(requireContext())

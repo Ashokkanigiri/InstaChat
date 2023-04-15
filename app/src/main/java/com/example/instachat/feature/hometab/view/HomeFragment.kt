@@ -47,18 +47,7 @@ class HomeFragment : Fragment() {
         observeViewModel()
     }
 
-    private fun listenToFCMToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                return@OnCompleteListener
-            }
 
-            // Get new FCM registration token
-            val token = task.result
-            Log.d("jfqljnfqlkfn", "${token}")
-        })
-
-    }
 
     private fun loadViewModel() {
         viewModel.injectDataFromFirebase()

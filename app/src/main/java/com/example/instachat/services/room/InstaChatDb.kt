@@ -14,7 +14,7 @@ import com.example.instachat.services.room_sync.dao.InterestedUsersDaoSync
 import com.example.instachat.services.room_sync.dao.RequestedInterestedUsersDaoSync
 
 @TypeConverters(
-    value = [UserAddressTypeConverter::class, TagsTypeConverter::class, BankTypeConverter::class, CompanyTypeConverter::class, HairTypeConverter::class, LikesTypeConverter::class]
+    value = [UserAddressTypeConverter::class, TagsTypeConverter::class, BankTypeConverter::class, CompanyTypeConverter::class, HairTypeConverter::class, LikesTypeConverter::class, UserSessionConverter::class]
 )
 @Database(
     entities = [User::class, PostModelItem::class, Comment::class, InterestedUsersModel::class, RequestedForInterestModel::class],

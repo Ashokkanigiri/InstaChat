@@ -7,6 +7,7 @@ import androidx.core.net.toUri
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.models.dummyjson.UsersModel
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.utils.Response
@@ -71,6 +72,16 @@ class FirebaseApiClient @Inject constructor(
             val db = Firebase.firestore
             val posts = db.collection("posts").get().await().toObjects(PostModelItem::class.java)
             Response.Success(posts)
+        } catch (e: java.lang.Exception) {
+            Response.Failure(e)
+        }
+    }
+
+    suspend fun getSpecificUser(userId: String): Response<List<User>> {
+        return try {
+            val db = Firebase.firestore
+            val user = db.collection("users").whereEqualTo("id", userId).get().await().toObjects(User::class.java)
+            Response.Success(user)
         } catch (e: java.lang.Exception) {
             Response.Failure(e)
         }
