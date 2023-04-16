@@ -54,6 +54,7 @@ class MainActivity : BaseActivity() {
         val navGraphIds = listOf<Int>(
             R.navigation.nav_graph_home,
             R.navigation.nav_graph_search,
+            R.navigation.nav_graph_notifications,
             R.navigation.nav_graph_settings
         )
         binding.bottomNav.setupWithNavController(
