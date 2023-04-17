@@ -8,16 +8,15 @@ import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.models.rest.NotificationModel
 import com.example.instachat.services.room.dao.*
 import com.example.instachat.services.room.typeconverters.*
-import com.example.instachat.services.room_sync.dao.InterestedUsersDaoSync
-import com.example.instachat.services.room_sync.dao.RequestedInterestedUsersDaoSync
 
 @TypeConverters(
     value = [UserAddressTypeConverter::class, TagsTypeConverter::class, BankTypeConverter::class, CompanyTypeConverter::class, HairTypeConverter::class, LikesTypeConverter::class, UserSessionConverter::class]
 )
 @Database(
-    entities = [User::class, PostModelItem::class, Comment::class, InterestedUsersModel::class, RequestedForInterestModel::class],
+    entities = [User::class, PostModelItem::class, Comment::class, InterestedUsersModel::class, RequestedForInterestModel::class, NotificationModel::class],
     version = 1,
     exportSchema = false
 )
@@ -27,4 +26,5 @@ abstract class InstaChatDb : RoomDatabase() {
     abstract fun commentsDao(): CommentsDao
     abstract fun interestedUsersDao(): InterestedUsersDao
     abstract fun requestedInterestedUsersDao(): RequestedInterestedUsersDao
+    abstract fun notificationDao(): NotificationModelDao
 }
