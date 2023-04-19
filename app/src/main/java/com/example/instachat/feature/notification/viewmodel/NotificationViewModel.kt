@@ -47,6 +47,7 @@ class NotificationViewModel @Inject constructor(
         viewModelScope.launch {
             firebaseRepository.injectAllNotificationsFromFirebase(userId)
         }
+        loadAllNotificationsForLoggedUser(userId)
     }
 
     fun loadAllNotificationsForLoggedUser(userId: String) {
@@ -65,26 +66,36 @@ class NotificationViewModel @Inject constructor(
             val yesterdayNotifications =
                 notifications.filter { DateUtils.isYesterday(it.timeStamp) }
 
-            if(todayNotifications.isNotEmpty() ){
+            val twoDaysAgoNotifications = notifications.filter {
+                DateUtils.isDateTwoDaysAgo(it.timeStamp)
+            }
+
+
+            if(todayNotifications.isNotEmpty()){
                 todayHeaderAdapter.submitList(listOf("Today"))
                 todayAdapter.submitList(todayNotifications)
-                Log.d("ahjetgkasj", "      yesterdayNotifications.isNotEmpty()")
 
             }else{
                 concatAdapter.removeAdapter(todayHeaderAdapter)
                 concatAdapter.removeAdapter(todayAdapter)
-                Log.d("ahjetgkasj", "   todayNotifications.isEmpty()")
             }
 
             if(yesterdayNotifications.isNotEmpty()){
                 yesterdayHeaderAdapter.submitList(listOf("Yesterday"))
                 yesterdayAdapter.submitList(yesterdayNotifications)
-                Log.d("ahjetgkasj", "      yesterdayNotifications.isNotEmpty()")
 
             }else{
                 concatAdapter.removeAdapter(yesterdayHeaderAdapter)
                 concatAdapter.removeAdapter(yesterdayAdapter)
-                Log.d("ahjetgkasj", " yesterdayNotifications.isEmpty()")
+            }
+
+            if(twoDaysAgoNotifications.isNotEmpty()){
+                pastHeaderAdapter.submitList(listOf("Older"))
+                pastAdapter.submitList(twoDaysAgoNotifications)
+
+            }else{
+                concatAdapter.removeAdapter(pastHeaderAdapter)
+                concatAdapter.removeAdapter(pastAdapter)
             }
         }
     }
@@ -94,6 +105,8 @@ class NotificationViewModel @Inject constructor(
         concatAdapter.addAdapter(todayAdapter)
         concatAdapter.addAdapter(yesterdayHeaderAdapter)
         concatAdapter.addAdapter(yesterdayAdapter)
+        concatAdapter.addAdapter(pastHeaderAdapter)
+        concatAdapter.addAdapter(pastAdapter)
     }
 
     fun clearAdapters(){
@@ -101,5 +114,7 @@ class NotificationViewModel @Inject constructor(
         concatAdapter.removeAdapter(yesterdayAdapter)
         concatAdapter.removeAdapter(todayHeaderAdapter)
         concatAdapter.removeAdapter(yesterdayHeaderAdapter)
+        concatAdapter.removeAdapter(pastHeaderAdapter)
+        concatAdapter.removeAdapter(pastAdapter)
     }
 }

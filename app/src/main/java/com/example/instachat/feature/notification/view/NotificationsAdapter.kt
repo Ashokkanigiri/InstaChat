@@ -23,7 +23,7 @@ class NotificationsAdapter : ListAdapter<NotificationModel, NotificationsViewHol
 
 class NotificationsViewHolder (val binding: LayoutItemNotificationsBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(notificationModel: NotificationModel){
-
+        binding.notification = notificationModel
     }
 }
 

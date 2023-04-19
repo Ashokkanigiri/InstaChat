@@ -38,6 +38,7 @@ class NotificationFragment : Fragment() {
         binding.viewModel = viewModel
         viewModel.loadData()
         setUpActionBar()
+        handleSwipeLayout()
     }
 
     private fun setUpActionBar() {
@@ -47,6 +48,13 @@ class NotificationFragment : Fragment() {
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as MainActivity).setBottomNavVisibility(true)
         (activity as BaseActivity).setTitle("Notifications")
+    }
+
+    private fun handleSwipeLayout() {
+        binding.swipeLayout.setOnRefreshListener {
+            viewModel.injectData()
+            binding.swipeLayout.isRefreshing = false
+        }
     }
 
     override fun onDestroyView() {
