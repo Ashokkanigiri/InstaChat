@@ -8,12 +8,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.instachat.R
 import com.example.instachat.databinding.LayoutItemNotificationsBinding
+import com.example.instachat.feature.notification.viewmodel.NotificationViewModel
 import com.example.instachat.services.models.rest.NotificationModel
 
-class NotificationsAdapter : ListAdapter<NotificationModel, NotificationsViewHolder>(NotificationsDiffUtil()) {
+class NotificationsAdapter (val viewModel: NotificationViewModel) : ListAdapter<NotificationModel, NotificationsViewHolder>(NotificationsDiffUtil()) {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationsViewHolder {
         val binding = DataBindingUtil.inflate<LayoutItemNotificationsBinding>(LayoutInflater.from(parent.context), R.layout.layout_item_notifications, parent, false)
-        return NotificationsViewHolder(binding)
+        return NotificationsViewHolder(binding, viewModel)
     }
 
     override fun onBindViewHolder(holder: NotificationsViewHolder, position: Int) {
@@ -21,7 +22,10 @@ class NotificationsAdapter : ListAdapter<NotificationModel, NotificationsViewHol
     }
 }
 
-class NotificationsViewHolder (val binding: LayoutItemNotificationsBinding): RecyclerView.ViewHolder(binding.root){
+class NotificationsViewHolder(
+    val binding: LayoutItemNotificationsBinding,
+    viewModel: NotificationViewModel
+): RecyclerView.ViewHolder(binding.root){
     fun bind(notificationModel: NotificationModel){
         binding.notification = notificationModel
     }

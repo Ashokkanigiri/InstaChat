@@ -7,6 +7,10 @@
         <variable
             name="notification"
             type="com.example.instachat.services.models.rest.NotificationModel" />
+
+        <variable
+            name="viewModel"
+            type="com.example.instachat.feature.notification.viewmodel.NotificationViewModel" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -45,6 +49,7 @@
             android:layout_width="70dp"
             android:layout_height="35dp"
             android:text="Follow"
+            android:onClick="@{()-> viewModel.onFollowButtonClicked()}"
             android:textAllCaps="false"
             android:textSize="11sp"
             app:layout_constraintBottom_toBottomOf="@+id/imageView2"

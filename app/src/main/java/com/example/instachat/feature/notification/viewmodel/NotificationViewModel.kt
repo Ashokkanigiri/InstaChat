@@ -27,13 +27,13 @@ class NotificationViewModel @Inject constructor(
 
     private val userId = Firebase.auth.currentUser?.uid ?: ""
 
-    val todayAdapter = NotificationsAdapter()
+    val todayAdapter = NotificationsAdapter(this)
     val todayHeaderAdapter = NotificationHeaderAdapter()
 
-    val yesterdayAdapter = NotificationsAdapter()
+    val yesterdayAdapter = NotificationsAdapter(this)
     val yesterdayHeaderAdapter = NotificationHeaderAdapter()
 
-    val pastAdapter = NotificationsAdapter()
+    val pastAdapter = NotificationsAdapter(this)
     val pastHeaderAdapter = NotificationHeaderAdapter()
 
     val concatAdapter = ConcatAdapter()
@@ -116,5 +116,10 @@ class NotificationViewModel @Inject constructor(
         concatAdapter.removeAdapter(yesterdayHeaderAdapter)
         concatAdapter.removeAdapter(pastHeaderAdapter)
         concatAdapter.removeAdapter(pastAdapter)
+    }
+
+    fun onFollowButtonClicked(){
+        // remove request object
+        // update intrestedlist object to request - true && follow true
     }
 }
