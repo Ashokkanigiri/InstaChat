@@ -1,5 +1,7 @@
 package com.example.instachat.feature.userdetails
 
+import android.annotation.SuppressLint
+import android.text.format.DateUtils
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +10,7 @@ import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import com.example.instachat.services.models.fcm.FCMSendNotificationBody
 import com.example.instachat.services.models.fcm.FCMSendNotificationData
+import com.example.instachat.services.models.rest.NotificationModel
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.SyncRepository
@@ -17,10 +20,15 @@ import com.example.instachat.utils.Response
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.type.DateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
@@ -229,17 +237,32 @@ class UserDetailViewModel @Inject constructor(
                     is Response.Success -> {
                         val user = userResponse.data?.firstOrNull()
 
+                        val data = FCMSendNotificationData(
+                            title = "${loggedUser.email} just requested to follow you",
+                            body = "${loggedUser.email} requested to follow"
+                        )
+
                         user?.userSessions?.forEach {
                             viewModelScope.launch {
-                                val data = FCMSendNotificationData(
-                                    title = "${loggedUser.email} just requested to follow you",
-                                    body = "${loggedUser.email} requested to follow"
-                                )
+
                                 val body = FCMSendNotificationBody(to = it.registrationToken, data)
                                 fcmRestClient.sendFCMNotification(body)
                             }
                         }
 
+                        val notification = NotificationModel(
+                            id = UUID.randomUUID()?.toString() ?: "",
+                            targetUserId = userId,
+                            triggeredUserId = loggedUser.id ?: "",
+                            title = data.title,
+                            body = data.body,
+                            timeStamp = com.example.instachat.utils.DateUtils.getCurrentTimeInMillis()?:"",
+                            triggeredUserImageUrl = loggedUser.image
+                        )
+
+
+
+                        firebaseRepository.injectNotificationsToFirebaseForLoggedUser(notification)
                     }
                 }
             }

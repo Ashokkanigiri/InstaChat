@@ -14,8 +14,10 @@ import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.services.repository.FirebaseRepository
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import javax.inject.Inject
 
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {

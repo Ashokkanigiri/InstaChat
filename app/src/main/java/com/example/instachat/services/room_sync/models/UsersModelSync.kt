@@ -3,6 +3,7 @@ package com.example.instachat.services.room_sync.models
 import androidx.room.*
 import com.example.instachat.services.room.typeconverters.BankTypeConverter
 import com.example.instachat.services.room.typeconverters.CompanyTypeConverter
+import com.example.instachat.services.room.typeconverters.TagsTypeConverter
 import com.example.instachat.services.room.typeconverters.UserAddressTypeConverter
 import com.example.instachat.services.room_sync.typeconverters.HairSyncTypeConverterSync
 import com.example.instachat.services.room_sync.typeconverters.LikesTypeConverterSync
@@ -60,6 +61,9 @@ data class UserSync(
 
     @TypeConverters(TagsTypeConverterSync::class)
     var requestedForInterestsList: List<String>? = emptyList(),
+
+    @TypeConverters(TagsTypeConverter::class)
+    var notifications: List<String>? = emptyList(),
 
     @TypeConverters(UserSessionConverterSync::class)
     val userSessions: List<SessionsSync>? = emptyList()

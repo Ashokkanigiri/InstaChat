@@ -14,6 +14,7 @@ open class BaseActivity : AppCompatActivity(){
 
     fun setTitle(text: String){
         toolBarBinding.tvLabel.text = text
+        toolBarBinding.tvLabel
     }
 
     fun setBackButtonVisibility(shouldBackButtonVisible: Boolean){

@@ -13,6 +13,8 @@ import com.example.instachat.databinding.ActivityMainBinding
 import com.example.instachat.utils.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
@@ -30,6 +32,14 @@ class MainActivity : BaseActivity() {
         setupBottomNavigation()
         observeViewModel()
         Log.d("jflqnflqn", "kfnqfnql: MAin")
+        testFun()
+    }
+
+    private fun testFun() {
+        val dtStart = "11/08/2013 08:48:109"
+        val format = SimpleDateFormat("MM/dd/yyyy HH:mm:ss")
+        format.parse(dtStart)
+
     }
 
     private fun observeViewModel() {
@@ -103,6 +113,8 @@ class MainActivity : BaseActivity() {
         }.setBackgroundTint(Color.WHITE).setActionTextColor(Color.BLUE).setTextColor(Color.BLACK)
             .show()
     }
+
+
 
 }
 

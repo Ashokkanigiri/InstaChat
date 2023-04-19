@@ -15,7 +15,7 @@ class RoomRepository @Inject constructor(
         usersDao.deleteUserTable()
         postsDao.deletePostsTable()
         commentsDao.deleteCommentsTable()
-        notificationModelDao
+        notificationModelDao.deleteNotificationsTable()
     }
 
 }

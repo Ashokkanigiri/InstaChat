@@ -7,6 +7,7 @@ import com.example.instachat.services.client.FirebaseApiClient
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.models.rest.NotificationModel
 import com.example.instachat.utils.Response
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -31,6 +32,10 @@ class FirebaseRepository @Inject constructor(
 
     suspend fun injectPostsToFirebase(data: PostModelItem): Response<Boolean> {
         return firebaseApiClient.injectPostsToFirebase(data)
+    }
+
+    suspend fun injectNotificationsToFirebaseForLoggedUser(notificationModel: NotificationModel): Response<Boolean> {
+        return firebaseApiClient.injectNotification(notificationModel)
     }
 
     suspend fun injectAllPostsFromFirebase() {
@@ -81,6 +86,11 @@ class FirebaseRepository @Inject constructor(
 
             }
         }
+    }
+
+    suspend fun injectAllNotificationsFromFirebase(userId: String) {
+        firebaseApiClient.getAllNotificationsFromFirebase(userId)
+
     }
 
     suspend fun isUserAlreadyExists(userEmail: String): Response<Boolean> {

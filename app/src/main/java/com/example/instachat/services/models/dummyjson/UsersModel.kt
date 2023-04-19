@@ -61,6 +61,9 @@ data class User(
     @TypeConverters(TagsTypeConverter::class)
     var requestedForInterestsList: List<String>? = emptyList(),
 
+    @TypeConverters(TagsTypeConverter::class)
+    var notifications: List<String>? = emptyList(),
+
     @TypeConverters(UserSessionConverter::class)
     var userSessions: List<Session>? = emptyList()
 )
