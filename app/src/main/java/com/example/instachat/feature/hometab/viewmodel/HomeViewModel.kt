@@ -112,6 +112,7 @@ class HomeViewModel @Inject constructor(
                 firebaseRepository.injectAllPostsFromFirebase()
                 firebaseRepository.injectAllUsersFromFirebase()
                 firebaseRepository.injectAllCommentsFromFirebase()
+                firebaseRepository.injectAllNotificationsFromFirebase(auth.currentUser?.uid?:"")
             }
         }else{
             event.postValue(HomeViewModelEvent.ShowConnectivityErrorDialog)

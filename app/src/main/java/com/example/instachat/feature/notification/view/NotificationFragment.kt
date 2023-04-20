@@ -59,6 +59,7 @@ class NotificationFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.rvNotifications.adapter = null
         viewModel.clearAdapters()
     }
 }

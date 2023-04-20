@@ -15,6 +15,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -39,28 +40,24 @@ class NotificationViewModel @Inject constructor(
     val concatAdapter = ConcatAdapter()
 
     fun loadData() {
-        initAdapters()
         loadAllNotificationsForLoggedUser(userId)
     }
 
     fun injectData() {
         viewModelScope.launch {
-            firebaseRepository.injectAllNotificationsFromFirebase(userId)
+            async { firebaseRepository.injectAllNotificationsFromFirebase(userId) }.await()
         }
-        loadAllNotificationsForLoggedUser(userId)
     }
 
     fun loadAllNotificationsForLoggedUser(userId: String) {
-        viewModelScope.launch (Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             roomRepository.notificationModelDao.getNotificationsForUserId(userId).collect {
-               withContext(Dispatchers.Main){
-                   segregateData(it)
-               }
+                segregateData(it)
             }
         }
     }
 
-    fun segregateData(notificationModels: List<NotificationModel>?) {
+    suspend fun segregateData(notificationModels: List<NotificationModel>?) {
         notificationModels?.let { notifications ->
             val todayNotifications = notifications.filter { DateUtils.isToday(it.timeStamp) }
             val yesterdayNotifications =
@@ -70,46 +67,50 @@ class NotificationViewModel @Inject constructor(
                 DateUtils.isDateTwoDaysAgo(it.timeStamp)
             }
 
+            withContext(Dispatchers.Main){
+                if (todayNotifications.isNotEmpty()) {
+                    concatAdapter.addAdapter(todayHeaderAdapter)
+                    concatAdapter.addAdapter(todayAdapter)
+                    todayHeaderAdapter.submitList(listOf("Today"))
+                    todayAdapter.submitList(todayNotifications)
 
-            if(todayNotifications.isNotEmpty()){
-                todayHeaderAdapter.submitList(listOf("Today"))
-                todayAdapter.submitList(todayNotifications)
 
-            }else{
-                concatAdapter.removeAdapter(todayHeaderAdapter)
-                concatAdapter.removeAdapter(todayAdapter)
+                } else {
+                    concatAdapter.removeAdapter(todayHeaderAdapter)
+                    concatAdapter.removeAdapter(todayAdapter)
+                }
+
+                if (yesterdayNotifications.isNotEmpty()) {
+                    concatAdapter.addAdapter(yesterdayHeaderAdapter)
+                    concatAdapter.addAdapter(yesterdayAdapter)
+                    yesterdayHeaderAdapter.submitList(listOf("Yesterday"))
+                    yesterdayAdapter.submitList(yesterdayNotifications)
+                    Log.d("qfiqiofnq", "todayNotifications: ${Gson().toJson(yesterdayNotifications)}")
+
+                } else {
+                    concatAdapter.removeAdapter(yesterdayHeaderAdapter)
+                    concatAdapter.removeAdapter(yesterdayAdapter)
+                }
+
+                if (twoDaysAgoNotifications.isNotEmpty()) {
+                    concatAdapter.addAdapter(pastHeaderAdapter)
+                    concatAdapter.addAdapter(pastAdapter)
+                    pastHeaderAdapter.submitList(listOf("Older"))
+                    pastAdapter.submitList(twoDaysAgoNotifications)
+                    Log.d("qfiqiofnq", "todayNotifications: ${Gson().toJson(twoDaysAgoNotifications)}")
+
+                } else {
+                    concatAdapter.removeAdapter(pastHeaderAdapter)
+                    concatAdapter.removeAdapter(pastAdapter)
+                }
+                concatAdapter.notifyDataSetChanged()
             }
 
-            if(yesterdayNotifications.isNotEmpty()){
-                yesterdayHeaderAdapter.submitList(listOf("Yesterday"))
-                yesterdayAdapter.submitList(yesterdayNotifications)
-
-            }else{
-                concatAdapter.removeAdapter(yesterdayHeaderAdapter)
-                concatAdapter.removeAdapter(yesterdayAdapter)
-            }
-
-            if(twoDaysAgoNotifications.isNotEmpty()){
-                pastHeaderAdapter.submitList(listOf("Older"))
-                pastAdapter.submitList(twoDaysAgoNotifications)
-
-            }else{
-                concatAdapter.removeAdapter(pastHeaderAdapter)
-                concatAdapter.removeAdapter(pastAdapter)
-            }
         }
     }
 
-    fun initAdapters(){
-        concatAdapter.addAdapter(todayHeaderAdapter)
-        concatAdapter.addAdapter(todayAdapter)
-        concatAdapter.addAdapter(yesterdayHeaderAdapter)
-        concatAdapter.addAdapter(yesterdayAdapter)
-        concatAdapter.addAdapter(pastHeaderAdapter)
-        concatAdapter.addAdapter(pastAdapter)
-    }
 
-    fun clearAdapters(){
+    fun clearAdapters() {
         concatAdapter.removeAdapter(todayAdapter)
         concatAdapter.removeAdapter(yesterdayAdapter)
         concatAdapter.removeAdapter(todayHeaderAdapter)
@@ -118,7 +119,7 @@ class NotificationViewModel @Inject constructor(
         concatAdapter.removeAdapter(pastAdapter)
     }
 
-    fun onFollowButtonClicked(){
+    fun onFollowButtonClicked() {
         // remove request object
         // update intrestedlist object to request - true && follow true
     }
