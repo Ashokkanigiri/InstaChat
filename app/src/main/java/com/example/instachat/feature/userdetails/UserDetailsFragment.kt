@@ -16,6 +16,7 @@ import androidx.work.WorkManager
 import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentSettingsBinding
 import com.example.instachat.databinding.FragmentUserDetailsBinding
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
@@ -25,7 +26,8 @@ import java.util.UUID
 @AndroidEntryPoint
 class UserDetailsFragment : Fragment() {
 
-    lateinit var binding: FragmentUserDetailsBinding
+    private var _binding: FragmentUserDetailsBinding? = null
+    private val binding get() = _binding!!
 
     val viewModel: UserDetailViewModel by viewModels()
 
@@ -33,7 +35,7 @@ class UserDetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding =
+        _binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_user_details, container, false)
         return binding.root
     }
@@ -82,9 +84,11 @@ class UserDetailsFragment : Fragment() {
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+
+    override fun onDestroyView() {
+        super.onDestroyView()
         (activity as MainActivity).setBottomNavVisibility(true)
+        _binding = null
     }
 
     private fun initFragment() {

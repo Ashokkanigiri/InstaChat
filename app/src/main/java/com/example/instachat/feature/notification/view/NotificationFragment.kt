@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentNewPostDetailBinding
 import com.example.instachat.databinding.FragmentNotificationBinding
 import com.example.instachat.feature.notification.viewmodel.NotificationViewModel
 import com.example.instachat.services.models.rest.NotificationModel
@@ -19,7 +20,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class NotificationFragment : Fragment() {
 
-    lateinit var binding: FragmentNotificationBinding
+    private var _binding: FragmentNotificationBinding? = null
+    private val binding get() = _binding!!
 
     val viewModel: NotificationViewModel by viewModels()
 
@@ -27,7 +29,7 @@ class NotificationFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_notification, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_notification, container, false)
         return binding.root
     }
 
@@ -61,5 +63,6 @@ class NotificationFragment : Fragment() {
         super.onDestroyView()
         binding.rvNotifications.adapter = null
         viewModel.clearAdapters()
+        _binding = null
     }
 }

@@ -19,13 +19,15 @@ import java.util.*
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
 
-    lateinit var binding: ActivityMainBinding
+    private var _binding: ActivityMainBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: MainActivityViewModel by viewModels()
     lateinit var networkSnackBar: Snackbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        _binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         intent.extras?.getBoolean("IS_FROM_NOTIFICATION")?.let {
             if(it){
                 viewModel.injectAllNotifications()
@@ -113,6 +115,11 @@ class MainActivity : BaseActivity() {
         Snackbar.make(binding.root, body, Snackbar.LENGTH_LONG).setAction("Dismiss") {
         }.setBackgroundTint(Color.WHITE).setActionTextColor(Color.BLUE).setTextColor(Color.BLACK)
             .show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 
 

@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.example.instachat.databinding.ActivityMainBinding
 import com.example.instachat.databinding.LayoutLoginActivityBinding
 import com.example.instachat.services.sharedprefs.SharedPreferenceService
 import com.example.instachat.utils.DialogUtils
@@ -23,7 +24,8 @@ import java.util.*
 @AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
 
-    lateinit var binding: LayoutLoginActivityBinding
+    private var _binding: LayoutLoginActivityBinding? = null
+    private val binding get() = _binding!!
 
     val viewModel: LoginViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +37,7 @@ class LoginActivity : AppCompatActivity() {
             navigateToMainActivity()
         }
 
-        binding = DataBindingUtil.setContentView(this, R.layout.layout_login_activity)
+        _binding = DataBindingUtil.setContentView(this, R.layout.layout_login_activity)
         binding.lifecycleOwner = this
 
         listenToFCMToken()
@@ -109,5 +111,10 @@ class LoginActivity : AppCompatActivity() {
 
     private fun showSnackbar(message: String){
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        _binding = null
     }
 }

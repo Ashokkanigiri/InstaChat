@@ -14,6 +14,7 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.instachat.LoginActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentSearchBinding
 import com.example.instachat.databinding.FragmentSettingsBinding
 import com.example.instachat.services.sharedprefs.SharedPreferenceService
 import com.example.instachat.utils.DialogUtils
@@ -26,7 +27,8 @@ import java.util.*
 @AndroidEntryPoint
 class SettingsFragment : Fragment() {
 
-    lateinit var binding: FragmentSettingsBinding
+    private var _binding: FragmentSettingsBinding? = null
+    private val binding get() = _binding!!
 
     val viewModel: SettingsViewModel by viewModels()
 
@@ -34,7 +36,7 @@ class SettingsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_settings, container, false)
         return binding.root
     }
 
@@ -125,6 +127,11 @@ class SettingsFragment : Fragment() {
 
     private fun showSnackbar(message: String){
         Snackbar.make(binding.root, message, Snackbar.LENGTH_SHORT).show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 
