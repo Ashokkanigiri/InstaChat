@@ -16,6 +16,7 @@ import androidx.work.WorkManager
 import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentSettingsBinding
 import com.example.instachat.databinding.FragmentUserDetailsBinding
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
@@ -25,7 +26,8 @@ import java.util.UUID
 @AndroidEntryPoint
 class UserDetailsFragment : Fragment() {
 
-    lateinit var binding: FragmentUserDetailsBinding
+    private var _binding: FragmentUserDetailsBinding? = null
+    private val binding get() = _binding!!
 
     val viewModel: UserDetailViewModel by viewModels()
 
@@ -33,20 +35,15 @@ class UserDetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding =
+        _binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_user_details, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setUpToolBar()
         initFragment()
-        loadViewModel()
         observeViewModel()
-    }
-
-    private fun loadViewModel() {
     }
 
     private fun observeViewModel() {
@@ -54,58 +51,44 @@ class UserDetailsFragment : Fragment() {
             when (it) {
                 is UserDetailViewModelEvent.LoadUser -> {
                     binding.user = it.user
-                    (activity as BaseActivity).setBackLabelText(it.user.username)
+                    setUpToolBar(it.user.username)
                     viewModel.loadAllPostsForUser(viewModel.userId?:"")
                 }
                 is UserDetailViewModelEvent.LoadPosts -> {
                     viewModel.adapter.submitList(it.posts)
                 }
                 UserDetailViewModelEvent.OnFollowButtonClicked -> {
-
+                    viewModel.handleFollowButtonClicked()
                 }
                 UserDetailViewModelEvent.OnMessageButtonClicked -> {
 
                 }
                 is UserDetailViewModelEvent.OnFollowStatusRequested ->{
-                    listenToFollowStatusRequested(it.workId, it.interestedUsersModel, it.requestedForInterestModel)
+
                 }
                 is UserDetailViewModelEvent.LoadLoggedUser ->{
-                    viewModel.loadFollowingText(it.user)
+
                 }
             }
         })
     }
 
-    private fun listenToFollowStatusRequested(
-        workId: UUID,
-        interestedUsersModel: InterestedUsersModel,
-        requestedForInterestModel: RequestedForInterestModel
-    ){
-        WorkManager.getInstance(requireContext()).getWorkInfoByIdLiveData(workId).observe(viewLifecycleOwner, Observer {
-            when(it.state){
-                WorkInfo.State.SUCCEEDED -> {
-                    viewModel.addInterestedUserToLoggedUser(interestedUsersModel)
-                    viewModel.addRequestForInterestTOCurrentUser(requestedForInterestModel)
-                }
-                WorkInfo.State.FAILED -> {
-                    Log.d("kwjwkjgb", "FAILED")
-
-                }
-               else ->{
-
-               }
-            }
-        })
-    }
-
-    private fun setUpToolBar() {
+    private fun setUpToolBar(username: String) {
         (activity as BaseActivity).setupActionBar(binding.toolBar)
         (activity as MainActivity).setBottomNavVisibility(false)
         (activity as BaseActivity).setBackButtonVisibility(true)
         (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as MainActivity).setBottomNavVisibility(false)
+        (activity as BaseActivity).setBackLabelText(username)
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
+    }
+
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        (activity as MainActivity).setBottomNavVisibility(true)
+        _binding = null
     }
 
     private fun initFragment() {
@@ -123,7 +106,6 @@ class UserDetailsFragment : Fragment() {
             viewModel.apply {
                 userId = it
                 loadUser(it)
-                loadLoggedUser()
             }
         }
     }

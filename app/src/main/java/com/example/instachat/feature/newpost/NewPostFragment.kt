@@ -23,6 +23,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentLoginBinding
 import com.example.instachat.databinding.FragmentNewPostBinding
 import com.example.instachat.utils.ConstantUtils
 import com.example.instachat.utils.DialogUtils
@@ -37,8 +38,9 @@ import java.util.UUID
 @AndroidEntryPoint
 class NewPostFragment : Fragment() {
 
+    private var _binding: FragmentNewPostBinding? = null
+    private val binding get() = _binding!!
 
-    lateinit var binding: FragmentNewPostBinding
     lateinit var imageCapture: ImageCapture
     lateinit var camera: Camera
     private lateinit var cameraProviderFuture: ListenableFuture<ProcessCameraProvider>
@@ -48,7 +50,7 @@ class NewPostFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_new_post, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_new_post, container, false)
         return binding.root
     }
 
@@ -209,6 +211,7 @@ class NewPostFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         viewModel.getSelectedAndCapturedList().clear()
+        _binding = null
     }
 
 }

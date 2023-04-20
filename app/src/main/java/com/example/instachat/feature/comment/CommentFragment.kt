@@ -13,13 +13,17 @@ import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentCommentBinding
+import com.example.instachat.databinding.LayoutLoginActivityBinding
 import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
 class CommentFragment : Fragment() {
 
-    lateinit var binding: FragmentCommentBinding
+
+    private var _binding: FragmentCommentBinding? = null
+    private val binding get() = _binding!!
+
     val viewModel: CommentViewModel by viewModels()
 
     override fun onCreateView(
@@ -27,7 +31,7 @@ class CommentFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_comment, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_comment, container, false)
         return binding.root
     }
 
@@ -72,6 +76,11 @@ class CommentFragment : Fragment() {
         })
 
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 

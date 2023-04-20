@@ -1,22 +1,34 @@
 package com.example.instachat.feature.userdetails
 
+import android.annotation.SuppressLint
+import android.text.format.DateUtils
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.instachat.services.client.FirebaseApiClient
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
-import com.example.instachat.services.models.dummyjson.User
+import com.example.instachat.services.models.fcm.FCMSendNotificationBody
+import com.example.instachat.services.models.fcm.FCMSendNotificationData
+import com.example.instachat.services.models.rest.NotificationModel
 import com.example.instachat.services.repository.FirebaseRepository
 import com.example.instachat.services.repository.RoomRepository
 import com.example.instachat.services.repository.SyncRepository
+import com.example.instachat.services.rest.FCMRestClient
+import com.example.instachat.utils.ConnectivityService
+import com.example.instachat.utils.Response
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.type.DateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
@@ -24,7 +36,10 @@ import javax.inject.Inject
 class UserDetailViewModel @Inject constructor(
     val roomRepository: RoomRepository,
     val firebaseRepository: FirebaseRepository,
-    val syncRepository: SyncRepository
+    val syncRepository: SyncRepository,
+    val fcmRestClient: FCMRestClient,
+    val firebaseApiClient: FirebaseApiClient,
+    val connectivityService: ConnectivityService
 ) : ViewModel() {
 
     val followingStatusUpdate = ObservableField<String>()
@@ -44,40 +59,26 @@ class UserDetailViewModel @Inject constructor(
         }
     }
 
-    fun loadLoggedUser(){
+    fun loadFollowingText() {
         viewModelScope.launch {
-            roomRepository.usersDao.getUserFlow(currentLoggedInUser?.uid?:"").collect(){
-                event.postValue(UserDetailViewModelEvent.LoadLoggedUser(it))
-            }
-        }
-    }
 
-    fun loadFollowingText(user: User) {
-        viewModelScope.launch {
-            val iList = roomRepository.interestedUsersDao.getAllInterestedUsers(user.id)
-            val interestedUser = iList?.firstOrNull { it.interestedUserId == userId }
+            val interestedUser = roomRepository.interestedUsersDao.getAllInterestedUsersForUserId(
+                currentLoggedInUser?.uid ?: ""
+            )?.firstOrNull { it.interestedUserId == userId }
 
-
-            if (interestedUser != null) {
-                when {
-                    interestedUser.isFollowAccepted && interestedUser.isFollowRequested -> {
-                        withContext(Dispatchers.Main) {
-                            followingStatusUpdate.set("Following")
-                        }
-                    }
-                    interestedUser.isFollowRequested -> {
-                        followingStatusUpdate.set("Requested")
-                    }
-                    else -> {
-                        withContext(Dispatchers.Main) {
-                            followingStatusUpdate.set("Follow")
-                        }
-                    }
+            when {
+                interestedUser == null -> {
+                    followingStatusUpdate.set("Follow")
                 }
-
-
-            } else {
-                followingStatusUpdate.set("Follow")
+                interestedUser.isFollowRequested -> {
+                    followingStatusUpdate.set("Requested")
+                }
+                interestedUser.isFollowAccepted -> {
+                    followingStatusUpdate.set("Following")
+                }
+                else -> {
+                    followingStatusUpdate.set("Follow")
+                }
             }
         }
     }
@@ -88,11 +89,31 @@ class UserDetailViewModel @Inject constructor(
                 event.postValue(UserDetailViewModelEvent.LoadPosts(it))
             }
         }
+        loadFollowingText()
     }
 
     fun onFollowButtonClicked() {
-        if(followingStatusUpdate.get() == "follow"){
-            updateUser(userId ?: "")
+        event.postValue(UserDetailViewModelEvent.OnFollowButtonClicked)
+    }
+
+    fun handleFollowButtonClicked() {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val interestedUser = roomRepository.interestedUsersDao.getAllInterestedUsersForUserId(
+                currentLoggedInUser?.uid ?: ""
+            )?.firstOrNull { it.interestedUserId == userId }
+
+            when (interestedUser?.isFollowRequested) {
+                true -> {
+                    updateUser(userId ?: "", false)
+                }
+                false -> {
+                    updateUser(userId ?: "", true)
+                }
+                null -> {
+                    updateUser(userId ?: "", true)
+                }
+            }
         }
     }
 
@@ -102,14 +123,14 @@ class UserDetailViewModel @Inject constructor(
 
     fun isCurrentUserProfile() = ((userId ?: "").equals((currentLoggedInUser?.uid ?: "")))
 
-    private fun updateUser(followedUserId: String) {
+    private suspend fun updateUser(followedUserId: String, isFollowRequested: Boolean) {
 
         val interestedUser = InterestedUsersModel(
             id = UUID.randomUUID()?.toString() ?: "",
             userId = currentLoggedInUser?.uid ?: "",
             isFollowAccepted = false,
             isFollowRejected = false,
-            isFollowRequested = true,
+            isFollowRequested = isFollowRequested,
             interestedUserId = followedUserId,
             timeStamp = System.currentTimeMillis().toString()
         )
@@ -117,40 +138,134 @@ class UserDetailViewModel @Inject constructor(
         val requestedForInterestModel = RequestedForInterestModel(
             id = UUID.randomUUID().toString(),
             requestedUserId = currentLoggedInUser?.uid ?: "",
-            interestId = interestedUser.id
+            interestId = interestedUser.id,
+            userId = followedUserId
         )
 
-        viewModelScope.launch {
-            syncRepository.addAndSyncUserInterestedList(interestedUser)
-            syncRepository.addAndSyncRequestedInterestsList(requestedForInterestModel) {
-                event.postValue(
-                    UserDetailViewModelEvent.OnFollowStatusRequested(
-                        it,
-                        interestedUser,
-                        requestedForInterestModel
-                    )
-                )
-            }
+        if (isFollowRequested) {
+            addToDatabaseAndNotifyUser(interestedUser, requestedForInterestModel)
+        } else {
+            removeFollowRequest()
         }
     }
 
-    fun addInterestedUserToLoggedUser(interestedUsersModel: InterestedUsersModel) {
+    private suspend fun removeFollowRequest() {
+        val iu = roomRepository.interestedUsersDao.getAllInterestedUsersForUserId(
+            currentLoggedInUser?.uid ?: ""
+        )?.firstOrNull { it.interestedUserId == userId }
+
+        val ru = roomRepository.requestedInterestedUsersDao.getIntestedUsersInRequestedList(
+            currentLoggedInUser?.uid ?: ""
+        )?.firstOrNull { it.userId == userId }
+
+        iu?.let {
+            syncRepository.removeAndSyncUserInterestedList(iu)
+            shouldAddInterestedUserToLoggedUser(iu, false)
+        }
+
+        ru?.let {
+            syncRepository.removeAndSyncRequestedInterestsList(ru)
+            shouldAddRequestForInterestTOCurrentUser(ru, false)
+        }
+    }
+
+    private suspend fun addToDatabaseAndNotifyUser(
+        interestedUser: InterestedUsersModel,
+        requestedForInterestModel: RequestedForInterestModel
+    ) {
+        viewModelScope.async {
+            syncRepository.addAndSyncUserInterestedList(interestedUser)
+            syncRepository.addAndSyncRequestedInterestsList(requestedForInterestModel)
+            shouldAddInterestedUserToLoggedUser(interestedUser, true)
+            shouldAddRequestForInterestTOCurrentUser(requestedForInterestModel, true)
+        }.await()
+        notifyAllUserSession(userId ?: "")
+    }
+
+    suspend fun shouldAddInterestedUserToLoggedUser(
+        interestedUsersModel: InterestedUsersModel,
+        shouldAddToUser: Boolean
+    ) {
         viewModelScope.launch {
-            val loggedUser =roomRepository.usersDao.getUser(currentLoggedInUser?.uid?:"")
+            val loggedUser = roomRepository.usersDao.getUser(currentLoggedInUser?.uid ?: "")
             val uUser = loggedUser.apply {
-                this.interestedUsersList = (this.interestedUsersList?: emptyList()) + listOf(interestedUsersModel.id)
+                if (shouldAddToUser) {
+                    this.interestedUsersList =
+                        (this.interestedUsersList ?: emptyList()) + listOf(interestedUsersModel.id)
+                } else {
+                    (this.interestedUsersList?.toMutableList()?.remove(interestedUsersModel.id))
+                }
             }
             syncRepository.updateUsersInterestedUsers(uUser)
         }
     }
 
-    fun addRequestForInterestTOCurrentUser(requestedForInterestModel: RequestedForInterestModel) {
+    suspend fun shouldAddRequestForInterestTOCurrentUser(
+        requestedForInterestModel: RequestedForInterestModel,
+        shouldAddToUser: Boolean
+    ) {
         viewModelScope.launch {
-            val loggedUser =roomRepository.usersDao.getUser(currentLoggedInUser?.uid?:"")
+            val loggedUser = roomRepository.usersDao.getUser(userId ?: "")
             val uUser = loggedUser.apply {
-                this.requestedForInterestsList = (this.requestedForInterestsList?: emptyList()) + listOf(requestedForInterestModel.id)
+                if (shouldAddToUser) {
+                    this.requestedForInterestsList =
+                        (this.requestedForInterestsList ?: emptyList()) + listOf(
+                            requestedForInterestModel.id
+                        )
+                } else {
+                    (this.requestedForInterestsList?.toMutableList()
+                        ?.remove(requestedForInterestModel.id))
+                }
             }
             syncRepository.updateRequestedInterestedUsers(uUser)
+        }
+    }
+
+    fun notifyAllUserSession(userId: String) {
+        if (connectivityService.hasActiveNetwork()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                val userResponse = firebaseApiClient.getSpecificUser(userId)
+                val loggedUser = roomRepository.usersDao.getUser(currentLoggedInUser?.uid ?: "")
+
+                when (userResponse) {
+                    is Response.Failure -> {
+
+                    }
+                    is Response.Loading -> {
+
+                    }
+                    is Response.Success -> {
+                        val user = userResponse.data?.firstOrNull()
+
+                        val data = FCMSendNotificationData(
+                            title = "${loggedUser.email} just requested to follow you",
+                            body = "${loggedUser.email} requested to follow"
+                        )
+
+                        user?.userSessions?.forEach {
+                            viewModelScope.launch {
+
+                                val body = FCMSendNotificationBody(to = it.registrationToken, data)
+                                fcmRestClient.sendFCMNotification(body)
+                            }
+                        }
+
+                        val notification = NotificationModel(
+                            id = UUID.randomUUID()?.toString() ?: "",
+                            targetUserId = userId,
+                            triggeredUserId = loggedUser.id ?: "",
+                            title = data.title,
+                            body = data.body,
+                            timeStamp = com.example.instachat.utils.DateUtils.getCurrentTimeInMillis()?:"",
+                            triggeredUserImageUrl = loggedUser.image
+                        )
+
+
+
+                        firebaseRepository.injectNotificationsToFirebaseForLoggedUser(notification)
+                    }
+                }
+            }
         }
     }
 

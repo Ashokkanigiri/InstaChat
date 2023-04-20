@@ -11,8 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.instachat.LoginActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentHomeBinding
 import com.example.instachat.databinding.FragmentLoginBinding
 import com.example.instachat.utils.DialogUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -20,7 +22,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
 
-    lateinit var binding: FragmentLoginBinding
+    private var _binding: FragmentLoginBinding? = null
+    private val binding get() = _binding!!
 
     val viewModel: LoginViewModel by viewModels()
 
@@ -30,7 +33,7 @@ class LoginFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_login, container, false)
         return binding.root
     }
 
@@ -65,14 +68,18 @@ class LoginFragment : Fragment() {
     }
 
     private fun navigateToHomeScreen() {
-        startActivity(Intent(this.activity, MainActivity::class.java))
-        this.activity?.finish()
+        (activity as LoginActivity).listenToFCMToken()
     }
 
     private fun navigateToRegistrationScreen() {
         findNavController().navigate(
             LoginFragmentDirections.actionLoginFragmentToRegistrationFragment()
         )
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

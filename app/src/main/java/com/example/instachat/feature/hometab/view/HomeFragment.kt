@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentCommentBinding
 import com.example.instachat.databinding.FragmentHomeBinding
 import com.example.instachat.feature.hometab.HomeViewModelEvent
 import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
@@ -28,14 +29,17 @@ import java.util.*
 @AndroidEntryPoint
 class HomeFragment : Fragment() {
 
-    lateinit var binding: FragmentHomeBinding
+    private var _binding: FragmentHomeBinding? = null
+    private val binding get() = _binding!!
+
+
     val viewModel: HomeViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_home, container, false)
         return binding.root
     }
 
@@ -47,18 +51,7 @@ class HomeFragment : Fragment() {
         observeViewModel()
     }
 
-    private fun listenToFCMToken() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                return@OnCompleteListener
-            }
 
-            // Get new FCM registration token
-            val token = task.result
-            Log.d("jfqljnfqlkfn", "${token}")
-        })
-
-    }
 
     private fun loadViewModel() {
         viewModel.injectDataFromFirebase()
@@ -169,5 +162,10 @@ class HomeFragment : Fragment() {
         (activity as BaseActivity).setBackLabelText("Explore")
         (activity as MainActivity).setBottomNavVisibility(false)
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

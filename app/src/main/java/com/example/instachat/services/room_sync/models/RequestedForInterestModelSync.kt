@@ -8,5 +8,6 @@ data class RequestedForInterestModelSync(
     @PrimaryKey
     val id: String,
     val requestedUserId: String,
-    val interestId: String
+    val interestId: String,
+    val userId: String
 )

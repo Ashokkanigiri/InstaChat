@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentNewPostBinding
 import com.example.instachat.databinding.FragmentNewPostDetailBinding
 import com.example.instachat.utils.ConstantUtils
 import com.example.instachat.utils.DialogUtils
@@ -22,7 +23,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class NewPostDetailFragment : Fragment() {
 
-    lateinit var binding: FragmentNewPostDetailBinding
+    private var _binding: FragmentNewPostDetailBinding? = null
+    private val binding get() = _binding!!
 
     val viewModel: NewPostDetailViewModel by viewModels()
 
@@ -30,7 +32,7 @@ class NewPostDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding =
+        _binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_new_post_detail, container, false)
         return binding.root
     }
@@ -72,6 +74,11 @@ class NewPostDetailFragment : Fragment() {
             viewModel.adapter.submitList(it.toList().map { it.toUri() })
             viewModel.selectedImagesList = it.toList()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

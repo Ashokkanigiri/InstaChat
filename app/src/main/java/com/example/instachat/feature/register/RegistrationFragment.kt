@@ -13,8 +13,10 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.instachat.LoginActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
+import com.example.instachat.databinding.FragmentNotificationBinding
 import com.example.instachat.databinding.FragmentRegistrationBinding
 import com.example.instachat.utils.DialogUtils
 import dagger.hilt.android.AndroidEntryPoint
@@ -22,7 +24,8 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class RegistrationFragment : Fragment() {
 
-    lateinit var binding: FragmentRegistrationBinding
+    private var _binding: FragmentRegistrationBinding? = null
+    private val binding get() = _binding!!
 
     val viewModel: RegistrationViewModel by viewModels()
 
@@ -32,7 +35,7 @@ class RegistrationFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_registration, container, false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_registration, container, false)
         return binding.root
     }
 
@@ -65,8 +68,7 @@ class RegistrationFragment : Fragment() {
                     DialogUtils.populateUserExistsDialog(requireContext())
                 }
                 is RegistrationViewModelEvent.HandleRegistrationSuccess ->{
-                    startActivity(Intent(this.activity, MainActivity::class.java))
-                    this.activity?.finish()
+                    (activity as LoginActivity).listenToFCMToken()
                 }
                 is RegistrationViewModelEvent.PopulateConnectivityErrorDialog ->{
                     DialogUtils.populateConnectivityErrorDialog(requireContext())
@@ -84,6 +86,11 @@ class RegistrationFragment : Fragment() {
                 progressDialog.dismiss()
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
 }

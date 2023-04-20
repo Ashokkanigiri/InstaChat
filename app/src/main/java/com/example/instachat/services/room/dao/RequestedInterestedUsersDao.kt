@@ -11,6 +11,9 @@ interface RequestedInterestedUsersDao : BaseDao<RequestedForInterestModel>{
     @Query("SELECT * FROM requested_for_interest WHERE id =:id ")
     suspend fun getRequestedInterestedUser(id: String): RequestedForInterestModel
 
+    @Query("SELECT * FROM requested_for_interest WHERE requestedUserId =:userId ")
+    suspend fun getIntestedUsersInRequestedList(userId: String): List<RequestedForInterestModel>?
+
     @Query("DELETE FROM requested_for_interest WHERE id =:id")
     fun deleteRow(id: String)
 }

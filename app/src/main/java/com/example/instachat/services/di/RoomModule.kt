@@ -55,13 +55,27 @@ object RoomModule {
 
     @Singleton
     @Provides
+    fun providesNotificationModelDao(instaChatDb: InstaChatDb): NotificationModelDao {
+        return instaChatDb.notificationDao()
+    }
+
+    @Singleton
+    @Provides
     fun providesRoomRepository(
         usersDao: UsersDao,
         commentsDao: CommentsDao,
         postsDao: PostsDao,
         interestedUsersDao: InterestedUsersDao,
-        requestedInterestedUsersDao: RequestedInterestedUsersDao
+        requestedInterestedUsersDao: RequestedInterestedUsersDao,
+        notificationModelDao: NotificationModelDao
     ): RoomRepository {
-        return RoomRepository(usersDao, postsDao, commentsDao, interestedUsersDao, requestedInterestedUsersDao)
+        return RoomRepository(
+            usersDao,
+            postsDao,
+            commentsDao,
+            interestedUsersDao,
+            requestedInterestedUsersDao,
+            notificationModelDao
+        )
     }
 }

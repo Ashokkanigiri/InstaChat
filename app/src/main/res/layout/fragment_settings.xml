@@ -7,6 +7,10 @@
         <variable
             name="viewModel"
             type="com.example.instachat.feature.settingstab.SettingsViewModel" />
+
+        <variable
+            name="user"
+            type="com.example.instachat.services.models.dummyjson.User" />
     </data>
 
    <ScrollView
@@ -69,10 +73,11 @@
 
                    <ImageView
                        android:id="@+id/imageView9"
-                       loadCircularImageWithGlideWithDefault="@{null}"
+                       loadCircularImageWithGlide="@{user.image}"
                        android:layout_width="30dp"
                        android:layout_height="30dp"
                        android:layout_marginEnd="15dp"
+                       android:background="@drawable/circular_image_bg"
                        app:layout_constraintEnd_toEndOf="parent"
                        app:layout_constraintBottom_toBottomOf="parent"
                        app:layout_constraintTop_toTopOf="parent"

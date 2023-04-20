@@ -8,6 +8,7 @@ import com.example.instachat.services.room.typeconverters.UserAddressTypeConvert
 import com.example.instachat.services.room_sync.typeconverters.HairSyncTypeConverterSync
 import com.example.instachat.services.room_sync.typeconverters.LikesTypeConverterSync
 import com.example.instachat.services.room_sync.typeconverters.TagsTypeConverterSync
+import com.example.instachat.services.room_sync.typeconverters.UserSessionConverterSync
 import com.google.gson.annotations.SerializedName
 
 
@@ -59,10 +60,23 @@ data class UserSync(
     var interestedUsersList: List<String>? = emptyList(),
 
     @TypeConverters(TagsTypeConverterSync::class)
-    var requestedForInterestsList: List<String>? = emptyList()
+    var requestedForInterestsList: List<String>? = emptyList(),
+
+    @TypeConverters(TagsTypeConverter::class)
+    var notifications: List<String>? = emptyList(),
+
+    @TypeConverters(UserSessionConverterSync::class)
+    val userSessions: List<SessionsSync>? = emptyList()
+
 )
 
 data class LikedPosts(val postId: Int)
+
+data class SessionsSync(
+    val sessionID: String = "",
+    val registrationToken: String = "",
+    val timeStamp: String = ""
+)
 
 
 data class AddressSync(
