@@ -13,11 +13,14 @@ data class CommentSync(
     val id: Int,
     val postId: Int,
     @Embedded
-    val user: CommentUserSync
+    val user: CommentUserSync,
+
+    val commentCreatedDate: String? = ""
 )
 
 data class CommentUserSync(
     @ColumnInfo("commentedUsersId")
-    val id: String,
-    val username: String
+    val id: String = "",
+    val username: String = "",
+    val userImageUrl: String = ""
 )

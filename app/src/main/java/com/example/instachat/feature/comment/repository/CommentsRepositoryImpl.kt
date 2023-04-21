@@ -30,7 +30,7 @@ class CommentsRepositoryImpl @Inject constructor(
     }
 
     override suspend fun loadAllCommentsForPost(postId: Int) = flow {
-        roomDataSource.getAllCommentsForPost(postId).collect() { comments ->
+        roomDataSource.getAllCommentsForPost(postId).collect { comments ->
             emit(comments.sortedBy { it.commentCreatedDate })
         }
     }

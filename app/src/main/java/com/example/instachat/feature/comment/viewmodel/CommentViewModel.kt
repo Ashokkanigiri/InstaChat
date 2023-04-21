@@ -150,7 +150,7 @@ class CommentViewModel
                 username = currentUser?.username ?: "",
                 userImageUrl = currentUser?.image ?: ""
             ),
-            commentCreatedDate = DateUtils.getCurrentTime()
+            commentCreatedDate = DateUtils.getCurrentTimeInMillis()
         )
         viewModelScope.launch(Dispatchers.IO) {
             syncRepository.addNewComment(newComment)
