@@ -44,7 +44,7 @@
     </fragment>
     <fragment
         android:id="@+id/commentFragment"
-        android:name="com.example.instachat.feature.comment.CommentFragment"
+        android:name="com.example.instachat.feature.comment.view.CommentFragment"
         android:label="CommentFragment">
 
         <argument

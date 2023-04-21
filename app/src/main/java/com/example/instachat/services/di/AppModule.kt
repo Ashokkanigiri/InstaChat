@@ -1,7 +1,7 @@
 package com.example.instachat.services.di
 
-import com.example.instachat.feature.comment.CommentsRepository
-import com.example.instachat.feature.comment.CommentsRepositoryImpl
+import com.example.instachat.feature.comment.repository.CommentsRepository
+import com.example.instachat.feature.comment.repository.CommentsRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

@@ -1,4 +1,4 @@
-package com.example.instachat.feature.comment
+package com.example.instachat.feature.comment.repository
 
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment

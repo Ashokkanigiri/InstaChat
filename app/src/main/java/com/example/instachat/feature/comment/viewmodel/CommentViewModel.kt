@@ -1,8 +1,10 @@
-package com.example.instachat.feature.comment
+package com.example.instachat.feature.comment.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.instachat.feature.comment.CommentAdapter
+import com.example.instachat.feature.comment.repository.CommentsRepository
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.CommentUser

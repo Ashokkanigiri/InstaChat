@@ -1,7 +1,6 @@
-package com.example.instachat.feature.comment
+package com.example.instachat.feature.comment.view
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentCommentBinding
-import com.example.instachat.generated.callback.OnClickListener
+import com.example.instachat.feature.comment.viewmodel.CommentViewModel
 import com.example.instachat.utils.ConstantUtils
 import com.example.instachat.utils.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
