@@ -1,6 +1,7 @@
 package com.example.instachat.feature.comment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +14,9 @@ import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
 import com.example.instachat.R
 import com.example.instachat.databinding.FragmentCommentBinding
-import com.example.instachat.databinding.LayoutLoginActivityBinding
+import com.example.instachat.generated.callback.OnClickListener
+import com.example.instachat.utils.ConstantUtils
+import com.example.instachat.utils.hideKeyboard
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -24,39 +27,56 @@ class CommentFragment : Fragment() {
     private var _binding: FragmentCommentBinding? = null
     private val binding get() = _binding!!
 
-    val viewModel: CommentViewModel by viewModels()
+    private val viewModel: CommentViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
+    ): View {
         _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_comment, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.lifecycleOwner = this
-        binding.viewModel = viewModel
-        if(!viewModel.adapter.hasObservers()){
-            viewModel.adapter.setHasStableIds(true)
-        }
-
-        binding.rvComments.adapter = viewModel.adapter
-        arguments?.getInt("postId")?.let {
-            loadComments(it)
-        }
+        initFragment()
+        loadArguments()
         setUpActionBar()
-
+        loadViewModel()
     }
 
-    fun loadComments(postId: Int){
-        viewModel.roomRepository.commentsDao.getAllCommentsForPost(postId).observe(viewLifecycleOwner, Observer {
-            viewModel.adapter.submitList(it)
+    private fun initFragment(){
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.viewModel = viewModel
+        if (!viewModel.adapter.hasObservers()) {
+            viewModel.adapter.setHasStableIds(true)
+        }
+        binding.rvComments.adapter = viewModel.adapter
+    }
+
+    private fun loadArguments() {
+        arguments?.getInt(ConstantUtils.NavKeys.POST_ID_KEY)?.let {
+            viewModel.loadData(it)
+        }
+    }
+
+    private fun loadViewModel() {
+        viewModel.getCurrentPostEvent.observe(viewLifecycleOwner, Observer {
+            binding.post = it
+            viewModel.loadCurrentPostedUser(it?.userId)
         })
-        viewModel.loadCurrentPost(postId)
+
+        viewModel.getPostedUserEvent.observe(viewLifecycleOwner, Observer {
+            binding.postedUser = it
+        })
+
+        viewModel.loggedUserEvent.observe(viewLifecycleOwner, Observer {
+            binding.currentUser = it
+        })
+
+        viewModel.onPostedCommentEvent.observe(viewLifecycleOwner, Observer {
+            binding.root.hideKeyboard()
+        })
     }
 
     private fun setUpActionBar() {
@@ -65,23 +85,13 @@ class CommentFragment : Fragment() {
         (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as MainActivity).setBottomNavVisibility(false)
-        (activity as BaseActivity).handleBackPressed(object : View.OnClickListener{
-            override fun onClick(p0: View?) {
-                if(viewModel.isCommentUpdated){
-                    findNavController().previousBackStackEntry?.savedStateHandle?.set("Should_refresh_post", true)
-                }
-                findNavController().popBackStack()
-            }
-
-        })
-
-
+        (activity as MainActivity).handleBackPressed {
+            findNavController().popBackStack()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
-
-
 }

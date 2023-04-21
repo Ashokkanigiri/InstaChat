@@ -3,7 +3,7 @@ package com.example.instachat.feature.newpostDetail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.PostModelItem
-import com.example.instachat.services.repository.FirebaseRepository
+import com.example.instachat.services.repository.FirebaseDataSource
 import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.ConnectivityService
 import com.example.instachat.utils.SingleLiveEvent
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewPostDetailViewModel
 @Inject constructor(
-    val firebaseRepository: FirebaseRepository,
+    val firebaseDataSource: FirebaseDataSource,
     val syncRepository: SyncRepository,
     val connectivityService: ConnectivityService
 ) :

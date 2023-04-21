@@ -4,7 +4,7 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.services.repository.FirebaseRepository
+import com.example.instachat.services.repository.FirebaseDataSource
 import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.ConnectivityService
 import com.example.instachat.utils.Response
@@ -22,7 +22,7 @@ import javax.inject.Inject
 class RegistrationViewModel @Inject constructor(
     val syncRepository: SyncRepository,
     val connectivityService: ConnectivityService,
-    val firebaseRepository: FirebaseRepository
+    val firebaseDataSource: FirebaseDataSource
 ) : ViewModel() {
 
     val errorText = ObservableField<String>()
@@ -65,7 +65,7 @@ class RegistrationViewModel @Inject constructor(
     private fun checkIsUserAlreadyPresentInFirebase() {
         showProgressBar()
         viewModelScope.launch {
-            when (val isUserExists = firebaseRepository.isUserAlreadyExists(user.email)) {
+            when (val isUserExists = firebaseDataSource.isUserAlreadyExists(user.email)) {
                 is Response.Success<Boolean> -> {
                     if (isUserExists.data == true) {
                         hideProgressBar()

@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.ConcatAdapter
 import com.example.instachat.feature.notification.view.NotificationHeaderAdapter
 import com.example.instachat.feature.notification.view.NotificationsAdapter
 import com.example.instachat.services.models.rest.NotificationModel
-import com.example.instachat.services.repository.FirebaseRepository
-import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.FirebaseDataSource
+import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.utils.DateUtils
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -22,8 +22,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
-    val roomRepository: RoomRepository,
-    val firebaseRepository: FirebaseRepository
+    val roomDataSource: RoomDataSource,
+    val firebaseDataSource: FirebaseDataSource
 ) : ViewModel() {
 
     private val userId = Firebase.auth.currentUser?.uid ?: ""
@@ -45,13 +45,13 @@ class NotificationViewModel @Inject constructor(
 
     fun injectData() {
         viewModelScope.launch {
-            async { firebaseRepository.injectAllNotificationsFromFirebase(userId) }.await()
+            async { firebaseDataSource.injectAllNotificationsFromFirebase(userId) }.await()
         }
     }
 
     fun loadAllNotificationsForLoggedUser(userId: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            roomRepository.notificationModelDao.getNotificationsForUserId(userId).collect {
+            roomDataSource.notificationModelDao.getNotificationsForUserId(userId).collect {
                 segregateData(it)
             }
         }

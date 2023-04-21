@@ -9,6 +9,19 @@
         <variable
             name="viewModel"
             type="com.example.instachat.feature.comment.CommentViewModel" />
+
+        <variable
+            name="post"
+            type="com.example.instachat.services.models.PostModelItem" />
+
+        <variable
+            name="postedUser"
+            type="com.example.instachat.services.models.dummyjson.User" />
+
+        <variable
+            name="currentUser"
+            type="com.example.instachat.services.models.dummyjson.User" />
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -27,7 +40,7 @@
 
         <ImageView
             android:id="@+id/iv_post_user"
-            loadCircularImageWithGlide="@{viewModel.currentPost.postImageUrls.get(0)}"
+            loadCircularImageWithGlide="@{post.postImageUrls.get(0)}"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_marginStart="15dp"
@@ -41,7 +54,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="20dp"
-            android:text="@{viewModel.postedUser.username}"
+            android:text="@{postedUser.username}"
             android:textColor="@color/black"
             android:textSize="11sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -54,7 +67,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
-            android:text="@{viewModel.currentPost.body}"
+            android:text="@{post.body}"
             android:textSize="13sp"
             app:layout_constraintEnd_toEndOf="@+id/tv_post_username"
             app:layout_constraintStart_toStartOf="@+id/tv_post_username"
@@ -63,7 +76,7 @@
 
         <TextView
             android:id="@+id/tv_post_hash_tags"
-            displayHashTags="@{viewModel.currentPost.tags}"
+            displayHashTags="@{post.tags}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -138,20 +151,20 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="15dp"
-                loadCircularImageWithGlide="@{viewModel.currentUser.image}"
+                loadCircularImageWithGlide="@{currentUser.image}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:srcCompat="@tools:sample/avatars" />
 
-            <TextView
+            <Button
                 android:id="@+id/btn_post_comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:text="Post"
-                android:onClick="@{()-> viewModel.postComment()}"
-                android:textColor="@color/blue"
+                android:onClick="@{()-> viewModel.postComment(post.id, currentUser)}"
+                android:textColor="@color/white"
                 android:textSize="13sp"
                 app:layout_constraintBottom_toBottomOf="@+id/editTextTextPersonName"
                 app:layout_constraintEnd_toEndOf="parent"

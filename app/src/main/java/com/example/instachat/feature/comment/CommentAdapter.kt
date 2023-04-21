@@ -28,28 +28,13 @@ class CommentAdapter: ListAdapter<Comment, CommentViewHolder>(CommentDiffUtil())
     }
 
     override fun getItemId(position: Int): Long {
-        return super.getItemId(getItem(position).id)
+        return getItem(position).id.toLong()
     }
 }
 
 class CommentViewHolder(val binding: LayoutItemCommentBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(comment: Comment){
         binding.comment = comment
-        getUser(comment.user.id)
-    }
-
-    fun getUser(userId: String){
-        val db = Firebase.firestore
-        db.collection("users").whereEqualTo("id", userId).addSnapshotListener { value, error ->
-            val user = value?.documents?.map { it.data }?.map {it ->
-                Gson().fromJson(Gson().toJson(it), User::class.java)
-            }
-            if(user?.isNotEmpty()?:false){
-                binding.user = user?.get(0)
-            }else{
-                getUser("10")
-            }
-        }
     }
 }
 

@@ -20,7 +20,7 @@ interface CommentsDao : BaseDao<Comment> {
     fun deleteCommentsTable()
 
     @Query("SELECT * FROM comments WHERE postId =:postId")
-    fun getAllCommentsForPost(postId: Int): LiveData<List<Comment>>
+    fun getAllCommentsForPost(postId: Int): Flow<List<Comment>>
 
     @Query("SELECT * FROM comments WHERE postId =:postId LIMIT 1")
     suspend fun getFirstCommentForPost(postId: Int): Comment

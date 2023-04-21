@@ -1,17 +1,15 @@
 package com.example.instachat.feature.settingstab
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.client.FirebaseApiClient
-import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.ConnectivityService
 import com.example.instachat.utils.Response
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -20,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    val roomRepository: RoomRepository,
+    val roomDataSource: RoomDataSource,
     val firebaseApiClient: FirebaseApiClient,
     val syncRepository: SyncRepository,
     val connectivityService: ConnectivityService
@@ -32,7 +30,7 @@ class SettingsViewModel @Inject constructor(
 
     fun loadUserDetails() {
         viewModelScope.launch {
-            val user = async { roomRepository.usersDao.getUser(currentUser?.uid ?: "") }
+            val user = async { roomDataSource.usersDao.getUser(currentUser?.uid ?: "") }
             event.postValue(SettingsViewModelEvent.LoadUserDetails(user.await()))
 
         }
@@ -48,7 +46,7 @@ class SettingsViewModel @Inject constructor(
 
     fun clearAllDatabases() {
         viewModelScope.launch(Dispatchers.IO) {
-            roomRepository.clearAllDatabases()
+            roomDataSource.clearAllDatabases()
         }
     }
 

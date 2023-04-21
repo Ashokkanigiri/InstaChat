@@ -7,11 +7,11 @@ import com.example.instachat.feature.hometab.models.HomeDataCommentsModel
 import com.example.instachat.feature.hometab.models.HomeDataModel
 import com.example.instachat.feature.hometab.HomeViewModelEvent
 import com.example.instachat.feature.hometab.adapter.HomeUsersAdapter
-import com.example.instachat.services.repository.FirebaseRepository
+import com.example.instachat.services.repository.FirebaseDataSource
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.LikedPosts
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.ConnectivityService
@@ -25,8 +25,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val firebaseRepository: FirebaseRepository,
-    val roomRepository: RoomRepository,
+    val firebaseDataSource: FirebaseDataSource,
+    val roomDataSource: RoomDataSource,
     val roomSyncRepository: RoomSyncRepository,
     val syncRepository: SyncRepository,
     val connectivityService: ConnectivityService
@@ -80,13 +80,13 @@ class HomeViewModel @Inject constructor(
     }
 
     suspend fun getHomeData() = flow<List<HomeDataModel>>{
-        roomRepository.postsDao.getPostsHomeDataFlow(auth.uid?:"").collect(){
+        roomDataSource.postsDao.getPostsHomeDataFlow(auth.uid?:"").collect(){
             emit(it)
         }
     }
 
     suspend fun getHomeDataFromSearch() = flow<List<HomeDataModel>>{
-        roomRepository.postsDao.getAllPostsHomeDataFlow().collect(){
+        roomDataSource.postsDao.getAllPostsHomeDataFlow().collect(){
             val list = it
             val clickedPost = list.filter { it.postId == selectedPostId }.first()
             list.toMutableList().remove(clickedPost)
@@ -96,7 +96,7 @@ class HomeViewModel @Inject constructor(
     }
 
     suspend fun getHomeUsersData() = flow<List<User>>{
-        roomRepository.usersDao.getallUsersFlow().collect(){
+        roomDataSource.usersDao.getallUsersFlow().collect(){
             emit(it)
         }
     }
@@ -109,10 +109,10 @@ class HomeViewModel @Inject constructor(
     fun injectDataFromFirebase() {
         if(connectivityService.hasActiveNetwork()){
             viewModelScope.launch(Dispatchers.IO) {
-                firebaseRepository.injectAllPostsFromFirebase()
-                firebaseRepository.injectAllUsersFromFirebase()
-                firebaseRepository.injectAllCommentsFromFirebase()
-                firebaseRepository.injectAllNotificationsFromFirebase(auth.currentUser?.uid?:"")
+                firebaseDataSource.injectAllPostsFromFirebase()
+                firebaseDataSource.injectAllUsersFromFirebase()
+                firebaseDataSource.injectAllCommentsFromFirebase()
+                firebaseDataSource.injectAllNotificationsFromFirebase(auth.currentUser?.uid?:"")
             }
         }else{
             event.postValue(HomeViewModelEvent.ShowConnectivityErrorDialog)
@@ -129,8 +129,8 @@ class HomeViewModel @Inject constructor(
 
     fun onLikeButtonClicked(homeDataModel: HomeDataModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            val currentUser = roomRepository.usersDao.getUser(auth.currentUser?.uid ?: "0")
-            val postModelItem = roomRepository.postsDao.getPost(homeDataModel.postId)
+            val currentUser = roomDataSource.usersDao.getUser(auth.currentUser?.uid ?: "0")
+            val postModelItem = roomDataSource.postsDao.getPost(homeDataModel.postId)
 
             val isUserAlreadyLikedPost =
                 currentUser.likedPosts?.map { it.postId }?.contains(postModelItem.id)
@@ -192,7 +192,7 @@ class HomeViewModel @Inject constructor(
 
     fun getFirstCommentForPost(postId: Int, commentData: ((HomeDataCommentsModel) -> Unit)) {
         viewModelScope.launch {
-            val data = roomRepository.commentsDao.getAllCommentsForPostLiveData(postId)
+            val data = roomDataSource.commentsDao.getAllCommentsForPostLiveData(postId)
             withContext(Dispatchers.Main) {
                 commentData(data)
             }

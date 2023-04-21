@@ -17,8 +17,8 @@ import javax.inject.Inject
 class RestApiRepository @Inject constructor(
     val lorealImageListRestClient: LorealImageListRestClient,
     val dummyJsonRestClient: DummyJsonRestClient,
-    val roomRepository: RoomRepository,
-    val firebaseRepository: FirebaseRepository
+    val roomDataSource: RoomDataSource,
+    val firebaseDataSource: FirebaseDataSource
 ) {
 
     suspend fun injectAllDataBases() {
@@ -42,8 +42,8 @@ class RestApiRepository @Inject constructor(
 
         postModelItems.forEach { post ->
             post.postImageUrls = listOf(imageListResponse.get(post.id - 1).download_url)
-            firebaseRepository.injectPostsToFirebase(post)
-            roomRepository.postsDao.insert(post)
+            firebaseDataSource.injectPostsToFirebase(post)
+            roomDataSource.postsDao.insert(post)
         }
     }
 
@@ -57,8 +57,8 @@ class RestApiRepository @Inject constructor(
         val usersList: List<User> = (Gson().fromJson(json, listType))
 
         usersList.forEach {
-            firebaseRepository.injectUsersToFirebase(it)
-            roomRepository.usersDao.insert(it)
+            firebaseDataSource.injectUsersToFirebase(it)
+            roomDataSource.usersDao.insert(it)
         }
     }
 
@@ -72,8 +72,8 @@ class RestApiRepository @Inject constructor(
         val commentsList1: List<Comment> = (Gson().fromJson(json, listType))
 
         commentsList1.forEach {
-            firebaseRepository.injectCommentsToFirebase(it)
-            roomRepository.commentsDao.insert(it)
+            firebaseDataSource.injectCommentsToFirebase(it)
+            roomDataSource.commentsDao.insert(it)
         }
     }
 }

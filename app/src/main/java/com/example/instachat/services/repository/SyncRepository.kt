@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class SyncRepository @Inject constructor(
     val roomSyncRepository: RoomSyncRepository,
-    val roomRepository: RoomRepository,
+    val roomDataSource: RoomDataSource,
     val apiRepository: RestApiRepository,
     @ApplicationContext val context: Context
 ) {

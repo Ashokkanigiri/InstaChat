@@ -2,14 +2,12 @@ package com.example.instachat.services.client
 
 import android.content.Context
 import android.util.Log
-import android.widget.Toast
 import androidx.core.net.toUri
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.services.models.dummyjson.UsersModel
 import com.example.instachat.services.models.rest.NotificationModel
-import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.utils.Response
 import com.google.firebase.auth.ktx.auth
@@ -17,14 +15,13 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.ktx.storageMetadata
-import com.google.gson.Gson
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FirebaseApiClient @Inject constructor(
     @ApplicationContext val context: Context,
-    val roomRepository: RoomRepository,
+    val roomDataSource: RoomDataSource,
     val roomSyncRepository: RoomSyncRepository
 ) {
 
@@ -157,7 +154,7 @@ class FirebaseApiClient @Inject constructor(
         return try {
             val db = Firebase.firestore
             val users = db.collection("notifications").whereEqualTo("targetUserId", userId).get().await().toObjects(NotificationModel::class.java)
-            val op = roomRepository.notificationModelDao.insertNotifications(users)
+            val op = roomDataSource.notificationModelDao.insertNotifications(users)
             Log.d("wkjwljkngf", "OP: ${op}")
             Response.Success(users)
         } catch (e: java.lang.Exception) {

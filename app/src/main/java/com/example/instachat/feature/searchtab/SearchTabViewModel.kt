@@ -1,19 +1,16 @@
 package com.example.instachat.feature.searchtab
 
-import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.instachat.services.models.PostModelItem
-import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.utils.SingleLiveEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchTabViewModel @Inject constructor(val roomRepository: RoomRepository) : ViewModel() {
+class SearchTabViewModel @Inject constructor(val roomDataSource: RoomDataSource) : ViewModel() {
 
     val adapter = SearchTabHomeAdapter(this)
     val searchResultsAdapter = SearchResultsAdapter()
@@ -27,7 +24,7 @@ class SearchTabViewModel @Inject constructor(val roomRepository: RoomRepository)
 
     fun loadAllPosts() {
         viewModelScope.launch {
-            roomRepository.postsDao.getAllPostsFlow().collect() {
+            roomDataSource.postsDao.getAllPostsFlow().collect() {
                 event.postValue(SearchViewModelEvent.GetAllPosts(it))
             }
         }
@@ -35,7 +32,7 @@ class SearchTabViewModel @Inject constructor(val roomRepository: RoomRepository)
 
     fun getUsersFromRoom(matchingText: String) {
         viewModelScope.launch {
-            roomRepository.usersDao.getAllUsersWithMatchingUserNameFlow(matchingText).collect(){
+            roomDataSource.usersDao.getAllUsersWithMatchingUserNameFlow(matchingText).collect(){
                 searchResultsAdapter.submitList(it)
             }
         }

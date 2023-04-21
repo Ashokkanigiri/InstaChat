@@ -1,7 +1,5 @@
 package com.example.instachat.feature.userdetails
 
-import android.annotation.SuppressLint
-import android.text.format.DateUtils
 import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,8 +9,8 @@ import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import com.example.instachat.services.models.fcm.FCMSendNotificationBody
 import com.example.instachat.services.models.fcm.FCMSendNotificationData
 import com.example.instachat.services.models.rest.NotificationModel
-import com.example.instachat.services.repository.FirebaseRepository
-import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.FirebaseDataSource
+import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.services.rest.FCMRestClient
 import com.example.instachat.utils.ConnectivityService
@@ -20,22 +18,17 @@ import com.example.instachat.utils.Response
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.type.DateTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class UserDetailViewModel @Inject constructor(
-    val roomRepository: RoomRepository,
-    val firebaseRepository: FirebaseRepository,
+    val roomDataSource: RoomDataSource,
+    val firebaseDataSource: FirebaseDataSource,
     val syncRepository: SyncRepository,
     val fcmRestClient: FCMRestClient,
     val firebaseApiClient: FirebaseApiClient,
@@ -53,7 +46,7 @@ class UserDetailViewModel @Inject constructor(
 
     fun loadUser(userId: String) {
         viewModelScope.launch {
-            roomRepository.usersDao.getUserFlow(userId).collect {
+            roomDataSource.usersDao.getUserFlow(userId).collect {
                 event.postValue(UserDetailViewModelEvent.LoadUser(it))
             }
         }
@@ -62,7 +55,7 @@ class UserDetailViewModel @Inject constructor(
     fun loadFollowingText() {
         viewModelScope.launch {
 
-            val interestedUser = roomRepository.interestedUsersDao.getAllInterestedUsersForUserId(
+            val interestedUser = roomDataSource.interestedUsersDao.getAllInterestedUsersForUserId(
                 currentLoggedInUser?.uid ?: ""
             )?.firstOrNull { it.interestedUserId == userId }
 
@@ -85,7 +78,7 @@ class UserDetailViewModel @Inject constructor(
 
     fun loadAllPostsForUser(userId: String) {
         viewModelScope.launch {
-            roomRepository.postsDao.getPostsForUserDetails(userId).collect {
+            roomDataSource.postsDao.getPostsForUserDetails(userId).collect {
                 event.postValue(UserDetailViewModelEvent.LoadPosts(it))
             }
         }
@@ -99,7 +92,7 @@ class UserDetailViewModel @Inject constructor(
     fun handleFollowButtonClicked() {
         viewModelScope.launch(Dispatchers.IO) {
 
-            val interestedUser = roomRepository.interestedUsersDao.getAllInterestedUsersForUserId(
+            val interestedUser = roomDataSource.interestedUsersDao.getAllInterestedUsersForUserId(
                 currentLoggedInUser?.uid ?: ""
             )?.firstOrNull { it.interestedUserId == userId }
 
@@ -150,11 +143,11 @@ class UserDetailViewModel @Inject constructor(
     }
 
     private suspend fun removeFollowRequest() {
-        val iu = roomRepository.interestedUsersDao.getAllInterestedUsersForUserId(
+        val iu = roomDataSource.interestedUsersDao.getAllInterestedUsersForUserId(
             currentLoggedInUser?.uid ?: ""
         )?.firstOrNull { it.interestedUserId == userId }
 
-        val ru = roomRepository.requestedInterestedUsersDao.getIntestedUsersInRequestedList(
+        val ru = roomDataSource.requestedInterestedUsersDao.getIntestedUsersInRequestedList(
             currentLoggedInUser?.uid ?: ""
         )?.firstOrNull { it.userId == userId }
 
@@ -187,7 +180,7 @@ class UserDetailViewModel @Inject constructor(
         shouldAddToUser: Boolean
     ) {
         viewModelScope.launch {
-            val loggedUser = roomRepository.usersDao.getUser(currentLoggedInUser?.uid ?: "")
+            val loggedUser = roomDataSource.usersDao.getUser(currentLoggedInUser?.uid ?: "")
             val uUser = loggedUser.apply {
                 if (shouldAddToUser) {
                     this.interestedUsersList =
@@ -205,7 +198,7 @@ class UserDetailViewModel @Inject constructor(
         shouldAddToUser: Boolean
     ) {
         viewModelScope.launch {
-            val loggedUser = roomRepository.usersDao.getUser(userId ?: "")
+            val loggedUser = roomDataSource.usersDao.getUser(userId ?: "")
             val uUser = loggedUser.apply {
                 if (shouldAddToUser) {
                     this.requestedForInterestsList =
@@ -225,7 +218,7 @@ class UserDetailViewModel @Inject constructor(
         if (connectivityService.hasActiveNetwork()) {
             viewModelScope.launch(Dispatchers.IO) {
                 val userResponse = firebaseApiClient.getSpecificUser(userId)
-                val loggedUser = roomRepository.usersDao.getUser(currentLoggedInUser?.uid ?: "")
+                val loggedUser = roomDataSource.usersDao.getUser(currentLoggedInUser?.uid ?: "")
 
                 when (userResponse) {
                     is Response.Failure -> {
@@ -262,7 +255,7 @@ class UserDetailViewModel @Inject constructor(
 
 
 
-                        firebaseRepository.injectNotificationsToFirebaseForLoggedUser(notification)
+                        firebaseDataSource.injectNotificationsToFirebaseForLoggedUser(notification)
                     }
                 }
             }

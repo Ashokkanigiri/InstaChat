@@ -11,8 +11,8 @@ import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
 import com.example.instachat.services.models.dummyjson.User
-import com.example.instachat.services.repository.FirebaseRepository
-import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.FirebaseDataSource
+import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.room_sync.SyncTables
 import com.example.instachat.utils.ObjectConverterUtil
@@ -28,8 +28,8 @@ class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParameters: WorkerParameters,
     val roomSyncRepository: RoomSyncRepository,
-    val roomRepository: RoomRepository,
-    val firebaseRepository: FirebaseRepository
+    val roomDataSource: RoomDataSource,
+    val firebaseDataSource: FirebaseDataSource
 ) : CoroutineWorker(appContext, workerParameters) {
     override suspend fun doWork(): Result {
 
@@ -121,7 +121,7 @@ class SyncWorker @AssistedInject constructor(
             .document("$itemId")
             .delete()
             .addOnCompleteListener {
-                roomRepository.interestedUsersDao.deleteRow(itemId)
+                roomDataSource.interestedUsersDao.deleteRow(itemId)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -137,7 +137,7 @@ class SyncWorker @AssistedInject constructor(
             .document("$itemId")
             .delete()
             .addOnCompleteListener {
-                roomRepository.requestedInterestedUsersDao.deleteRow(itemId)
+                roomDataSource.requestedInterestedUsersDao.deleteRow(itemId)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -154,7 +154,8 @@ class SyncWorker @AssistedInject constructor(
             .set(interestedUsersModel)
             .addOnCompleteListener {
                 roomSyncRepository.interestedUsersDaoSync.deleteRow(interestedUsersModel.id)
-                roomRepository.interestedUsersDao.insert(interestedUsersModel)
+                //TODO
+//                roomDataSource.interestedUsersDao.insert(interestedUsersModel)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -173,7 +174,8 @@ class SyncWorker @AssistedInject constructor(
                 roomSyncRepository.requestedInterestedUsersDaoSync.deleteRow(
                     requestedForInterestModel.id
                 )
-                roomRepository.requestedInterestedUsersDao.insert(requestedForInterestModel)
+                //TODO
+//                roomDataSource.requestedInterestedUsersDao.insert(requestedForInterestModel)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -194,7 +196,7 @@ class SyncWorker @AssistedInject constructor(
     ) {
 
         when (val uploadedImageUrls =
-            firebaseRepository.uploadPostImageToFirebase(convertToPostModelItem)) {
+            firebaseDataSource.uploadPostImageToFirebase(convertToPostModelItem)) {
             is Response.Success<List<String>> -> {
                 convertToPostModelItem.apply {
                     this.postImageUrls = uploadedImageUrls.data
@@ -217,7 +219,7 @@ class SyncWorker @AssistedInject constructor(
             .set(comment)
             .addOnCompleteListener {
                 roomSyncRepository.commentsDao.deleteComment(comment.id)
-                roomRepository.commentsDao.insertBlocking(comment)
+                roomDataSource.commentsDao.insertBlocking(comment)
                 Result.success()
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
@@ -235,7 +237,8 @@ class SyncWorker @AssistedInject constructor(
             .set(newPost)
             .addOnCompleteListener {
                 roomSyncRepository.postsDao.deletePost(newPost.id)
-                roomRepository.postsDao.insert(newPost)
+                //.TODO
+//                roomDataSource.postsDao.insert(newPost)
                 Log.d("jnqwljngfq", "DD: ${Gson().toJson(newPost)}")
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
@@ -252,7 +255,7 @@ class SyncWorker @AssistedInject constructor(
             .document("${item_id}")
             .set(updatedPost)
             .addOnCompleteListener {
-                roomRepository.postsDao.updateLikedCountForPost(
+                roomDataSource.postsDao.updateLikedCountForPost(
                     updatedPost.id,
                     updatedPost.likesCount ?: 0
                 )
@@ -274,7 +277,7 @@ class SyncWorker @AssistedInject constructor(
             .document(user.id)
             .set(user)
             .addOnCompleteListener {
-                roomRepository.usersDao.updateInterestedUsersList(
+                roomDataSource.usersDao.updateInterestedUsersList(
                     user.interestedUsersList ?: emptyList(),
                     user.id
                 )
@@ -297,7 +300,7 @@ class SyncWorker @AssistedInject constructor(
             .document(user.id)
             .set(user)
             .addOnCompleteListener {
-                roomRepository.usersDao.updateRequestedInterestedUsersList(
+                roomDataSource.usersDao.updateRequestedInterestedUsersList(
                     user.requestedForInterestsList ?: emptyList(),
                     user.id
                 )
@@ -320,7 +323,7 @@ class SyncWorker @AssistedInject constructor(
             .document(user.id)
             .set(user)
             .addOnCompleteListener {
-                roomRepository.usersDao.updateFollowing(
+                roomDataSource.usersDao.updateFollowing(
                     user.followedUserIds ?: emptyList(),
                     user.id
                 )
@@ -343,7 +346,7 @@ class SyncWorker @AssistedInject constructor(
             .document(user.id)
             .set(user)
             .addOnCompleteListener {
-                roomRepository.usersDao.updateUserLikedPosts(
+                roomDataSource.usersDao.updateUserLikedPosts(
                     user.likedPosts ?: emptyList(),
                     user.id
                 )
@@ -365,7 +368,8 @@ class SyncWorker @AssistedInject constructor(
             .document(user.id)
             .set(user)
             .addOnCompleteListener {
-                roomRepository.usersDao.insert(user)
+                //TODO
+//                roomDataSource.usersDao.insert(user)
                 roomSyncRepository.usersDao.deleteUser(user.id)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()

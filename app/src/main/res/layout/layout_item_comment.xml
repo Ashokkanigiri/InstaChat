@@ -9,9 +9,6 @@
             name="comment"
             type="com.example.instachat.services.models.dummyjson.Comment" />
 
-        <variable
-            name="user"
-            type="com.example.instachat.services.models.dummyjson.User" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +20,7 @@
             android:id="@+id/iv_comments_user_id"
             android:layout_width="35dp"
             android:layout_height="35dp"
-            loadCircularImageWithGlide="@{user.image}"
+            loadCircularImageWithGlide="@{comment.user.userImageUrl}"
             android:layout_marginStart="15dp"
             android:layout_marginTop="15dp"
             app:layout_constraintStart_toStartOf="parent"

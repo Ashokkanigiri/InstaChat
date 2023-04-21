@@ -2,7 +2,7 @@ package com.example.instachat.services.di
 
 import android.content.Context
 import androidx.room.Room
-import com.example.instachat.services.repository.RoomRepository
+import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.services.room.InstaChatDb
 import com.example.instachat.services.room.dao.*
 import dagger.Module
@@ -68,8 +68,8 @@ object RoomModule {
         interestedUsersDao: InterestedUsersDao,
         requestedInterestedUsersDao: RequestedInterestedUsersDao,
         notificationModelDao: NotificationModelDao
-    ): RoomRepository {
-        return RoomRepository(
+    ): RoomDataSource {
+        return RoomDataSource(
             usersDao,
             postsDao,
             commentsDao,

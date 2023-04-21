@@ -19,11 +19,14 @@ data class Comment(
     val id: Int = 0,
     val postId: Int = 0,
     @Embedded
-    val user: CommentUser = CommentUser()
+    val user: CommentUser = CommentUser(),
+
+    val commentCreatedDate: String? = ""
 )
 
 data class CommentUser(
     @ColumnInfo("commentedUsersId")
     val id: String = "",
-    val username: String = ""
+    val username: String = "",
+    val userImageUrl: String = ""
 )
