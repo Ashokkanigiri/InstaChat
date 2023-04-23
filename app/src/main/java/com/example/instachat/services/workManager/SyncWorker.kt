@@ -155,7 +155,7 @@ class SyncWorker @AssistedInject constructor(
             .addOnCompleteListener {
                 roomSyncRepository.interestedUsersDaoSync.deleteRow(interestedUsersModel.id)
                 //TODO
-//                roomDataSource.interestedUsersDao.insert(interestedUsersModel)
+                roomDataSource.interestedUsersDao.insert(interestedUsersModel)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -175,7 +175,7 @@ class SyncWorker @AssistedInject constructor(
                     requestedForInterestModel.id
                 )
                 //TODO
-//                roomDataSource.requestedInterestedUsersDao.insert(requestedForInterestModel)
+                roomDataSource.requestedInterestedUsersDao.insert(requestedForInterestModel)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
             }.addOnFailureListener {
@@ -238,7 +238,7 @@ class SyncWorker @AssistedInject constructor(
             .addOnCompleteListener {
                 roomSyncRepository.postsDao.deletePost(newPost.id)
                 //.TODO
-//                roomDataSource.postsDao.insert(newPost)
+                roomDataSource.postsDao.insert(newPost)
                 Log.d("jnqwljngfq", "DD: ${Gson().toJson(newPost)}")
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
@@ -368,8 +368,7 @@ class SyncWorker @AssistedInject constructor(
             .document(user.id)
             .set(user)
             .addOnCompleteListener {
-                //TODO
-//                roomDataSource.usersDao.insert(user)
+                roomDataSource.usersDao.insert(user)
                 roomSyncRepository.usersDao.deleteUser(user.id)
             }.addOnCanceledListener {
                 ListenableWorker.Result.Retry.retry()
