@@ -1,4 +1,5 @@
 package com.example.instachat.services.repository
+import com.example.instachat.feature.hometab.models.HomeDataModel
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
 import com.example.instachat.services.models.dummyjson.User
@@ -36,6 +37,18 @@ class RoomDataSource @Inject constructor(
 
     suspend fun insertPost(postModelItem: PostModelItem) : Long?{
         return postsDao.insert(postModelItem)
+    }
+
+    suspend fun getSearchHomeData(): Flow<List<HomeDataModel>>{
+        return postsDao.getAllPostsHomeDataFlow()
+    }
+
+    fun getHomeDataForUser(userId: String): Flow<List<HomeDataModel>>{
+        return postsDao.getPostsHomeDataFlow(userId)
+    }
+
+    fun getAllUsersInDB(): Flow<List<User>>{
+        return usersDao.getAllUsersFlow()
     }
 
 }

@@ -33,7 +33,7 @@ interface UsersDao: BaseDao<User> {
     fun updateFollowing(followingUserIds: List<String>, userId: String)
 
     @Query("SELECT * FROM users")
-    fun getallUsersFlow(): Flow<List<User>>
+    fun getAllUsersFlow(): Flow<List<User>>
 
     @Query("SELECT * FROM users WHERE users.username LIKE '%' || :match || '%'")
     fun getAllUsersWithMatchingUserNameFlow(match: String): Flow<List<User>>

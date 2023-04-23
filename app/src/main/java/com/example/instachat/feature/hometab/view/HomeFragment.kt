@@ -18,6 +18,7 @@ import com.example.instachat.feature.hometab.HomeViewModelEvent
 import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
 import com.example.instachat.utils.ConstantUtils
 import com.example.instachat.utils.DialogUtils
+import com.example.instachat.utils.Response
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -26,7 +27,6 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-
 
     val viewModel: HomeViewModel by viewModels()
 
@@ -49,8 +49,7 @@ class HomeFragment : Fragment() {
 
 
     private fun loadViewModel() {
-        viewModel.injectDataFromFirebase()
-        viewModel.loadHomeData()
+        viewModel.loadData()
         viewModel.loadUsersData()
         viewModel.setUpActionBar()
     }
@@ -62,7 +61,6 @@ class HomeFragment : Fragment() {
         binding.rvHome.adapter = viewModel.adapter
 
         arguments?.getInt("postId")?.let {
-            viewModel.selectedPostId = it
             viewModel.isFromSearchFragment = true
             binding.rvUsers.visibility = View.GONE
         }
@@ -81,6 +79,8 @@ class HomeFragment : Fragment() {
     private fun observeViewModel() {
 
         viewModel.event.observe(viewLifecycleOwner, Observer {
+            Log.d("wqfkqwnfq", "EVENT :: ${it.toString()}")
+
             when (it) {
                 is HomeViewModelEvent.ShowConnectivityErrorDialog -> {
                     DialogUtils.populateConnectivityErrorDialog(requireActivity())
@@ -91,20 +91,51 @@ class HomeFragment : Fragment() {
                 is HomeViewModelEvent.ShowActionBarFromSearch -> {
                     populateActionBarFromSearch()
                 }
-                is HomeViewModelEvent.LoadHomeData -> {
-                    viewModel.adapter.submitList(it.data)
-                }
-                is HomeViewModelEvent.LoadHomeUsersData -> {
-                    viewModel.usersAdapter.submitList(it.data)
-                }
-                is HomeViewModelEvent.LoadHomeDataFromSearch -> {
-                    viewModel.adapter.submitList(it.data)
-                }
                 is HomeViewModelEvent.NavigateFromHomeToCommentsFragment -> {
                     navigateToCommentsFragment(it.postId)
                 }
                 is HomeViewModelEvent.NavigateToUserDetailScreen -> {
                     navigateToUserDetails(it.userId)
+                }
+            }
+        })
+        viewModel.loadHomeDataEvent.observe(viewLifecycleOwner, Observer {
+            when(it){
+                is Response.Failure -> {
+
+                }
+                Response.Loading -> {
+
+                }
+                is Response.Success -> {
+                    viewModel.adapter.submitList(it.data)
+                }
+            }
+        })
+
+        viewModel.loadSearchDataEvent.observe(viewLifecycleOwner, Observer {
+            when(it){
+                is Response.Failure -> {
+
+                }
+                Response.Loading -> {
+
+                }
+                is Response.Success -> {
+                    viewModel.adapter.submitList(it.data)
+                }
+            }
+        })
+        viewModel.loadHomeUsersDataEvent.observe(viewLifecycleOwner, Observer {
+            when(it){
+                is Response.Failure -> {
+
+                }
+                Response.Loading -> {
+
+                }
+                is Response.Success -> {
+                    viewModel.usersAdapter.submitList(it.data)
                 }
             }
         })
@@ -128,7 +159,6 @@ class HomeFragment : Fragment() {
         binding.swipeLayout.setOnRefreshListener {
             viewModel.injectDataFromFirebase()
             binding.swipeLayout.isRefreshing = false
-            viewModel.adapter.notifyDataSetChanged()
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.instachat.feature.hometab.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.feature.hometab.HomeDataAdapter
@@ -7,6 +8,7 @@ import com.example.instachat.feature.hometab.models.HomeDataCommentsModel
 import com.example.instachat.feature.hometab.models.HomeDataModel
 import com.example.instachat.feature.hometab.HomeViewModelEvent
 import com.example.instachat.feature.hometab.adapter.HomeUsersAdapter
+import com.example.instachat.feature.hometab.repository.HomeRepository
 import com.example.instachat.services.repository.FirebaseDataSource
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.LikedPosts
@@ -15,11 +17,14 @@ import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.services.repository.RoomSyncRepository
 import com.example.instachat.services.repository.SyncRepository
 import com.example.instachat.utils.ConnectivityService
+import com.example.instachat.utils.Response
 import com.example.instachat.utils.SingleLiveEvent
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
@@ -29,46 +34,84 @@ class HomeViewModel @Inject constructor(
     val roomDataSource: RoomDataSource,
     val roomSyncRepository: RoomSyncRepository,
     val syncRepository: SyncRepository,
-    val connectivityService: ConnectivityService
+    val connectivityService: ConnectivityService,
+    val homeRepository: HomeRepository
 ) : ViewModel() {
 
     val adapter = HomeDataAdapter(this)
     val usersAdapter = HomeUsersAdapter(this)
     val auth = Firebase.auth
     val event = SingleLiveEvent<HomeViewModelEvent>()
-    var selectedPostId = 0
     var isFromSearchFragment = false
 
-    fun loadHomeData(){
-        viewModelScope.launch {
+    val loadHomeDataEvent = SingleLiveEvent<Response<List<HomeDataModel>>>()
+
+    val loadHomeUsersDataEvent = SingleLiveEvent<Response<List<User>>>()
+
+    val loadSearchDataEvent = SingleLiveEvent<Response<List<HomeDataModel>>>()
+
+    fun loadData(){
+        viewModelScope.launch (Dispatchers.IO){
             if(isFromSearchFragment){
-                getHomeDataFromSearch().collect(){
-                    event.postValue(HomeViewModelEvent.LoadHomeDataFromSearch(it))
-                }
+                loadSearchData()
             }else{
-                getHomeData().collect(){
-                    event.postValue(HomeViewModelEvent.LoadHomeData(it))
+               loadHomeData()
+            }
+        }
+    }
+
+    private suspend fun loadHomeData() {
+        homeRepository.loadHomeData(auth.currentUser?.uid?:"").collect(){
+            when(it){
+                is Response.Failure -> {
+                    loadHomeDataEvent.postValue(Response.Failure(it.e))
+                }
+                is Response.Loading -> {
+                    loadHomeDataEvent.postValue(Response.Loading)
+                }
+                is Response.Success -> {
+                    loadHomeDataEvent.postValue(Response.Success(it.data))
                 }
             }
         }
     }
 
-    fun asyncTest(){
-        viewModelScope.launch {
+    private suspend fun loadSearchData() {
+        homeRepository.loadSearchData().collect(){
+            when(it){
+                is Response.Failure -> {
+                    loadSearchDataEvent.postValue(Response.Failure(it.e))
+                }
+                is Response.Loading -> {
+                    loadSearchDataEvent.postValue(Response.Loading)
+                }
+                is Response.Success -> {
+                    loadSearchDataEvent.postValue(Response.Success(it.data))
+                }
+            }
+        }
+    }
 
+    fun loadUsersData(){
+        viewModelScope.launch(Dispatchers.IO) {
+            homeRepository.loadHomeUsersData().collect(){
+                when(it){
+                    is Response.Failure -> {
+                        loadHomeUsersDataEvent.postValue(Response.Failure(it.e))
+                    }
+                    is Response.Loading -> {
+                        loadHomeUsersDataEvent.postValue(Response.Loading)
+                    }
+                    is Response.Success -> {
+                        loadHomeUsersDataEvent.postValue(Response.Success(it.data))
+                    }
+                }
+            }
         }
     }
 
     fun navigateToUserDetails(userId: String){
         event.postValue(HomeViewModelEvent.NavigateToUserDetailScreen(userId))
-    }
-
-    fun loadUsersData(){
-        viewModelScope.launch {
-            getHomeUsersData().collect(){
-                event.postValue(HomeViewModelEvent.LoadHomeUsersData(it))
-            }
-        }
     }
 
     fun setUpActionBar(){
@@ -79,27 +122,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun getHomeData() = flow<List<HomeDataModel>>{
-        roomDataSource.postsDao.getPostsHomeDataFlow(auth.uid?:"").collect(){
-            emit(it)
-        }
-    }
-
-    suspend fun getHomeDataFromSearch() = flow<List<HomeDataModel>>{
-        roomDataSource.postsDao.getAllPostsHomeDataFlow().collect(){
-            val list = it
-            val clickedPost = list.filter { it.postId == selectedPostId }.first()
-            list.toMutableList().remove(clickedPost)
-            val finallist: List<HomeDataModel> = listOf(clickedPost)+list
-            emit(finallist)
-        }
-    }
-
-    suspend fun getHomeUsersData() = flow<List<User>>{
-        roomDataSource.usersDao.getallUsersFlow().collect(){
-            emit(it)
-        }
-    }
 
     /**
      * This method injects all the data from API into Firebase
@@ -139,7 +161,7 @@ class HomeViewModel @Inject constructor(
                 currentUser.likedPosts.isNullOrEmpty()
 
             when {
-                (incrementLikeCondition) -> {
+                (incrementLikeCondition == true) -> {
                     incrementAndSyncPost(postModelItem, currentUser)
                 }
                 isUserAlreadyLikedPost == true -> {
@@ -191,7 +213,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getFirstCommentForPost(postId: Int, commentData: ((HomeDataCommentsModel) -> Unit)) {
-        viewModelScope.launch {
+        viewModelScope.launch (Dispatchers.IO){
             val data = roomDataSource.commentsDao.getAllCommentsForPostLiveData(postId)
             withContext(Dispatchers.Main) {
                 commentData(data)
