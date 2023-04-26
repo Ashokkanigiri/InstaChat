@@ -171,10 +171,12 @@ class UserDetailViewModel @Inject constructor(
                     when (interestedUserModel.data?.isFollowRequested) {
                         true -> {
                             deleteInterestedModelAndDeLinkToUser(interestedUserModel.data)
+                            deleteNotificationTriggeredByUser()
                             followingStatusUpdate.set("Follow")
                         }
                         false -> {
                             updateInterestedModel(interestedUserModel.data)
+                            notifyAllUserSession(userId ?: "")
                             followingStatusUpdate.set("Requested")
                         }
                         null -> {
@@ -268,7 +270,6 @@ class UserDetailViewModel @Inject constructor(
 
             }
             is Response.Success -> {
-                notifyAllUserSession(userId ?: "")
                 dismissFollowProgressBar()
             }
             is Response.HandleNetworkError -> {
@@ -297,6 +298,25 @@ class UserDetailViewModel @Inject constructor(
                 connectivityDialogEvent.postValue(true)
             }
         }
+    }
+
+    private suspend fun deleteNotificationTriggeredByUser(){
+        val notificationId = "${currentLoggedInUser?.uid ?: ""}|${userId}"
+        when(val response = userDetailsRepository.deleteNotificationTriggeredByUser(notificationId)){
+            is Response.Failure -> {
+                handleError.postValue(response.e.localizedMessage)
+            }
+            is Response.HandleNetworkError -> {
+                connectivityDialogEvent.postValue(true)
+            }
+            is Response.Loading -> {
+
+            }
+            is Response.Success -> {
+
+            }
+        }
+
     }
 
     private fun deLinkInterestedModelFromUser(loggedUser: User?, interestedUserModelId: String) {
@@ -389,7 +409,7 @@ class UserDetailViewModel @Inject constructor(
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val notification = NotificationModel(
-                id = UUID.randomUUID()?.toString() ?: "",
+                id = "${currentLoggedInUser?.uid ?: ""}|${userId}",
                 targetUserId = userId ?: "",
                 triggeredUserId = currentLoggedInUser?.uid ?: "",
                 title = data.title,

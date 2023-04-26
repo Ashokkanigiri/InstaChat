@@ -21,6 +21,8 @@ interface UserDetailsRepository {
 
     suspend fun deleteAndDeLinkInterestedModelToUser(interestedModelId: String): Response<Boolean>
 
+    suspend fun deleteNotificationTriggeredByUser(notificationId: String): Response<Boolean>
+
     suspend fun updateUser(user: User): Response<Boolean>
 
     suspend fun injectNotification(data: NotificationModel): Response<Boolean>

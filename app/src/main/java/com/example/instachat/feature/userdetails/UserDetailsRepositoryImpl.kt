@@ -120,6 +120,21 @@ class UserDetailsRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun deleteNotificationTriggeredByUser(notificationId: String): Response<Boolean> {
+        return try {
+            Response.Loading
+            if (connectivityService.hasActiveNetwork()) {
+                val db = Firebase.firestore
+                db.collection("notifications").document(notificationId).delete().await()
+                Response.Success(true)
+            } else {
+                Response.HandleNetworkError
+            }
+        } catch (e: Exception) {
+            Response.Failure(e)
+        }
+    }
+
     override suspend fun updateUser(user: User): Response<Boolean> {
         return try {
             Response.Loading
