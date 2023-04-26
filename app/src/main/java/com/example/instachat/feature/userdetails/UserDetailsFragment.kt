@@ -49,6 +49,14 @@ class UserDetailsFragment : Fragment() {
         initFragment()
         observeViewModel()
         initNetworkSnackBar()
+        handleSwipeLayout()
+    }
+
+    private fun handleSwipeLayout() {
+        binding.swipeLayout.setOnRefreshListener {
+            viewModel.loadUser()
+            binding.swipeLayout.isRefreshing = false
+        }
     }
 
     private fun observeViewModel() {
@@ -135,7 +143,7 @@ class UserDetailsFragment : Fragment() {
         arguments?.getString("userId")?.let {
             viewModel.apply {
                 userId = it
-                loadUser(it)
+                loadUser()
             }
         }
     }

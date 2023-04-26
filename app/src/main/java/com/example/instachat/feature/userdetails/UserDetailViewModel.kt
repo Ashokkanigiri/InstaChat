@@ -72,10 +72,10 @@ class UserDetailViewModel @Inject constructor(
 
     fun isCurrentUserProfile() = ((userId ?: "").equals((currentLoggedInUser?.uid ?: "")))
 
-    fun loadUser(userId: String) {
+    fun loadUser() {
         loadFollowingText()
         viewModelScope.launch(Dispatchers.IO) {
-            when (val userDetails = userDetailsRepository.getUserDetails(userId)) {
+            when (val userDetails = userDetailsRepository.getUserDetails(userId?:"")) {
                 is Response.Failure -> {
                     handleError.postValue(userDetails.e.localizedMessage)
                 }
