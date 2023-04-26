@@ -7,6 +7,7 @@
         <variable
             name="viewModel"
             type="com.example.instachat.feature.notification.viewmodel.NotificationViewModel" />
+        <import type="android.view.View"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -41,6 +42,18 @@
                 tools:listitem="@layout/layout_item_notifications"/>
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.progressbarVisibility ? View.VISIBLE : View.GONE}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/action_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

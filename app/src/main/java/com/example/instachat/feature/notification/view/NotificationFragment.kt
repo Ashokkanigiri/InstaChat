@@ -1,5 +1,6 @@
 package com.example.instachat.feature.notification.view
 
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -7,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import com.example.instachat.BaseActivity
 import com.example.instachat.MainActivity
@@ -15,6 +17,8 @@ import com.example.instachat.databinding.FragmentNewPostDetailBinding
 import com.example.instachat.databinding.FragmentNotificationBinding
 import com.example.instachat.feature.notification.viewmodel.NotificationViewModel
 import com.example.instachat.services.models.rest.NotificationModel
+import com.example.instachat.utils.DialogUtils
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -22,6 +26,7 @@ class NotificationFragment : Fragment() {
 
     private var _binding: FragmentNotificationBinding? = null
     private val binding get() = _binding!!
+    lateinit var errorSnackBar: Snackbar
 
     val viewModel: NotificationViewModel by viewModels()
 
@@ -40,7 +45,30 @@ class NotificationFragment : Fragment() {
         binding.viewModel = viewModel
         viewModel.loadData()
         setUpActionBar()
+        initNetworkSnackBar()
         handleSwipeLayout()
+        observeViewmodel()
+    }
+
+    private fun observeViewmodel() {
+        viewModel.connectivityDialogEvent.observe(viewLifecycleOwner, Observer {
+            DialogUtils.populateConnectivityErrorDialog(requireContext())
+        })
+        viewModel.handleError.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                if(!errorSnackBar.isShown){
+                    errorSnackBar.show()
+                }
+            }
+        })
+    }
+
+    fun initNetworkSnackBar() {
+        errorSnackBar = Snackbar.make(
+            binding.root,
+            "Unknown error occurred, please try again after some time",
+            Snackbar.LENGTH_INDEFINITE
+        ).setBackgroundTint(Color.WHITE).setTextColor(resources.getColor(R.color.light_red))
     }
 
     private fun setUpActionBar() {
@@ -54,7 +82,7 @@ class NotificationFragment : Fragment() {
 
     private fun handleSwipeLayout() {
         binding.swipeLayout.setOnRefreshListener {
-            viewModel.injectData()
+            viewModel.loadData()
             binding.swipeLayout.isRefreshing = false
         }
     }
