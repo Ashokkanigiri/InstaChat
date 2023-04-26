@@ -81,17 +81,6 @@ class SyncWorker @AssistedInject constructor(
                     )
                 addNewInterestedUser(interestedUser)
             }
-            SyncTables.ADD_REQUEST_INTERESTED_LIST.name -> {
-                val reqInterestedUserSync =
-                    roomSyncRepository.requestedInterestedUsersDaoSync.getRequestedInterestedUserSync(
-                        itemIdString ?: ""
-                    )
-                val reqInterestedUser =
-                    ObjectConverterUtil.convertRequestedInterestedModelSyncToRequestedInterestedModel(
-                        reqInterestedUserSync
-                    )
-                addNewRequestedInterestedUser(reqInterestedUser)
-            }
             SyncTables.USERS_UPDATE_INTERESTED_USERS.name -> {
                 val updatedUser = roomSyncRepository.usersDao.getUser(user_id ?: "")
                 val convertToUser = ObjectConverterUtil.convertUserSyncToUser(updatedUser)
@@ -165,26 +154,6 @@ class SyncWorker @AssistedInject constructor(
             }
     }
 
-    private fun addNewRequestedInterestedUser(requestedForInterestModel: RequestedForInterestModel) {
-        val db = Firebase.firestore
-        db.collection("RequestedForInterestRequests")
-            .document("${requestedForInterestModel.id}")
-            .set(requestedForInterestModel)
-            .addOnCompleteListener {
-                roomSyncRepository.requestedInterestedUsersDaoSync.deleteRow(
-                    requestedForInterestModel.id
-                )
-                //TODO
-                roomDataSource.requestedInterestedUsersDao.insert(requestedForInterestModel)
-            }.addOnCanceledListener {
-                ListenableWorker.Result.Retry.retry()
-            }.addOnFailureListener {
-                Result.failure()
-            }.addOnSuccessListener {
-                Result.success()
-            }
-    }
-
 
     /**
      * This method uploads postImageUrl into firebase storage
@@ -207,6 +176,9 @@ class SyncWorker @AssistedInject constructor(
                 Result.failure()
             }
             Response.Loading -> {
+            }
+            is Response.HandleNetworkError ->{
+
             }
         }
 

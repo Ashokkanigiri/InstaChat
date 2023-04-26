@@ -27,7 +27,9 @@ object DialogUtils {
             dialog.dismiss()
         }
         dialog.setCancelable(false)
-        dialog.show()
+        if(!dialog.isShowing){
+            dialog.show()
+        }
     }
 
     fun populatePermissionDialog(

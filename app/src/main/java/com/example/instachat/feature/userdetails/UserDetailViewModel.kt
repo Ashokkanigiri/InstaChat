@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.instachat.services.client.FirebaseApiClient
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
-import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
+import com.example.instachat.services.models.dummyjson.Session
+import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.models.fcm.FCMSendNotificationBody
 import com.example.instachat.services.models.fcm.FCMSendNotificationData
 import com.example.instachat.services.models.rest.NotificationModel
 import com.example.instachat.services.repository.FirebaseDataSource
 import com.example.instachat.services.repository.RoomDataSource
 import com.example.instachat.services.repository.SyncRepository
-import com.example.instachat.services.rest.FCMRestClient
 import com.example.instachat.utils.ConnectivityService
 import com.example.instachat.utils.Response
 import com.example.instachat.utils.SingleLiveEvent
@@ -20,7 +20,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
@@ -30,84 +29,41 @@ class UserDetailViewModel @Inject constructor(
     val roomDataSource: RoomDataSource,
     val firebaseDataSource: FirebaseDataSource,
     val syncRepository: SyncRepository,
-    val fcmRestClient: FCMRestClient,
     val firebaseApiClient: FirebaseApiClient,
-    val connectivityService: ConnectivityService
+    val connectivityService: ConnectivityService,
+    val userDetailsRepository: UserDetailsRepository
 ) : ViewModel() {
 
     val followingStatusUpdate = ObservableField<String>()
+
     val event = SingleLiveEvent<UserDetailViewModelEvent>()
 
+    val progressBarVisibility = ObservableField<Boolean>()
+
+    val connectivityDialogEvent = SingleLiveEvent<Boolean>()
+
     val adapter = UserDetailPostsAdapter()
+
+    val handleError = SingleLiveEvent<String>()
 
     private val currentLoggedInUser = Firebase.auth.currentUser
 
     var userId: String? = null
 
-    fun loadUser(userId: String) {
-        viewModelScope.launch {
-            roomDataSource.usersDao.getUserFlow(userId).collect {
-                event.postValue(UserDetailViewModelEvent.LoadUser(it))
-            }
-        }
-    }
-
-    fun loadFollowingText() {
-        viewModelScope.launch {
-
-            val interestedUser = roomDataSource.interestedUsersDao.getAllInterestedUsersForUserId(
-                currentLoggedInUser?.uid ?: ""
-            )?.firstOrNull { it.interestedUserId == userId }
-
-            when {
-                interestedUser == null -> {
-                    followingStatusUpdate.set("Follow")
-                }
-                interestedUser.isFollowRequested -> {
-                    followingStatusUpdate.set("Requested")
-                }
-                interestedUser.isFollowAccepted -> {
-                    followingStatusUpdate.set("Following")
-                }
-                else -> {
-                    followingStatusUpdate.set("Follow")
-                }
-            }
-        }
+    init {
+        progressBarVisibility.set(true)
     }
 
     fun loadAllPostsForUser(userId: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             roomDataSource.postsDao.getPostsForUserDetails(userId).collect {
                 event.postValue(UserDetailViewModelEvent.LoadPosts(it))
             }
         }
-        loadFollowingText()
     }
 
     fun onFollowButtonClicked() {
         event.postValue(UserDetailViewModelEvent.OnFollowButtonClicked)
-    }
-
-    fun handleFollowButtonClicked() {
-        viewModelScope.launch(Dispatchers.IO) {
-
-            val interestedUser = roomDataSource.interestedUsersDao.getAllInterestedUsersForUserId(
-                currentLoggedInUser?.uid ?: ""
-            )?.firstOrNull { it.interestedUserId == userId }
-
-            when (interestedUser?.isFollowRequested) {
-                true -> {
-                    updateUser(userId ?: "", false)
-                }
-                false -> {
-                    updateUser(userId ?: "", true)
-                }
-                null -> {
-                    updateUser(userId ?: "", true)
-                }
-            }
-        }
     }
 
     fun onMessageButtonClicked() {
@@ -116,147 +72,345 @@ class UserDetailViewModel @Inject constructor(
 
     fun isCurrentUserProfile() = ((userId ?: "").equals((currentLoggedInUser?.uid ?: "")))
 
-    private suspend fun updateUser(followedUserId: String, isFollowRequested: Boolean) {
+    fun loadUser(userId: String) {
+        loadFollowingText()
+        viewModelScope.launch(Dispatchers.IO) {
+            when (val userDetails = userDetailsRepository.getUserDetails(userId)) {
+                is Response.Failure -> {
+                    handleError.postValue(userDetails.e.localizedMessage)
+                }
+                is Response.Loading -> {
+
+                }
+                is Response.Success -> {
+                    userDetails.data?.let {
+                        event.postValue(UserDetailViewModelEvent.LoadUser(it))
+                    }
+                }
+                is Response.HandleNetworkError -> {
+                    connectivityDialogEvent.postValue(true)
+                }
+            }
+        }
+    }
+
+    private fun startFollowProgressBar() {
+        progressBarVisibility.set(true)
+        followingStatusUpdate.set("")
+    }
+
+    private fun dismissFollowProgressBar() {
+        progressBarVisibility.set(false)
+    }
+
+    private fun loadFollowingText() {
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val interestedUserId = "${currentLoggedInUser?.uid}|${userId}"
+
+            when (val interestedUserModel =
+                userDetailsRepository.getInterestedUserModel(interestedUserId)) {
+
+                is Response.Failure -> {
+                    handleError.postValue(interestedUserModel.e.localizedMessage)
+                    dismissFollowProgressBar()
+                }
+                is Response.Loading -> {
+                    startFollowProgressBar()
+                }
+                is Response.Success -> {
+                    updateFollowText(interestedUserModel.data)
+                    dismissFollowProgressBar()
+                }
+                is Response.HandleNetworkError -> {
+                    connectivityDialogEvent.postValue(true)
+                }
+            }
+        }
+    }
+
+    private fun updateFollowText(interestedUserModel: InterestedUsersModel?) {
+        when {
+            interestedUserModel == null -> {
+                followingStatusUpdate.set("Follow")
+            }
+            interestedUserModel.isFollowRequested -> {
+                followingStatusUpdate.set("Requested")
+            }
+            interestedUserModel.isFollowAccepted -> {
+                followingStatusUpdate.set("Following")
+            }
+            else -> {
+                followingStatusUpdate.set("Follow")
+            }
+        }
+    }
+
+    /**
+     * interestedUserId -> is created in such a way that
+     *
+     * (currentuserId) | (userId which you are placing interest)
+     */
+    fun handleFollowButtonClicked() {
+        startFollowProgressBar()
+        viewModelScope.launch(Dispatchers.IO) {
+
+            val interestedUserId = "${currentLoggedInUser?.uid}|${userId}"
+
+            when (val interestedUserModel =
+                userDetailsRepository.getInterestedUserModel(interestedUserId)) {
+
+                is Response.Failure -> {
+                    handleError.postValue(interestedUserModel.e.localizedMessage)
+                    dismissFollowProgressBar()
+                }
+                is Response.Loading -> {
+                    startFollowProgressBar()
+                }
+                is Response.Success -> {
+                    when (interestedUserModel.data?.isFollowRequested) {
+                        true -> {
+                            deleteInterestedModelAndDeLinkToUser(interestedUserModel.data)
+                            followingStatusUpdate.set("Follow")
+                        }
+                        false -> {
+                            updateInterestedModel(interestedUserModel.data)
+                            followingStatusUpdate.set("Requested")
+                        }
+                        null -> {
+                            createNewInterestedModelAndLinkToUser(userId ?: "")
+                            followingStatusUpdate.set("Requested")
+                        }
+                    }
+                }
+                is Response.HandleNetworkError -> {
+                    connectivityDialogEvent.postValue(true)
+                }
+            }
+        }
+    }
+
+    private suspend fun createNewInterestedModelAndLinkToUser(interestedUserId: String) {
 
         val interestedUser = InterestedUsersModel(
-            id = UUID.randomUUID()?.toString() ?: "",
+            id = "${currentLoggedInUser?.uid ?: ""}|${interestedUserId}",
             userId = currentLoggedInUser?.uid ?: "",
             isFollowAccepted = false,
             isFollowRejected = false,
-            isFollowRequested = isFollowRequested,
-            interestedUserId = followedUserId,
+            isFollowRequested = true,
+            interestedUserId = interestedUserId,
             timeStamp = System.currentTimeMillis().toString()
         )
 
-        val requestedForInterestModel = RequestedForInterestModel(
-            id = UUID.randomUUID().toString(),
-            requestedUserId = currentLoggedInUser?.uid ?: "",
-            interestId = interestedUser.id,
-            userId = followedUserId
-        )
-
-        if (isFollowRequested) {
-            addToDatabaseAndNotifyUser(interestedUser, requestedForInterestModel)
-        } else {
-            removeFollowRequest()
-        }
-    }
-
-    private suspend fun removeFollowRequest() {
-        val iu = roomDataSource.interestedUsersDao.getAllInterestedUsersForUserId(
-            currentLoggedInUser?.uid ?: ""
-        )?.firstOrNull { it.interestedUserId == userId }
-
-        val ru = roomDataSource.requestedInterestedUsersDao.getIntestedUsersInRequestedList(
-            currentLoggedInUser?.uid ?: ""
-        )?.firstOrNull { it.userId == userId }
-
-        iu?.let {
-            syncRepository.removeAndSyncUserInterestedList(iu)
-            shouldAddInterestedUserToLoggedUser(iu, false)
-        }
-
-        ru?.let {
-            syncRepository.removeAndSyncRequestedInterestsList(ru)
-            shouldAddRequestForInterestTOCurrentUser(ru, false)
-        }
-    }
-
-    private suspend fun addToDatabaseAndNotifyUser(
-        interestedUser: InterestedUsersModel,
-        requestedForInterestModel: RequestedForInterestModel
-    ) {
-        viewModelScope.async {
-            syncRepository.addAndSyncUserInterestedList(interestedUser)
-            syncRepository.addAndSyncRequestedInterestsList(requestedForInterestModel)
-            shouldAddInterestedUserToLoggedUser(interestedUser, true)
-            shouldAddRequestForInterestTOCurrentUser(requestedForInterestModel, true)
-        }.await()
-        notifyAllUserSession(userId ?: "")
-    }
-
-    suspend fun shouldAddInterestedUserToLoggedUser(
-        interestedUsersModel: InterestedUsersModel,
-        shouldAddToUser: Boolean
-    ) {
-        viewModelScope.launch {
-            val loggedUser = roomDataSource.usersDao.getUser(currentLoggedInUser?.uid ?: "")
-            val uUser = loggedUser.apply {
-                if (shouldAddToUser) {
-                    this.interestedUsersList =
-                        (this.interestedUsersList ?: emptyList()) + listOf(interestedUsersModel.id)
-                } else {
-                    (this.interestedUsersList?.toMutableList()?.remove(interestedUsersModel.id))
+        when (val response =
+            userDetailsRepository.addAndLinkInterestedModelToUser(interestedUser)) {
+            is Response.Failure -> {
+                handleError.postValue(response.e.localizedMessage)
+                dismissFollowProgressBar()
+            }
+            is Response.Loading -> {
+                startFollowProgressBar()
+            }
+            is Response.Success -> {
+                getUserDetails(currentLoggedInUser?.uid ?: "") { loggedUser ->
+                    linkInterestedModelToUser(loggedUser, interestedUser.id)
+                    notifyAllUserSession(userId ?: "")
+                    dismissFollowProgressBar()
                 }
             }
-            syncRepository.updateUsersInterestedUsers(uUser)
+            is Response.HandleNetworkError -> {
+                connectivityDialogEvent.postValue(true)
+            }
         }
     }
 
-    suspend fun shouldAddRequestForInterestTOCurrentUser(
-        requestedForInterestModel: RequestedForInterestModel,
-        shouldAddToUser: Boolean
+    private fun linkInterestedModelToUser(
+        loggedUser: User?,
+        interestedUserModelId: String
     ) {
-        viewModelScope.launch {
-            val loggedUser = roomDataSource.usersDao.getUser(userId ?: "")
-            val uUser = loggedUser.apply {
-                if (shouldAddToUser) {
-                    this.requestedForInterestsList =
-                        (this.requestedForInterestsList ?: emptyList()) + listOf(
-                            requestedForInterestModel.id
-                        )
-                } else {
-                    (this.requestedForInterestsList?.toMutableList()
-                        ?.remove(requestedForInterestModel.id))
+        viewModelScope.launch(Dispatchers.IO) {
+            val uUser = loggedUser?.apply {
+                this.interestedUsersList =
+                    (this.interestedUsersList ?: emptyList()) + listOf(
+                        interestedUserModelId
+                    )
+            }
+            uUser?.let {
+                updateUserAndPushToFirebase(uUser)
+            }
+        }
+    }
+
+    private suspend fun getUserDetails(userId: String, user: ((User?) -> Unit)) {
+        when (val userDetails = userDetailsRepository.getUserDetails(userId)) {
+            is Response.Failure -> {
+                handleError.postValue(userDetails.e.localizedMessage)
+            }
+            is Response.Loading -> {
+
+            }
+            is Response.Success -> {
+                user.invoke(userDetails.data)
+            }
+            is Response.HandleNetworkError -> {
+                connectivityDialogEvent.postValue(true)
+            }
+        }
+    }
+
+    private suspend fun updateInterestedModel(interestedUser: InterestedUsersModel) {
+        when (val response = userDetailsRepository.updateInterestedModel(interestedUser)) {
+            is Response.Failure -> {
+                handleError.postValue(response.e.localizedMessage)
+                dismissFollowProgressBar()
+            }
+            is Response.Loading -> {
+
+            }
+            is Response.Success -> {
+                notifyAllUserSession(userId ?: "")
+                dismissFollowProgressBar()
+            }
+            is Response.HandleNetworkError -> {
+                connectivityDialogEvent.postValue(true)
+            }
+        }
+    }
+
+    private suspend fun deleteInterestedModelAndDeLinkToUser(interestedUser: InterestedUsersModel) {
+        when (val response =
+            userDetailsRepository.deleteAndDeLinkInterestedModelToUser(interestedUser.id)) {
+            is Response.Failure -> {
+                handleError.postValue(response.e.localizedMessage)
+                dismissFollowProgressBar()
+            }
+            is Response.Loading -> {
+
+            }
+            is Response.Success -> {
+                getUserDetails(currentLoggedInUser?.uid ?: "") { loggedUser ->
+                    deLinkInterestedModelFromUser(loggedUser, interestedUser.id)
+                    dismissFollowProgressBar()
                 }
             }
-            syncRepository.updateRequestedInterestedUsers(uUser)
+            is Response.HandleNetworkError -> {
+                connectivityDialogEvent.postValue(true)
+            }
         }
     }
 
-    fun notifyAllUserSession(userId: String) {
+    private fun deLinkInterestedModelFromUser(loggedUser: User?, interestedUserModelId: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val uUser = loggedUser?.apply {
+                this.interestedUsersList = (this.interestedUsersList?.toMutableList()
+                    ?.minus(interestedUserModelId))
+            }
+            viewModelScope.launch(Dispatchers.IO) {
+                uUser?.let {
+                    updateUserAndPushToFirebase(uUser)
+                }
+            }
+        }
+    }
+
+    private suspend fun updateUserAndPushToFirebase(user: User) {
+        when (val response = userDetailsRepository.updateUser(user)) {
+            is Response.Failure -> {
+                handleError.postValue(response.e.localizedMessage)
+            }
+            is Response.Loading -> {
+
+            }
+            is Response.Success -> {
+            }
+            is Response.HandleNetworkError -> {
+                connectivityDialogEvent.postValue(true)
+            }
+        }
+    }
+
+    private fun notifyAllUserSession(userId: String) {
         if (connectivityService.hasActiveNetwork()) {
             viewModelScope.launch(Dispatchers.IO) {
-                val userResponse = firebaseApiClient.getSpecificUser(userId)
+                val userResponse = userDetailsRepository.getUserDetails(userId)
                 val loggedUser = roomDataSource.usersDao.getUser(currentLoggedInUser?.uid ?: "")
 
                 when (userResponse) {
                     is Response.Failure -> {
-
+                        handleError.postValue(userResponse.e.localizedMessage)
                     }
                     is Response.Loading -> {
 
                     }
                     is Response.Success -> {
-                        val user = userResponse.data?.firstOrNull()
 
                         val data = FCMSendNotificationData(
                             title = "${loggedUser.email} just requested to follow you",
                             body = "${loggedUser.email} requested to follow"
                         )
 
-                        user?.userSessions?.forEach {
-                            viewModelScope.launch {
-
-                                val body = FCMSendNotificationBody(to = it.registrationToken, data)
-                                fcmRestClient.sendFCMNotification(body)
-                            }
+                        userResponse.data?.userSessions?.forEach {
+                            triggerFCMNotification(it, data)
                         }
 
-                        val notification = NotificationModel(
-                            id = UUID.randomUUID()?.toString() ?: "",
-                            targetUserId = userId,
-                            triggeredUserId = loggedUser.id ?: "",
-                            title = data.title,
-                            body = data.body,
-                            timeStamp = com.example.instachat.utils.DateUtils.getCurrentTimeInMillis()?:"",
-                            triggeredUserImageUrl = loggedUser.image
-                        )
-
-
-
-                        firebaseDataSource.injectNotificationsToFirebaseForLoggedUser(notification)
+                        createNewNotificationForLoggedUser(data, loggedUser)
                     }
+                    is Response.HandleNetworkError -> {
+                        connectivityDialogEvent.postValue(true)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun triggerFCMNotification(session: Session, data: FCMSendNotificationData) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val body = FCMSendNotificationBody(to = session.registrationToken, data)
+            when (val response = userDetailsRepository.sendFCMNotification(body)) {
+                is Response.Failure -> {
+                    handleError.postValue(response.e.localizedMessage)
+                }
+                is Response.HandleNetworkError -> {
+                    connectivityDialogEvent.postValue(true)
+                }
+                is Response.Loading -> {
+
+                }
+                is Response.Success -> {
+
+                }
+            }
+        }
+    }
+
+    private suspend fun createNewNotificationForLoggedUser(
+        data: FCMSendNotificationData,
+        loggedUser: User
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val notification = NotificationModel(
+                id = UUID.randomUUID()?.toString() ?: "",
+                targetUserId = userId ?: "",
+                triggeredUserId = currentLoggedInUser?.uid ?: "",
+                title = data.title,
+                body = data.body,
+                timeStamp = com.example.instachat.utils.DateUtils.getCurrentTimeInMillis()
+                    ?: "",
+                triggeredUserImageUrl = loggedUser.image
+            )
+
+            when (val response = userDetailsRepository.injectNotification(notification)) {
+                is Response.Failure -> {
+                    handleError.postValue(response.e.localizedMessage)
+                }
+                is Response.HandleNetworkError -> {
+                    connectivityDialogEvent.postValue(true)
+                }
+                is Response.Loading -> {
+
+                }
+                is Response.Success -> {
+
                 }
             }
         }

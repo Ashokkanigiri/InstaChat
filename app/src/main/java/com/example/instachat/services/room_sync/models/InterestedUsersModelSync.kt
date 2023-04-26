@@ -6,12 +6,12 @@ import androidx.room.PrimaryKey
 @Entity("interested_users_sync")
 data class InterestedUsersModelSync(
     @PrimaryKey
-    val id: String,
-    val userId: String,
-    val isFollowRequested: Boolean,
-    val isFollowAccepted: Boolean,
-    val isFollowRejected: Boolean,
-    val interestedUserId: String,
-    val timeStamp: String
+    val id: String = "",
+    val userId: String = "",
+    var isFollowRequested: Boolean = false,
+    var isFollowAccepted: Boolean = false,
+    var isFollowRejected: Boolean = false,
+    val interestedUserId: String = "",
+    val timeStamp: String = ""
 )
 

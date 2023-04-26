@@ -4,6 +4,8 @@ import com.example.instachat.feature.comment.repository.CommentsRepository
 import com.example.instachat.feature.comment.repository.CommentsRepositoryImpl
 import com.example.instachat.feature.hometab.repository.HomeRepository
 import com.example.instachat.feature.hometab.repository.HomeRepositoryImpl
+import com.example.instachat.feature.userdetails.UserDetailsRepository
+import com.example.instachat.feature.userdetails.UserDetailsRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -21,4 +23,9 @@ abstract class AppModule {
     @Singleton
     @Binds
     abstract fun bindsHomeRepository(homeRepositoryImpl: HomeRepositoryImpl): HomeRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindsUserDetailRepository(userDetailsRepositoryImpl: UserDetailsRepositoryImpl): UserDetailsRepository
+
 }

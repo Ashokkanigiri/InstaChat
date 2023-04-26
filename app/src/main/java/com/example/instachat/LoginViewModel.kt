@@ -58,6 +58,9 @@ class LoginViewModel @Inject constructor(
                         }
 
                     }
+                    is Response.HandleNetworkError ->{
+
+                    }
                 }
             }
         } else {

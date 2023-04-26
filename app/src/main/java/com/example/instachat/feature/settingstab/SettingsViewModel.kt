@@ -84,6 +84,10 @@ class SettingsViewModel @Inject constructor(
                         }
 
                     }
+                    is Response.HandleNetworkError ->{
+
+                    }
+
                 }
 
 

@@ -74,6 +74,9 @@ class CommentViewModel
                 is Response.Success -> {
                     _loggedUserEvent.postValue(user.data)
                 }
+                is Response.HandleNetworkError ->{
+
+                }
             }
         }
     }
@@ -108,6 +111,9 @@ class CommentViewModel
                         _getCurrentPostEvent.postValue(it)
                     }
                 }
+                is Response.HandleNetworkError ->{
+
+                }
             }
         }
     }
@@ -128,6 +134,9 @@ class CommentViewModel
                     user.data?.let {
                         _getPostedUserEvent.postValue(it)
                     }
+                }
+                is Response.HandleNetworkError ->{
+
                 }
             }
         }

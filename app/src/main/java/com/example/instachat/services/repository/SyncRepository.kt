@@ -54,9 +54,6 @@ class SyncRepository @Inject constructor(
             syncTables.name.equals(SyncTables.ADD_INTERESTED_LIST.name) ->{
                 "ADD_INTERESTED_LIST"
             }
-            syncTables.name.equals(SyncTables.ADD_REQUEST_INTERESTED_LIST.name) ->{
-                "ADD_REQUEST_INTERESTED_LIST"
-            }
             syncTables.name.equals(SyncTables.NEW_POST.name) ->{
                 "NEW_POST"
             }
@@ -84,11 +81,6 @@ class SyncRepository @Inject constructor(
             syncTables.name.equals(SyncTables.USERS_UPDATE_FOLLOWING.name) -> {
                 followingStatusWorkId?.invoke(workRequest.id)
             }
-
-            syncTables.name.equals(SyncTables.ADD_REQUEST_INTERESTED_LIST.name) -> {
-                followingStatusWorkId?.invoke(workRequest.id)
-            }
-
             else -> ""
         }
 
@@ -116,18 +108,6 @@ class SyncRepository @Inject constructor(
             )
         )
         launchWorker(SyncTables.ADD_INTERESTED_LIST, itemIdString = interestedUsersModel.id)
-    }
-
-    suspend fun addAndSyncRequestedInterestsList(
-        requestedForInterestModel: RequestedForInterestModel,
-        onFollowRequested: ((UUID) -> Unit)? = null
-    ) {
-        roomSyncRepository.requestedInterestedUsersDaoSync.insert(
-            ObjectConverterUtil.convertRequestedInterestedModelToRequestedInterestedModelSync(
-                requestedForInterestModel
-            )
-        )
-        launchWorker(SyncTables.ADD_REQUEST_INTERESTED_LIST, itemIdString = requestedForInterestModel.id, followingStatusWorkId = onFollowRequested)
     }
 
     suspend fun removeAndSyncUserInterestedList(interestedUsersModel: InterestedUsersModel) {

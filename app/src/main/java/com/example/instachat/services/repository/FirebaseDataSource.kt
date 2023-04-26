@@ -4,10 +4,14 @@ import android.content.Context
 import com.example.instachat.services.client.FirebaseApiClient
 import com.example.instachat.services.models.PostModelItem
 import com.example.instachat.services.models.dummyjson.Comment
+import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.User
 import com.example.instachat.services.models.rest.NotificationModel
 import com.example.instachat.utils.Response
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class FirebaseDataSource @Inject constructor(
@@ -46,6 +50,9 @@ class FirebaseDataSource @Inject constructor(
             Response.Loading -> {
 
             }
+            is Response.HandleNetworkError ->{
+
+            }
         }
     }
 
@@ -63,6 +70,9 @@ class FirebaseDataSource @Inject constructor(
             Response.Loading -> {
 
             }
+            is Response.HandleNetworkError ->{
+
+            }
         }
 
     }
@@ -78,6 +88,9 @@ class FirebaseDataSource @Inject constructor(
 
             }
             Response.Loading -> {
+
+            }
+            is Response.HandleNetworkError ->{
 
             }
         }
@@ -105,4 +118,15 @@ class FirebaseDataSource @Inject constructor(
             Response.Failure(e)
         }
     }
+
+    suspend fun getInterestedUserModel(id: String): Response<InterestedUsersModel>{
+        return try {
+            val db = Firebase.firestore
+            val interestedUserModel = db.collection("interestedUserRequests").whereEqualTo("id", id).get().await().toObjects(InterestedUsersModel::class.java).firstOrNull()
+            Response.Success(interestedUserModel)
+        } catch (e: java.lang.Exception) {
+            Response.Failure(e)
+        }
+    }
+
 }

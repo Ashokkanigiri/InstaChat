@@ -1,5 +1,6 @@
 package com.example.instachat.feature.userdetails
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -20,6 +21,8 @@ import com.example.instachat.databinding.FragmentSettingsBinding
 import com.example.instachat.databinding.FragmentUserDetailsBinding
 import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.dummyjson.RequestedForInterestModel
+import com.example.instachat.utils.DialogUtils
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
 
@@ -30,6 +33,7 @@ class UserDetailsFragment : Fragment() {
     private val binding get() = _binding!!
 
     val viewModel: UserDetailViewModel by viewModels()
+    lateinit var errorSnackBar: Snackbar
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,6 +48,7 @@ class UserDetailsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         initFragment()
         observeViewModel()
+        initNetworkSnackBar()
     }
 
     private fun observeViewModel() {
@@ -51,7 +56,7 @@ class UserDetailsFragment : Fragment() {
             when (it) {
                 is UserDetailViewModelEvent.LoadUser -> {
                     binding.user = it.user
-                    setUpToolBar(it.user.username)
+                    setUpToolBarName(it.user.username)
                     viewModel.loadAllPostsForUser(viewModel.userId?:"")
                 }
                 is UserDetailViewModelEvent.LoadPosts -> {
@@ -71,17 +76,42 @@ class UserDetailsFragment : Fragment() {
                 }
             }
         })
+
+        viewModel.connectivityDialogEvent.observe(viewLifecycleOwner, Observer {
+            DialogUtils.populateConnectivityErrorDialog(requireContext())
+        })
+
+        viewModel.handleError.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                if(!errorSnackBar.isShown){
+                    errorSnackBar.show()
+                }
+            }
+        })
     }
 
-    private fun setUpToolBar(username: String) {
+
+    private fun setUpToolBarName(text: String){
+        (activity as BaseActivity).setBackLabelText(text)
+
+    }
+
+    private fun setUpToolBar() {
         (activity as BaseActivity).setupActionBar(binding.toolBar)
         (activity as MainActivity).setBottomNavVisibility(false)
         (activity as BaseActivity).setBackButtonVisibility(true)
         (activity as BaseActivity).setAddPostIconVisibility(false)
         (activity as BaseActivity).setMessageIconvisibility(false)
         (activity as MainActivity).setBottomNavVisibility(false)
-        (activity as BaseActivity).setBackLabelText(username)
         (activity as BaseActivity).handleBackPressed { findNavController().popBackStack() }
+    }
+
+    fun initNetworkSnackBar() {
+        errorSnackBar = Snackbar.make(
+            binding.root,
+            "Unknown error occurred, please try again after some time",
+            Snackbar.LENGTH_INDEFINITE
+        ).setBackgroundTint(Color.WHITE).setTextColor(resources.getColor(R.color.light_red))
     }
 
 
@@ -95,7 +125,7 @@ class UserDetailsFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         binding.viewModel = viewModel
 
-
+        setUpToolBar()
         if (!viewModel.adapter.hasObservers()) viewModel.adapter.setHasStableIds(true)
         val layoutManager =
             GridLayoutManager(requireContext(), 3, GridLayoutManager.VERTICAL, false)

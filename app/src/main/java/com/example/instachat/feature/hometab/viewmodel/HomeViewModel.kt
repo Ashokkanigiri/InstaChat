@@ -72,6 +72,9 @@ class HomeViewModel @Inject constructor(
                 is Response.Success -> {
                     loadHomeDataEvent.postValue(Response.Success(it.data))
                 }
+                is Response.HandleNetworkError ->{
+
+                }
             }
         }
     }
@@ -87,6 +90,9 @@ class HomeViewModel @Inject constructor(
                 }
                 is Response.Success -> {
                     loadSearchDataEvent.postValue(Response.Success(it.data))
+                }
+                is Response.HandleNetworkError ->{
+
                 }
             }
         }
@@ -104,6 +110,9 @@ class HomeViewModel @Inject constructor(
                     }
                     is Response.Success -> {
                         loadHomeUsersDataEvent.postValue(Response.Success(it.data))
+                    }
+                    is Response.HandleNetworkError ->{
+
                     }
                 }
             }

@@ -110,6 +110,9 @@ class HomeFragment : Fragment() {
                 is Response.Success -> {
                     viewModel.adapter.submitList(it.data)
                 }
+                is Response.HandleNetworkError ->{
+
+                }
             }
         })
 
@@ -124,6 +127,9 @@ class HomeFragment : Fragment() {
                 is Response.Success -> {
                     viewModel.adapter.submitList(it.data)
                 }
+                is Response.HandleNetworkError ->{
+
+                }
             }
         })
         viewModel.loadHomeUsersDataEvent.observe(viewLifecycleOwner, Observer {
@@ -136,6 +142,9 @@ class HomeFragment : Fragment() {
                 }
                 is Response.Success -> {
                     viewModel.usersAdapter.submitList(it.data)
+                }
+                is Response.HandleNetworkError ->{
+
                 }
             }
         })
