@@ -134,11 +134,11 @@ class UserDetailViewModel @Inject constructor(
             interestedUserModel == null -> {
                 followingStatusUpdate.set("Follow")
             }
+            interestedUserModel.isFollowRequested && interestedUserModel.isFollowAccepted ->{
+                followingStatusUpdate.set("Following")
+            }
             interestedUserModel.isFollowRequested -> {
                 followingStatusUpdate.set("Requested")
-            }
-            interestedUserModel.isFollowAccepted -> {
-                followingStatusUpdate.set("Following")
             }
             else -> {
                 followingStatusUpdate.set("Follow")
