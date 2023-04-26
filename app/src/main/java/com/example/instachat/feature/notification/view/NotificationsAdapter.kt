@@ -3,6 +3,7 @@ package com.example.instachat.feature.notification.view
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -24,10 +25,11 @@ class NotificationsAdapter (val viewModel: NotificationViewModel) : ListAdapter<
 
 class NotificationsViewHolder(
     val binding: LayoutItemNotificationsBinding,
-    viewModel: NotificationViewModel
+    val viewModel: NotificationViewModel
 ): RecyclerView.ViewHolder(binding.root){
     fun bind(notificationModel: NotificationModel){
         binding.notification = notificationModel
+        binding.viewModel = viewModel
     }
 }
 

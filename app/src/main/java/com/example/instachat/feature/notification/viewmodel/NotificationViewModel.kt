@@ -9,6 +9,7 @@ import com.example.instachat.feature.notification.repository.NotificationReposit
 import com.example.instachat.feature.notification.view.NotificationHeaderAdapter
 import com.example.instachat.feature.notification.view.NotificationsAdapter
 import com.example.instachat.feature.userdetails.UserDetailPostsAdapter
+import com.example.instachat.services.models.dummyjson.InterestedUsersModel
 import com.example.instachat.services.models.rest.NotificationModel
 import com.example.instachat.services.repository.FirebaseDataSource
 import com.example.instachat.services.repository.RoomDataSource
@@ -139,8 +140,46 @@ class NotificationViewModel @Inject constructor(
         concatAdapter.removeAdapter(pastAdapter)
     }
 
-    fun onFollowButtonClicked() {
-        // remove request object
-        // update intrestedlist object to request - true && follow true
+    fun onFollowButtonClicked(notification: NotificationModel) {
+        viewModelScope.launch (Dispatchers.IO){
+            when(val response = notificationRepository.getInterestedUserModel(notification.id)){
+                is Response.Failure -> {
+                    handleError.postValue(response.e.localizedMessage)
+                }
+                is Response.HandleNetworkError -> {
+                    connectivityDialogEvent.postValue(true)
+                }
+                is Response.Loading -> {
+
+                }
+                is Response.Success -> {
+                    val interestedModel = response.data?.apply {
+                        this.isFollowAccepted = true
+                    }
+                    interestedModel?.let {
+                        updateInterestedUserModelAndPushToFirebase(it)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun updateInterestedUserModelAndPushToFirebase(interestedUsersModel: InterestedUsersModel){
+        viewModelScope.launch (Dispatchers.IO){
+            when(val response = notificationRepository.updateInterestedUserModel(interestedUsersModel)){
+                is Response.Failure -> {
+                    handleError.postValue(response.e.localizedMessage)
+                }
+                is Response.HandleNetworkError -> {
+                    connectivityDialogEvent.postValue(true)
+                }
+                is Response.Loading -> {
+
+                }
+                is Response.Success -> {
+
+                }
+            }
+        }
     }
 }
