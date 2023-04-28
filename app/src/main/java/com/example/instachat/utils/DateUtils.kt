@@ -6,10 +6,10 @@ import java.util.*
 
 object DateUtils {
 
-    val format = SimpleDateFormat("MM/dd/yyyy HH:mm:sss")
+    val format = SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS", Locale.US)
 
     fun getCurrentTimeInMillis(): String? {
-        return format.format(Date())
+        return format.format(System.currentTimeMillis())
     }
 
     fun getCurrentTime(): String {

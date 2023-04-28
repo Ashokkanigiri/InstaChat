@@ -74,7 +74,7 @@ class UserDetailsFragment : Fragment() {
                     viewModel.handleFollowButtonClicked()
                 }
                 UserDetailViewModelEvent.OnMessageButtonClicked -> {
-
+                    navigateToChatDetail()
                 }
                 is UserDetailViewModelEvent.OnFollowStatusRequested ->{
 
@@ -96,6 +96,14 @@ class UserDetailsFragment : Fragment() {
                 }
             }
         })
+    }
+
+    private fun navigateToChatDetail() {
+       viewModel.userId?.let {
+           findNavController().navigate(
+               UserDetailsFragmentDirections.actionUserDetailsFragmentToChatDetailFragment(it)
+           )
+       }
     }
 
 

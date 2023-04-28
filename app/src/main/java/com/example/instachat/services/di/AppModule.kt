@@ -1,5 +1,7 @@
 package com.example.instachat.services.di
 
+import com.example.instachat.feature.chatDetail.repository.ChatDetailRepository
+import com.example.instachat.feature.chatDetail.repository.ChatDetailRepositoryImpl
 import com.example.instachat.feature.comment.repository.CommentsRepository
 import com.example.instachat.feature.comment.repository.CommentsRepositoryImpl
 import com.example.instachat.feature.hometab.repository.HomeRepository
@@ -34,4 +36,7 @@ abstract class AppModule {
     @Binds
     abstract fun bindsNotificationRepository(notificationRepositoryImpl: NotificationRepositoryImpl): NotificationRepository
 
+    @Singleton
+    @Binds
+    abstract fun bindsChatDetailRepository(chatDetailRepositoryImpl: ChatDetailRepositoryImpl): ChatDetailRepository
 }

@@ -10,6 +10,7 @@ import androidx.lifecycle.Observer
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.example.instachat.databinding.ActivityMainBinding
+import com.example.instachat.utils.DateUtils
 import com.example.instachat.utils.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,13 +22,14 @@ class MainActivity : BaseActivity() {
 
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: MainActivityViewModel by viewModels()
     lateinit var networkSnackBar: Snackbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         _binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
         intent.extras?.getBoolean("IS_FROM_NOTIFICATION")?.let {
             if(it){
                 viewModel.injectAllNotifications()
@@ -38,7 +40,6 @@ class MainActivity : BaseActivity() {
         initNetworkSnackBar()
         setupBottomNavigation()
         observeViewModel()
-        Log.d("jflqnflqn", "kfnqfnql: MAin")
         testFun()
     }
 

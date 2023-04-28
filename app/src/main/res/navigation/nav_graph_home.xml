@@ -69,6 +69,9 @@
             android:name="userId"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_userDetailsFragment_to_chatDetailFragment"
+            app:destination="@id/chatDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/newPostDetailFragment"
@@ -77,5 +80,13 @@
         <argument
             android:name="selectedAndCapturedImages"
             app:argType="string[]" />
+    </fragment>
+    <fragment
+        android:id="@+id/chatDetailFragment"
+        android:name="com.example.instachat.feature.chatDetail.view.ChatDetailFragment"
+        android:label="ChatDetailFragment" >
+        <argument
+            android:name="userId"
+            app:argType="string" />
     </fragment>
 </navigation>

@@ -17,6 +17,7 @@ import com.example.instachat.databinding.FragmentHomeBinding
 import com.example.instachat.feature.hometab.HomeViewModelEvent
 import com.example.instachat.feature.hometab.viewmodel.HomeViewModel
 import com.example.instachat.utils.ConstantUtils
+import com.example.instachat.utils.DateUtils
 import com.example.instachat.utils.DialogUtils
 import com.example.instachat.utils.Response
 import dagger.hilt.android.AndroidEntryPoint
@@ -45,8 +46,6 @@ class HomeFragment : Fragment() {
         loadViewModel()
         observeViewModel()
     }
-
-
 
     private fun loadViewModel() {
         viewModel.loadData()
